@@ -262,7 +262,7 @@ td.num,td .num{font-size:13px}
 (() => {
 "use strict";
 let D = null;                        // data.json
-const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, cmp:{a:null, b:null}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"rating", sort:"pct", ranked:true}, ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
+const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"rating", sort:"pct", ranked:true}, ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store = { get(k){try{return JSON.parse(localStorage.getItem("tickrate."+k))}catch(e){return null}}, set(k,v){try{localStorage.setItem("tickrate."+k, JSON.stringify(v))}catch(e){}} };
@@ -356,7 +356,7 @@ function fromHash(){
   const h = location.hash.replace("#","");
   if (/^p\d+$/.test(h) && D.players[+h.slice(1)]) { S.view = "player"; S.p = +h.slice(1); }
   else if (["home","board","maps","spots","compare"].includes(h)) S.view = h;
-  else if (/^(overview|aim|team|deaths|social|form)$/.test(h)) { S.view = "player"; S.tab = h; }
+  else if (/^(overview|aim|spray|team|deaths|social|form)$/.test(h)) { S.view = "player"; S.tab = h; }
 }
 
 // ------------------------------------------------------------------ search
@@ -448,7 +448,7 @@ function viewHome(){
       <h3>What's Inside</h3>
       <p class="lead">Five views, all built from the same match data.</p>
       <ul class="steps">
-        <li><b>Players</b>: headline stats, 1-100 ratings, archetype, strongest and weakest stats, aim and movement, sprays, trading, utility, how they die, teammates, rivals, Elo and form. Any page can be filtered to one map.</li>
+        <li><b>Players</b>: headline stats, 1-100 ratings, archetype, strongest and weakest stats, aim and movement, spray control and recoil patterns, trading, utility, how they die, teammates, rivals, Elo and form. Any page can be filtered to one map.</li>
         <li><b>Leaderboards</b>: rank every regular on any of the ${D.meta.metrics.length} stats.</li>
         <li><b>Compare</b>: two regulars side by side, plus their record against and alongside each other.</li>
         <li><b>Maps</b>: T take timing and strategy, CT setups and rotations, win % per map.</li>
@@ -478,7 +478,7 @@ function viewPlayer(){
     return `<div class="tile"><div class="eyebrow">${esc(m.label.replace("Avg ",""))}</div><div class="v">${x.empty?"–":fmt(x.value, m.fmt)}</div>
       ${!x.empty && x.rankable && x.pct!==null ? `<div class="pbar"><i style="width:${Math.max(2,x.pct)}%;background:${pctColor(x.pct)}"></i></div><div class="sub"><span>${ord(Math.round(x.pct))} pct</span><span>Average ${fmt(x.lobby,m.fmt)}</span></div>` : `<div class="pbar"></div><div class="sub"><span>${x.allWeapons?"All weapons":"Not ranked"}</span><span>Average ${fmt(x.lobby,m.fmt)}</span></div>`}</div>`;
   }).join("");
-  const tabs = [["overview","Overview"],["aim","Aim & Mechanics"],["team","Team Play & Utility"],["deaths","How They Die"],["social","Social"],["heat","Heatmap"],["form","Form & Elo"]];
+  const tabs = [["overview","Overview"],["aim","Aim & Mechanics"],["spray","Spray"],["team","Team Play & Utility"],["deaths","How They Die"],["social","Social"],["heat","Heatmap"],["form","Form & Elo"]];
   return `
   <div class="phead">
     <div class="who">
@@ -534,7 +534,6 @@ function tabBody(p){
     case "aim": return `<div class="section">
       ${metricCard(p, "Reaction and aim", ["sight_to_shot","time_to_damage","xhair_err","flick","first_shot_hit","duel_wr","first_hit_conv"], "From the moment an enemy becomes visible: how fast the first shot and the first damage come, and how far the crosshair was from the enemy's head.")}
       ${metricCard(p, "Movement and counter-strafing", ["cs_rate","cs_hit","moving_fs_hit","duel_wr_stopped","duel_wr_moving"], "Speed at the first bullet of each burst. Accuracy while stopped vs moving is the cleanest read on movement discipline.")}
-      ${metricCard(p, "Sprays and kill time", g.spray, "Ranked only under the AWP or Rifle filter: on All weapons, AWP one-shots mix with rifle sprays.")}
       ${metricCard(p, "Against stronger and weaker opponents", g.opp, "Fights against opponents at least 50 Elo above or below the player (measured Elo only).")}
     </div>`;
     case "team": return `<div class="section">
@@ -546,6 +545,7 @@ function tabBody(p){
       ${metricCard(p, "How they die", g.deaths, "Share of the player's deaths to enemies. Tags overlap (a death can be both blind and audible). Weapon filter = weapon in hand when killed.")}
       ${dmgLeftCard(p)}
     </div>`;
+    case "spray": return sprayTab(p);
     case "social": return `<div class="grid g2 section">${matesCard(p)}${vrCard(p)}${oppDuelsCard(p)}</div>`;
     case "form": return `<div class="section">${eloCard(p)}${tsCard(p)}<div class="grid g2">${famCard(p)}${tiltCard(p)}</div></div>`;
     case "heat": return playerHeatCard(p);
@@ -572,6 +572,52 @@ function overview(p){
     </div>
     <div class="grid" style="align-content:start">${archCard(p)}${mapsCard(p)}</div>
   </div>`;
+}
+// ------------------------------------------------------------------ v4.12 Spray tab
+function spRow(p){ const X = D.spray; if (!X || !X.rows) return null; const r = X.rows[p]; if (!r) return null;
+  const o = {}; X.cols.forEach((k,i) => o[k] = r.c[i]); return {o, r}; }
+function sprayTab(p){
+  const g = D.meta.groups, X = D.spray || {};
+  const cards = `${metricCard(p, "Spray control", g.sprayctl || [], "Bullets fired at a visible enemy with an automatic weapon (Rifle = AK-47, M4A4, M4A1-S). Follows the filters above. Hits vs expected compares each bullet with the lobby rate for the same weapon, bullet number, distance and movement.")}
+    ${metricCard(p, "Sprays and kill time", g.spray, "Ranked only under the AWP or Rifle filter: on All weapons, AWP one-shots mix with rifle sprays.")}`;
+  const R = spRow(p);
+  if (!R) return `<div class="section">${cards}<div class="card"><p class="note">No spray data for this player yet.</p></div></div>`;
+  const o = R.o, H = X.h || {}, LC = (X.lob_ctrl || {})["All AK/M4"] || [];
+  const rk = (r, n) => r ? `#${Math.round(r)} of ${n}` : "Not ranked (small sample)";
+  const pp = v => v === null || v === undefined ? "–" : Math.round(v * 100) + "%";
+  const sg = (v, d=2) => v === null || v === undefined ? "–" : (v > 0 ? "+" : "") + v.toFixed(d);
+  const vtxt = o.vctrl === null ? "" : o.vctrl > 1.03 ? "Pulls down a little too far (aim drops below the target)." : o.vctrl < 0.97 ? "Pulls down too little (aim rises above the target)." : "Pull-down matches the gun's kick.";
+  const ctrl = `<div class="card"><h3>Recoil Control</h3><p class="lead note">All matches, both sides, AK/M4. How much of the gun's kick the player cancels between bullet 1 and bullet 15. 100% = fully cancelled; over 100% = pulling too far.</p>
+    <div class="tscroll"><table class="num" style="margin-top:8px"><thead><tr><th style="font-family:var(--body)"></th><th class="r">Player</th><th class="r">Average</th><th class="r">Rank</th></tr></thead><tbody>
+      <tr><td style="font-family:var(--body)">Vertical control</td><td class="r"><b>${pp(o.vctrl)}</b></td><td class="r note">${pp(H.lobby_vctrl)}</td><td class="r note">${rk(o.vctrl_rank, o.vctrl_of)}</td></tr>
+      <tr><td style="font-family:var(--body)">Horizontal control</td><td class="r"><b>${pp(o.hctrl)}</b></td><td class="r note">${pp(H.lobby_hctrl)}</td><td class="r note">${rk(o.hctrl_rank, o.hctrl_of)}</td></tr>
+      <tr><td style="font-family:var(--body)">Vertical bias, bullets 4-12 (deg)</td><td class="r"><b>${sg(o.vbias)}</b></td><td class="r note">${sg(LC[2])}</td><td class="r note"></td></tr>
+      <tr><td style="font-family:var(--body)">Typical drift, bullets 4-12 (deg)</td><td class="r"><b>${fmt(o.drift_med,"f2")}</b></td><td class="r note">${fmt(LC[3],"f2")}</td><td class="r note"></td></tr>
+      <tr><td style="font-family:var(--body)">Spray hits vs expected, bullets 4+ (pts)</td><td class="r"><b>${sg(o.hoe_b4p === null ? null : o.hoe_b4p * 100, 1)}</b></td><td class="r note">0.0</td><td class="r note">${rk(o.hoe_b4p_rank, o.hoe_b4p_of)}</td></tr>
+    </tbody></table></div>
+    <p class="note" style="margin-top:8px">${esc(vtxt)} Ranks: vertical = closest to 100%. Horizontal control is noisy for one player (few sprays reach the side-to-side part of the pattern). Based on ${(o.ctrl_n||0).toLocaleString()} bullets.</p></div>`;
+  const curve = `<div class="card"><h3>Hit Rate by Bullet</h3><p class="lead note">All matches, AK/M4. Share of bullets that hit, by position in the burst. "Expected" = the lobby rate for the same weapon, bullet, distance and movement, so the gap is skill, not situation.</p>
+    <div class="chartbox" style="height:260px;margin-top:6px"><canvas id="spcurve" aria-label="Hit rate by bullet number"></canvas></div>
+    <p class="note" style="margin-top:6px">Bullet 16 = 16th and later. Points with fewer than 20 bullets are faint.</p></div>`;
+  const W = ["AK-47","M4A4","M4A1-S"];
+  const pat = `<div class="card"><h3>Spray Pattern</h3><p class="lead note">Left: the gun's kick by bullet (where bullets would go with no pull-down). Right: where the aim actually ended up relative to the enemy's chest, bullet by bullet (0, 0 = still on the spot bullet 1 hit). Bursts that started on target, all matches.</p>
+    <div class="filters" style="position:static;margin:10px 0 0;padding:0;border:0;background:none;box-shadow:none"><div class="ctl"><span class="eyebrow">Weapon</span>${seg("sp-w", W, S.spw)}</div></div>
+    <div class="grid g2" style="margin-top:8px"><div class="chartbox" style="height:300px"><canvas id="sppat" aria-label="Recoil pattern"></canvas></div><div class="chartbox" style="height:300px"><canvas id="spdrift" aria-label="Aim drift relative to the target"></canvas></div></div>
+    <p class="note" style="margin-top:6px">Degrees. At mid range (750 units) 1 degree is about 13 units; a head is about 1 degree wide and a torso about 2. Points with fewer than 10 bullets are hidden.</p></div>`;
+  const dl = ["Close (<500u)","Mid (500-1000u)","Long (1000-1500u)","Very long (1500u+)"], DN = {"Close (<500u)":"Close (under 500 u)","Mid (500-1000u)":"Mid (500-1,000 u)","Long (1000-1500u)":"Long (1,000-1,500 u)","Very long (1500u+)":"Very long (1,500 u+)"};
+  const ds = dl.map(d => (R.r.ds || []).find(x => x[0] === d)).filter(Boolean);
+  const dist = `<div class="card"><h3>Spray Hits by Distance</h3><p class="lead note">All matches, AK/M4, bullets 4+ at a visible enemy.</p>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Distance</th><th class="r">Bullets</th><th class="r">Hit rate</th><th class="r">Expected</th><th class="r">Gap</th></tr></thead><tbody>
+    ${ds.map(x => { const gp = x[2] !== null && x[3] !== null ? (x[2]-x[3])*100 : null; return `<tr><td>${esc(DN[x[0]]||x[0])}</td><td class="r num">${x[1].toLocaleString()}</td><td class="r num">${fmt(x[2]*100,"pct")}</td><td class="r num note">${fmt(x[3]*100,"pct")}</td><td class="r num" style="color:${gp>0?"var(--pos)":gp<0?"var(--neg)":"inherit"}">${gp===null?"–":(gp>0?"+":"")+gp.toFixed(1)}</td></tr>`; }).join("") || `<tr><td colspan="5" class="note">No data</td></tr>`}
+    </tbody></table></div>
+    <p class="note" style="margin-top:8px">Long-range bursts that became full sprays (6+ bullets): <b>${pp(o.long_spray_share)}</b> of ${o.long_groups||0} bursts at 1,500 u+. Full sprays there land far fewer bullets than bursts do (lobby table below).</p></div>`;
+  const TY = X.types || [], TN = {tap:"Tap (1)", burst:"Burst (2-5)", spray:"Spray (6+)"};
+  const types = `<div class="card"><h3>Tap, Burst or Spray? (Lobby)</h3><p class="lead note">AK/M4 bursts that started on target, all players. Damage per bullet fired and how often the target died. A burst that kills early stays short, so kill rates favour longer sprays; damage per bullet is the fairer read.</p>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Distance</th><th>Type</th><th class="r">Bursts</th><th class="r">Damage per bullet</th><th class="r">Hit per bullet</th><th class="r">Target killed</th></tr></thead><tbody>
+    ${dl.flatMap(d => ["tap","burst","spray"].map(t => TY.find(x => x[0]===d && x[1]===t)).filter(Boolean)).map(x => `<tr><td>${esc(DN[x[0]]||x[0])}</td><td>${TN[x[1]]}</td><td class="r num">${x[2].toLocaleString()}</td><td class="r num">${fmt(x[3],"f1")}</td><td class="r num">${fmt(x[5]===null?null:x[5]*100,"pct")}</td><td class="r num">${fmt(x[4]===null?null:x[4]*100,"pct")}</td></tr>`).join("")}
+    </tbody></table></div>
+    ${(X.payoff||[]).length ? `<p class="note" style="margin-top:8px">Spray tightness and fights (lobby, decisive 1v1s): ${X.payoff.slice().sort((a,b)=>a[3]-b[3]).map(r => `${esc(r[0].replace(" (best third)","").replace(" (worst third)",""))} sprays (median drift ${fmt(r[3],"f2")} deg) won ${fmt(r[2]*100,"pct")}`).join(" · ")}.</p>` : ""}</div>`;
+  return `<div class="section">${cards}<div class="grid g2">${ctrl}${curve}</div>${pat}<div class="grid g2">${dist}${types}</div></div>`;
 }
 function mapsCard(p){
   const ms = D.mapsum[p] || {}, keys = Object.keys(ms).sort((a,b)=>ms[b][0]-ms[a][0]);
@@ -723,7 +769,7 @@ function viewCompare(){
       <div class="pmeta">${X.core?`<span class="pill core">Core-5</span>`:""}<span class="pill num">${X.matches} matches</span><span class="pill num">Elo ${X.last_elo?Math.round(X.last_elo):"–"}</span><span class="pill num">Overall ${r&&r.r[0]!==null?r.r[0]:"–"}</span></div>
       ${ar?`<p class="note" style="margin-top:8px">${esc(ar[0])} · ${esc(ar[1])}</p>`:""}<p style="margin-top:6px"><button class="link" data-p="${i}">Open player page</button></p></div>`; };
   const h = D.h2h[`${a}|${b}`], t = D.mates2[`${a}|${b}`];
-  const groups = [["Headline","headline"],["Aim & Mechanics","aim"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
+  const groups = [["Headline","headline"],["Aim & Mechanics","aim"],["Spray Control","sprayctl"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
   let winsA = 0, winsB = 0;
   const line = key => {
     const x = metric(a, key, opts), y = metric(b, key, opts), m = x.meta;
@@ -759,7 +805,7 @@ function viewCompare(){
   <div class="grid g2 section">${body}</div>`.replace("__WA__", winsA).replace("__WB__", winsB);
 }
 
-const STAT_GROUPS = [["Headline","headline"],["Aim & Mechanics","aim"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
+const STAT_GROUPS = [["Headline","headline"],["Aim & Mechanics","aim"],["Spray Control","sprayctl"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
 // ------------------------------------------------------------------ leaderboards
 function viewBoard(){
   const B = S.board, mets = D.meta.metrics;
@@ -997,6 +1043,48 @@ function drawCharts(){
           y:{position:"left", title:{display:true, text:"Elo", color:muted}, grid:{color:line}, ticks:{color:muted}},
           y1:{position:"right", title:{display:true, text:"Rating", color:muted}, grid:{drawOnChartArea:false}, ticks:{color:muted}, suggestedMin:0, suggestedMax:2}}}}));
   }
+  // ---- v4.12 Spray tab charts
+  const scv = document.getElementById("spcurve");
+  if (scv && D.spray){
+    const R = spRow(S.p), L = (D.spray.lob["All AK/M4"] || {}).curve || [];
+    const cv = (R && R.r.cv) || [];
+    const bl = [...Array(16).keys()].map(i => i + 1);
+    const get = (arr, b, j) => { const x = arr.find(r => r[0] === b); return x ? x[j] : null; };
+    const lob16 = b => { if (b < 16) return get(L, b, 2); const xs = L.filter(r => r[0] >= 16); const n = xs.reduce((a,r)=>a+r[1],0); return n ? xs.reduce((a,r)=>a+r[1]*r[2],0)/n : null; };
+    const pct = v => v === null || v === undefined ? null : v * 100;
+    const faint = bl.map(b => (get(cv, b, 1) || 0) < 20);
+    charts.push(new Chart(scv, {data:{labels:bl.map(b => b === 16 ? "16+" : String(b)), datasets:[
+      {type:"line", label:D.players[S.p].name, data:bl.map(b => pct(get(cv,b,2))), borderColor:acc, backgroundColor:acc, borderWidth:2.5, tension:.2, spanGaps:true,
+        pointRadius:bl.map((b,i)=>faint[i]?2:3.5), pointBackgroundColor:bl.map((b,i)=>faint[i]?acc+"55":acc)},
+      {type:"line", label:"Expected (same situations)", data:bl.map(b => pct(get(cv,b,3))), borderColor:ink, borderDash:[6,4], pointRadius:0, borderWidth:1.25, spanGaps:true},
+      {type:"line", label:"Average (all players)", data:bl.map(b => pct(lob16(b))), borderColor:css("--neg"), borderDash:[2,3], pointRadius:0, borderWidth:1.5, spanGaps:true}]},
+      options:{maintainAspectRatio:false, animation:false, interaction:{mode:"index", intersect:false},
+        plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmt(c.parsed.y,"pct")}${c.datasetIndex===0?` (n=${get(cv, bl[c.dataIndex], 1)||0})`:""}`}}},
+        scales:{x:{title:{display:true, text:"Bullet in the burst", color:muted}, grid:{color:line}, ticks:{color:muted}},
+          y:{title:{display:true, text:"Hit rate", color:muted}, grid:{color:line}, ticks:{color:muted, callback:(v)=>v+"%"}, suggestedMin:0}}}}));
+  }
+  const spp = document.getElementById("sppat"), spd = document.getElementById("spdrift");
+  if ((spp || spd) && D.spray){
+    const L = (D.spray.lob[S.spw] || {}).pat || [], R = spRow(S.p);
+    const P = ((R && R.r.pt) || {})[S.spw] || [];
+    const lbl = (ctx) => `Bullet ${ctx.raw.b}`;
+    if (spp) charts.push(new Chart(spp, {type:"scatter", data:{datasets:[
+      {label:`${S.spw} kick`, data:L.map(r => ({x:r[1], y:r[2], b:r[0]})), showLine:true, borderColor:muted, backgroundColor:muted, pointRadius:3, borderWidth:1.5}]},
+      options:{maintainAspectRatio:false, animation:false, plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${lbl(c)}: ${c.raw.x.toFixed(2)} right, ${c.raw.y.toFixed(2)} up`}}},
+        scales:{x:{title:{display:true, text:"Kick right (deg)", color:muted}, grid:{color:line}, ticks:{color:muted}, suggestedMin:-4, suggestedMax:4},
+          y:{title:{display:true, text:"Kick up (deg)", color:muted}, grid:{color:line}, ticks:{color:muted}, suggestedMin:0}}}}));
+    if (spd) {
+      const pl = P.filter(r => r[1] >= 10 && r[0] >= 2);
+      const lim = Math.max(2, ...pl.map(r => Math.max(Math.abs(r[2]), Math.abs(r[3]))), ...L.filter(r=>r[0]<=20).map(r => Math.max(Math.abs(r[3]||0), Math.abs(r[4]||0)))) * 1.15;
+      charts.push(new Chart(spd, {type:"scatter", data:{datasets:[
+        {label:D.players[S.p].name, data:pl.map(r => ({x:r[2], y:r[3], b:r[0], n:r[1]})), showLine:true, borderColor:acc, backgroundColor:acc, pointRadius:3.5, borderWidth:2},
+        {label:"Average (all players)", data:L.filter(r => r[0] >= 2 && r[0] <= 20).map(r => ({x:r[3], y:r[4], b:r[0]})), showLine:true, borderColor:css("--neg"), backgroundColor:css("--neg"), borderDash:[2,3], pointRadius:2, borderWidth:1.5},
+        {label:"On target", data:[{x:0, y:0, b:1}], pointStyle:"crossRot", pointRadius:9, borderColor:ink, backgroundColor:ink, borderWidth:2}]},
+        options:{maintainAspectRatio:false, animation:false, plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${c.dataset.label} · ${lbl(c)}: ${Math.abs(c.raw.x).toFixed(2)} ${c.raw.x>=0?"right":"left"}, ${Math.abs(c.raw.y).toFixed(2)} ${c.raw.y>=0?"above":"below"}${c.raw.n?` (n=${c.raw.n})`:""}`}}},
+          scales:{x:{title:{display:true, text:"Aim right of target (deg)", color:muted}, grid:{color:line}, ticks:{color:muted}, min:-lim, max:lim},
+            y:{title:{display:true, text:"Aim above target (deg)", color:muted}, grid:{color:line}, ticks:{color:muted}, min:-lim, max:lim}}}}));
+    }
+  }
   const tc = document.getElementById("tschart");
   if (tc){
     const t = tsSeries(S.p), E = t.E, m = t.m;
@@ -1066,6 +1154,7 @@ function bind(){
 function bindTab(){
   const tm = $("#ts-metric"); if (tm) tm.addEventListener("change", () => { S.ts.metric = tm.value; saveState(); rerenderTab(); });
   onSeg("ts-k", v => { S.ts.k = parseInt(v, 10); saveState(); rerenderTab(); });
+  onSeg("sp-w", v => { S.spw = v; rerenderTab(); });
   const pm = $("#ph-map"); if (pm) pm.addEventListener("change", () => { S.pheat.map = pm.value; S.pheat.level = null; if (S.map !== "All maps") S.map = pm.value; rerenderTab(); });
   onSeg("ph-mode", v => { S.pheat.mode = {"Where They Stand":"stand", "Where They Get Kills":"kills", "Where They Die":"deaths"}[v]; rerenderTab(); });
   onSeg("ph-level", v => { S.pheat.level = v; rerenderTab(); });
