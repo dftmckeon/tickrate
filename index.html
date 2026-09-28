@@ -331,7 +331,7 @@ function metric(p, key, opts={}){
     const row = rows.find(r => r[0] === i);
     const lobby = D.mapcells[`${mapSel}|${side}|${wf}|${i}`] ?? null;
     if (!row) return {meta, i, empty:true, allWeapons, lobby, onMap:true};
-    const [, value, pct, rank, nr, den] = row;
+    const [, value, pct, rank, nr, den] = row.length === 3 ? [row[0], row[1], null, null, null, row[2]] : row;   // unranked rows are [metric, value, den]
     return {meta, i, value, exp:null, pct, rank, nr, raw:pct, den, rankable: pct !== null && meta.dir !== 0, lobby, med:null, allWeapons, onMap:true};
   }
   const w = opts.win || effWin(p), side = opts.side || S.side;
@@ -600,10 +600,21 @@ function sprayTab(p){
     <div class="chartbox" style="height:260px;margin-top:6px"><canvas id="spcurve" aria-label="Hit rate by bullet number"></canvas></div>
     <p class="note" style="margin-top:6px">Bullet 16 = 16th and later. Points with fewer than 20 bullets are faint.</p></div>`;
   const W = ["AK-47","M4A4","M4A1-S"];
-  const pat = `<div class="card"><h3>Spray Pattern</h3><p class="lead note">Left: the gun's kick by bullet (where bullets would go with no pull-down). Right: where the aim actually ended up relative to the enemy's chest, bullet by bullet (0, 0 = still on the spot bullet 1 hit). Bursts that started on target, all matches.</p>
-    <div class="filters" style="position:static;margin:10px 0 0;padding:0;border:0;background:none;box-shadow:none"><div class="ctl"><span class="eyebrow">Weapon</span>${seg("sp-w", W, S.spw)}</div></div>
-    <div class="grid g2" style="margin-top:8px"><div class="chartbox" style="height:300px"><canvas id="sppat" aria-label="Recoil pattern"></canvas></div><div class="chartbox" style="height:300px"><canvas id="spdrift" aria-label="Aim drift relative to the target"></canvas></div></div>
-    <p class="note" style="margin-top:6px">Degrees. At mid range (750 units) 1 degree is about 13 units; a head is about 1 degree wide and a torso about 2. Points with fewer than 10 bullets are hidden.</p></div>`;
+  const pat = `<div class="card" id="splab"><h3>Spray Pattern vs the Gun</h3><p class="lead note">Left: the gun's average kick, bullet by bullet (grey holes: where each bullet would go with no mouse movement), with ${esc(D.players[p].name)}'s average counter-pull mirrored on top. Where the lines meet, the recoil is cancelled. Right: where the bullets landed on an enemy at ${Math.round((D.spray.h||{}).med_dist||782)} units, measured from bullet 1. Bursts that started on target, all matches.</p>
+    <div class="filters" style="position:static;margin:10px 0 0;padding:0;border:0;background:none;box-shadow:none">
+      <div class="ctl"><span class="eyebrow">Weapon</span>${seg("sp-w", W, S.spw)}</div>
+      <div class="ctl" style="flex:1;min-width:min(320px,100%)"><label class="eyebrow" for="sp-k">Show bullets 1 to <b class="num" id="sp-kv"></b></label>
+        <div style="display:flex;gap:10px;align-items:center"><button type="button" class="link" id="sp-play" style="font-weight:600">Play</button><input type="range" id="sp-k" min="1" max="30" value="30" style="flex:1;accent-color:var(--accent)"></div></div>
+    </div>
+    <div class="grid g2" style="margin-top:8px">
+      <div><canvas id="sl-pat" style="width:100%;aspect-ratio:1/1;max-width:100%;display:block" aria-label="Gun kick and counter-pull"></canvas>
+        <div class="legend" style="margin-top:6px"><span><i class="sw" style="background:var(--muted)"></i>Gun kick</span><span><i class="sw" style="background:var(--accent)"></i>${esc(D.players[p].name)}'s pull</span><span><i class="sw" style="background:var(--neg)"></i>Average pull</span></div></div>
+      <div><canvas id="sl-land" style="width:100%;aspect-ratio:1/1;max-width:100%;display:block" aria-label="Where the bullets landed"></canvas>
+        <div class="legend" style="margin-top:6px"><span><i class="sw" style="background:var(--accent)"></i>${esc(D.players[p].name)}</span><span><i class="sw" style="background:transparent;box-shadow:inset 0 0 0 2px var(--neg)"></i>Average player</span><span><i class="sw" style="background:var(--mid)"></i>Enemy</span></div></div>
+    </div>
+    <div class="tscroll" style="margin-top:10px"><table class="num" id="sl-read"></table></div>
+    <div class="tscroll" style="margin-top:10px"><table class="num" id="sl-ctrl"></table></div>
+    <p class="note" style="margin-top:6px">Degrees. 1 degree is about 14 units at this distance; the head is about 0.7 degrees wide. The player's line stops once fewer than 20 bursts reach a bullet. The pull includes tracking a moving enemy, so it can overshoot the kick sideways while the aim still lands on target. Control % per gun is pulled toward the average for small samples; horizontal control on the M4s is noisy because their side-to-side kick is small. Random spread is not included.</p></div>`;
   const dl = ["Close (<500u)","Mid (500-1000u)","Long (1000-1500u)","Very long (1500u+)"], DN = {"Close (<500u)":"Close (under 500 u)","Mid (500-1000u)":"Mid (500-1,000 u)","Long (1000-1500u)":"Long (1,000-1,500 u)","Very long (1500u+)":"Very long (1,500 u+)"};
   const ds = dl.map(d => (R.r.ds || []).find(x => x[0] === d)).filter(Boolean);
   const dist = `<div class="card"><h3>Spray Hits by Distance</h3><p class="lead note">All matches, AK/M4, bullets 4+ at a visible enemy.</p>
@@ -998,11 +1009,90 @@ function drawHeat(){
       : `${tot.toLocaleString()} kills by ${sp.side} players within 7.5 s of ${sp.snap} s, shown at the killer's position.`;
 }
 
+// ------------------------------------------------------------------ v4.12b spray pattern lab (canvas, no Chart.js)
+const SL_MINN = 20, SL_MINA = 40;
+const slDist = () => ((D.spray || {}).h || {}).med_dist || 782;
+let slTimer = null;
+function slStop(){ if (slTimer){ clearInterval(slTimer); slTimer = null; const b = $("#sp-play"); if (b) b.textContent = "Play"; } }
+function slData(){
+  const X = D.spray || {}, L = ((X.lob || {})[S.spw] || {}), R = spRow(S.p);
+  const A = []; for (const r of (L.pat || [])){ if (r[8] < SL_MINA) break; A.push({b:r[0], kr:r[1], ku:r[2], dh:r[3], dv:r[4], pd:r[5], pl:r[6], hit:r[7], n:r[8]}); }
+  const P = []; for (const r of (((R && R.r.pt) || {})[S.spw] || [])){ if (r[1] < SL_MINN || (P.length && r[0] !== P[P.length-1].b + 1) || (!P.length && r[0] !== 1)) break; P.push({b:r[0], n:r[1], dh:r[2], dv:r[3], pd:r[4], pl:r[5], hit:r[6]}); }
+  return {A, P, L, wc: R && R.r.wc ? R.r.wc[S.spw] : null, lc: (X.lob_ctrl || {})[S.spw] || []};
+}
+function slFit(cv){ const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1, W = r.width || 400;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(W * dpr); const g = cv.getContext("2d"); if (!g) return null; g.setTransform(dpr, 0, 0, dpr, 0, 0); return {g, W}; }
+function slFrame(g, W, x0, x1, y0, y1, step, xl, yl){
+  const pad = 34, s = (W - pad - 12) / Math.max(x1 - x0, y1 - y0), X = x => pad + (x - x0) * s, Y = y => 12 + (y1 - y) * s;
+  g.clearRect(0, 0, W, W); g.lineWidth = 1; g.strokeStyle = css("--line"); g.fillStyle = css("--muted"); g.font = `11px ${css("--mono")}`;
+  for (let x = Math.ceil(x0 / step) * step; x <= x1 + 1e-9; x += step){ g.beginPath(); g.moveTo(X(x), Y(y0)); g.lineTo(X(x), Y(y1)); g.stroke(); g.textAlign = "center"; g.fillText((Math.round(x * 10) / 10) + "°", X(x), Y(y0) + 14); }
+  for (let y = Math.ceil(y0 / step) * step; y <= y1 + 1e-9; y += step){ g.beginPath(); g.moveTo(X(x0), Y(y)); g.lineTo(X(x1), Y(y)); g.stroke(); g.textAlign = "right"; g.fillText((Math.round(y * 10) / 10) + "°", X(x0) - 5, Y(y) + 4); }
+  g.font = `600 10px ${css("--sans")}`; g.textAlign = "right"; g.fillText(xl, X(x1) - 2, Y(y1) + 12); g.textAlign = "left"; g.fillText(yl, X(x0) + 6, Y(y1) + 12);
+  return {X, Y};
+}
+function slDot(g, x, y, r, fill, stroke, lw){ g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); if (fill){ g.fillStyle = fill; g.fill(); } if (stroke){ g.lineWidth = lw || 1.5; g.strokeStyle = stroke; g.stroke(); } }
+function slPath(g, pts, color, lw, dash){ if (pts.length < 2) return; g.beginPath(); g.setLineDash(dash || []); g.lineWidth = lw; g.strokeStyle = color; pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); g.setLineDash([]); }
+function sprayLab(){
+  const cp = document.getElementById("sl-pat"), cl = document.getElementById("sl-land");
+  if (!cp || !cl || !D.spray) return;
+  const {A, P, wc, lc} = slData(), maxK = A.length || 1;
+  if (!S.spk || S.spk > maxK) S.spk = maxK;
+  const kin = $("#sp-k"); if (kin){ kin.max = maxK; kin.value = S.spk; } const kv = $("#sp-kv"); if (kv) kv.textContent = S.spk;
+  const acc = css("--accent"), avg = css("--neg"), kick = css("--muted"), ink = css("--ink"), surf = css("--surface");
+  const sA = A.filter(r => r.b <= S.spk), sP = P.filter(r => r.b <= S.spk);
+  const f1 = cp && slFit(cp);
+  if (f1 && A.length){ const {g, W} = f1;
+    const ymax = Math.ceil(Math.max(...A.map(r => Math.max(r.ku, r.pd || 0))) + 1);
+    const xr = Math.max(ymax / 2 + .5, Math.ceil(Math.max(...A.map(r => Math.abs(r.kr)), ...P.map(r => Math.abs(r.pl || 0))) + 1));
+    const span = Math.max(2 * xr, ymax + 1);
+    const {X, Y} = slFrame(g, W, -span / 2, span / 2, -1, span - 1, span > 14 ? 2 : 1, "right →", "↑ up");
+    slPath(g, A.map(r => [X(r.kr), Y(r.ku)]), kick, 1, [3, 3]);
+    A.forEach(r => { const on = r.b <= S.spk; slDot(g, X(r.kr), Y(r.ku), 5, on ? kick : null, kick, 1.2);
+      if (on && (r.b === 1 || r.b % 5 === 0)){ g.fillStyle = kick; g.font = `10px ${css("--mono")}`; g.textAlign = "left"; g.fillText(r.b, X(r.kr) + 8, Y(r.ku) + 3); } });
+    slPath(g, [[X(0), Y(0)], ...sA.map(r => [X(r.pl), Y(r.pd)])], avg, 1.6, [5, 4]);
+    slPath(g, [[X(0), Y(0)], ...sP.map(r => [X(r.pl), Y(r.pd)])], acc, 2.6);
+    sP.forEach(r => slDot(g, X(r.pl), Y(r.pd), 3, acc));
+    const c1 = sP.find(r => r.b === S.spk), c2 = A.find(r => r.b === S.spk);
+    if (c1 && c2){ slPath(g, [[X(c2.kr), Y(c2.ku)], [X(c1.pl), Y(c1.pd)]], ink, 1, [2, 3]); slDot(g, X(c1.pl), Y(c1.pd), 6, surf, acc, 2.5); slDot(g, X(c2.kr), Y(c2.ku), 8, null, ink, 1.5); }
+  }
+  const f2 = cl && slFit(cl);
+  if (f2){ const {g, W} = f2;
+    const ext = Math.max(3.2, ...sP.map(r => Math.max(Math.abs(r.dv), Math.abs(r.dh))), ...sA.map(r => Math.max(Math.abs(r.dv), Math.abs(r.dh)))) + .5;
+    const R = Math.min(8, Math.ceil(ext * 2) / 2);
+    const {X, Y} = slFrame(g, W, -R, R, -R, R, R > 5 ? 1 : .5, "right →", "↑ above");
+    const u = v => Math.atan(v / slDist()) * 180 / Math.PI;
+    g.fillStyle = css("--mid"); g.strokeStyle = css("--line-strong"); g.lineWidth = 1.2;
+    const sw = u(11), top = u(8), hip = u(-24), feet = u(-50), lw = u(7);
+    const rr = (x0, y0, x1, y1, rad) => { g.beginPath(); if (g.roundRect) g.roundRect(X(x0), Y(y0), X(x1) - X(x0), Y(y1) - Y(y0), rad); else g.rect(X(x0), Y(y0), X(x1) - X(x0), Y(y1) - Y(y0)); g.fill(); g.stroke(); };
+    rr(-sw, top, sw, hip, 6); rr(-sw * .72, hip, -sw * .72 + lw, feet, 4); rr(sw * .72 - lw, hip, sw * .72, feet, 4);
+    g.beginPath(); g.arc(X(0), Y(u(15)), X(u(4.5)) - X(0), 0, Math.PI * 2); g.fill(); g.stroke();
+    g.strokeStyle = ink; g.lineWidth = 1.2; [[-1,0],[1,0],[0,-1],[0,1]].forEach(([a,b]) => { g.beginPath(); g.moveTo(X(a * .12), Y(b * .12)); g.lineTo(X(a * .32), Y(b * .32)); g.stroke(); });
+    slPath(g, [[X(0), Y(0)], ...sA.map(r => [X(r.dh), Y(r.dv)])], avg, 1.1, [4, 4]); sA.forEach(r => slDot(g, X(r.dh), Y(r.dv), 4, null, avg, 1.6));
+    slPath(g, [[X(0), Y(0)], ...sP.map(r => [X(r.dh), Y(r.dv)])], acc, 1.3);
+    sP.forEach(r => { slDot(g, X(r.dh), Y(r.dv), r.b === S.spk ? 8 : 6, acc, surf, 1.5); g.fillStyle = css("--accent-ink"); g.font = `600 ${r.b > 9 ? 8 : 9}px ${css("--mono")}`; g.textAlign = "center"; g.fillText(r.b, X(r.dh), Y(r.dv) + 3); });
+    if (!P.length){ g.fillStyle = css("--muted"); g.font = `12px ${css("--sans")}`; g.textAlign = "center"; g.fillText("Not enough sprays with this gun", W / 2, W / 2 + 60); }
+  }
+  const rd = $("#sl-read");
+  if (rd){ const r = sP.find(x => x.b === S.spk) || sP[sP.length - 1], a = A.find(x => x.b === (r ? r.b : S.spk));
+    const dir = (v, pos, neg, d = 1) => v === null || v === undefined ? "–" : `${Math.abs(v).toFixed(d)}° ${v >= 0 ? pos : neg}`;
+    const row = (lab, x, y, al) => `<tr><td style="font-family:var(--body)">${lab}</td><td class="r"><b>${x}</b></td><td class="r note">${y}</td></tr>`;
+    rd.innerHTML = !a ? "" : `<thead><tr><th>Bullet ${r ? r.b : a.b}${r ? ` · ${r.n.toLocaleString()} bursts` : ""}</th><th class="r">${esc(D.players[S.p].name)}</th><th class="r">Average</th></tr></thead><tbody>
+      ${row("Gun kick", `${dir(a.ku, "up", "down")}, ${dir(a.kr, "right", "left")}`, "same gun")}
+      ${row("Counter-pull", r ? `${dir(r.pd, "down", "up")}, ${dir(r.pl, "left", "right")}` : "–", `${dir(a.pd, "down", "up")}, ${dir(a.pl, "left", "right")}`)}
+      ${row("Landed vs target", r ? `${dir(r.dv, "above", "below", 2)}, ${dir(r.dh, "right", "left", 2)}` : "–", `${dir(a.dv, "above", "below", 2)}, ${dir(a.dh, "right", "left", 2)}`)}
+      ${row("Hit rate", r ? fmt(r.hit * 100, "pct") : "–", fmt(a.hit * 100, "pct"))}</tbody>`; }
+  const ct = $("#sl-ctrl");
+  if (ct){ const L = (D.spray.lob || {})[S.spw] || {}, pp = v => v === null || v === undefined ? "–" : Math.round(v * 100) + "%", sg = v => v === null || v === undefined ? "–" : (v > 0 ? "+" : "") + v.toFixed(2) + "°";
+    ct.innerHTML = `<thead><tr><th>${esc(S.spw)}, all matches</th><th class="r">Vertical control</th><th class="r">Horizontal control</th><th class="r">Vertical bias, bullets 4-12</th><th class="r">Hit rate, bullets 4-6</th><th class="r">Bullets 7-10</th><th class="r">Sprays</th></tr></thead><tbody>
+      <tr><td>${esc(D.players[S.p].name)}</td>${wc ? `<td class="r"><b>${pp(wc[0])}</b></td><td class="r"><b>${pp(wc[1])}</b></td><td class="r">${sg(wc[2])}</td><td class="r">${pp(wc[5])}</td><td class="r">${pp(wc[6])}</td><td class="r">${wc[4].toLocaleString()}</td>` : `<td class="r note" colspan="6">Not enough sprays with this gun</td>`}</tr>
+      <tr><td class="note">Average</td><td class="r note">${pp(lc[0])}</td><td class="r note">${pp(lc[1])}</td><td class="r note">${sg(lc[2])}</td><td class="r note">${pp(L.h46)}</td><td class="r note">${pp(L.h710)}</td><td class="r note"></td></tr></tbody>`; }
+}
 // ------------------------------------------------------------------ charts
 function drawCharts(){
   killCharts();
   drawHeat();
   drawPlayerHeat();
+  sprayLab();
   if (!window.Chart) return;
   const ink = css("--ink"), muted = css("--muted"), line = css("--line"), acc = css("--accent");
   Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
@@ -1062,28 +1152,6 @@ function drawCharts(){
         plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmt(c.parsed.y,"pct")}${c.datasetIndex===0?` (n=${get(cv, bl[c.dataIndex], 1)||0})`:""}`}}},
         scales:{x:{title:{display:true, text:"Bullet in the burst", color:muted}, grid:{color:line}, ticks:{color:muted}},
           y:{title:{display:true, text:"Hit rate", color:muted}, grid:{color:line}, ticks:{color:muted, callback:(v)=>v+"%"}, suggestedMin:0}}}}));
-  }
-  const spp = document.getElementById("sppat"), spd = document.getElementById("spdrift");
-  if ((spp || spd) && D.spray){
-    const L = (D.spray.lob[S.spw] || {}).pat || [], R = spRow(S.p);
-    const P = ((R && R.r.pt) || {})[S.spw] || [];
-    const lbl = (ctx) => `Bullet ${ctx.raw.b}`;
-    if (spp) charts.push(new Chart(spp, {type:"scatter", data:{datasets:[
-      {label:`${S.spw} kick`, data:L.map(r => ({x:r[1], y:r[2], b:r[0]})), showLine:true, borderColor:muted, backgroundColor:muted, pointRadius:3, borderWidth:1.5}]},
-      options:{maintainAspectRatio:false, animation:false, plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${lbl(c)}: ${c.raw.x.toFixed(2)} right, ${c.raw.y.toFixed(2)} up`}}},
-        scales:{x:{title:{display:true, text:"Kick right (deg)", color:muted}, grid:{color:line}, ticks:{color:muted}, suggestedMin:-4, suggestedMax:4},
-          y:{title:{display:true, text:"Kick up (deg)", color:muted}, grid:{color:line}, ticks:{color:muted}, suggestedMin:0}}}}));
-    if (spd) {
-      const pl = P.filter(r => r[1] >= 10 && r[0] >= 2);
-      const lim = Math.max(2, ...pl.map(r => Math.max(Math.abs(r[2]), Math.abs(r[3]))), ...L.filter(r=>r[0]<=20).map(r => Math.max(Math.abs(r[3]||0), Math.abs(r[4]||0)))) * 1.15;
-      charts.push(new Chart(spd, {type:"scatter", data:{datasets:[
-        {label:D.players[S.p].name, data:pl.map(r => ({x:r[2], y:r[3], b:r[0], n:r[1]})), showLine:true, borderColor:acc, backgroundColor:acc, pointRadius:3.5, borderWidth:2},
-        {label:"Average (all players)", data:L.filter(r => r[0] >= 2 && r[0] <= 20).map(r => ({x:r[3], y:r[4], b:r[0]})), showLine:true, borderColor:css("--neg"), backgroundColor:css("--neg"), borderDash:[2,3], pointRadius:2, borderWidth:1.5},
-        {label:"On target", data:[{x:0, y:0, b:1}], pointStyle:"crossRot", pointRadius:9, borderColor:ink, backgroundColor:ink, borderWidth:2}]},
-        options:{maintainAspectRatio:false, animation:false, plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${c.dataset.label} · ${lbl(c)}: ${Math.abs(c.raw.x).toFixed(2)} ${c.raw.x>=0?"right":"left"}, ${Math.abs(c.raw.y).toFixed(2)} ${c.raw.y>=0?"above":"below"}${c.raw.n?` (n=${c.raw.n})`:""}`}}},
-          scales:{x:{title:{display:true, text:"Aim right of target (deg)", color:muted}, grid:{color:line}, ticks:{color:muted}, min:-lim, max:lim},
-            y:{title:{display:true, text:"Aim above target (deg)", color:muted}, grid:{color:line}, ticks:{color:muted}, min:-lim, max:lim}}}}));
-    }
   }
   const tc = document.getElementById("tschart");
   if (tc){
@@ -1154,7 +1222,10 @@ function bind(){
 function bindTab(){
   const tm = $("#ts-metric"); if (tm) tm.addEventListener("change", () => { S.ts.metric = tm.value; saveState(); rerenderTab(); });
   onSeg("ts-k", v => { S.ts.k = parseInt(v, 10); saveState(); rerenderTab(); });
-  onSeg("sp-w", v => { S.spw = v; rerenderTab(); });
+  onSeg("sp-w", v => { S.spw = v; slStop(); S.spk = null; rerenderTab(); });
+  const spk = $("#sp-k"); if (spk) spk.addEventListener("input", () => { slStop(); S.spk = +spk.value; sprayLab(); });
+  const spb = $("#sp-play"); if (spb) spb.addEventListener("click", () => { if (slTimer) return slStop(); S.spk = 1; sprayLab(); spb.textContent = "Stop";
+    slTimer = setInterval(() => { const mx = +($("#sp-k") || {max:1}).max; if (!$("#sl-pat") || S.spk >= mx) return slStop(); S.spk++; sprayLab(); }, 110); });
   const pm = $("#ph-map"); if (pm) pm.addEventListener("change", () => { S.pheat.map = pm.value; S.pheat.level = null; if (S.map !== "All maps") S.map = pm.value; rerenderTab(); });
   onSeg("ph-mode", v => { S.pheat.mode = {"Where They Stand":"stand", "Where They Get Kills":"kills", "Where They Die":"deaths"}[v]; rerenderTab(); });
   onSeg("ph-level", v => { S.pheat.level = v; rerenderTab(); });
@@ -1166,7 +1237,7 @@ document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click"
 document.addEventListener("keydown", e => { if (e.key === "/" && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $("#q").focus(); } });
 $("#brand").addEventListener("click", e => { e.preventDefault(); go("home"); });
 window.addEventListener("hashchange", () => { if (!D) return; fromHash(); render(); });
-let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (D){ drawHeat(); drawPlayerHeat(); } }, 150); });
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (D){ drawHeat(); drawPlayerHeat(); sprayLab(); } }, 150); });
 if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => D && render());
 new MutationObserver(() => D && drawCharts()).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
 
