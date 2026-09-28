@@ -257,7 +257,7 @@ td.num,td .num{font-size:13px}
 (() => {
 "use strict";
 let D = null;                        // data.json
-const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, cmp:{a:null, b:null}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"rating", sort:"pct", ranked:true}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
+const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, cmp:{a:null, b:null}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"rating", sort:"pct", ranked:true}, ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store = { get(k){try{return JSON.parse(localStorage.getItem("tickrate."+k))}catch(e){return null}}, set(k,v){try{localStorage.setItem("tickrate."+k, JSON.stringify(v))}catch(e){}} };
@@ -527,7 +527,7 @@ function tabBody(p){
       ${dmgLeftCard(p)}
     </div>`;
     case "social": return `<div class="grid g2 section">${matesCard(p)}${vrCard(p)}${oppDuelsCard(p)}</div>`;
-    case "form": return `<div class="section">${eloCard(p)}<div class="grid g2">${famCard(p)}${tiltCard(p)}</div></div>`;
+    case "form": return `<div class="section">${eloCard(p)}${tsCard(p)}<div class="grid g2">${famCard(p)}${tiltCard(p)}</div></div>`;
     case "heat": return playerHeatCard(p);
     default: return overview(p);
   }
@@ -627,6 +627,49 @@ function eloCard(p){
     ${last.map(r=>`<tr><td class="num">${esc(r[0].slice(0,10))}</td><td>${esc(mapName("de_"+r[1]))}</td><td class="r num">${r[2]??"–"}</td><td class="r num" style="color:${r[3]&&r[2]?(r[3]-r[2]>=0?"var(--pos)":"var(--neg)"):"inherit"}">${r[3]&&r[2]?((r[3]-r[2]>=0?"+":"")+(r[3]-r[2])):"–"}</td><td>${r[5]==="W"?"Win":r[5]==="L"?"Loss":"–"}</td><td class="r num">${r[6]??""}-${r[7]??""}</td><td class="r num">${fmt(r[4],"f2")}</td></tr>`).join("")}
     </tbody></table></div></div>`;
 }
+// v4.11: any stat match by match. Per-match value = num / den from that match's facts; the rolling line and the
+// averages sum numerators and denominators over the matches (never a mean of per-match ratios).
+function tsSeries(p){
+  const i = Math.max(0, midx(S.ts.metric)), m = D.meta.metrics[i];
+  let wf = S.wf, allW = false; if (!m.weapon && wf !== "All"){ wf = "All"; allW = true; }
+  const wi = D.meta.wfilters.indexOf(wf);
+  const E = D.elo[p] || [], F = (D.fx && D.fx.rows[p]) || [], C = D.fx ? D.fx.cols : [];
+  const ni = C.indexOf(m.num) + 3, di = C.indexOf(m.den) + 3;
+  const N = new Array(E.length).fill(0), Dn = new Array(E.length).fill(0);
+  for (const r of F){
+    if (r[2] !== wi) continue;
+    if (S.side !== "All" && r[1] !== (S.side === "CT" ? 0 : 1)) continue;
+    N[r[0]] += r[ni] || 0; Dn[r[0]] += r[di] || 0;
+  }
+  let idx = E.map((_, j) => j);
+  const onMap = S.map !== "All maps";
+  if (onMap) idx = idx.filter(j => "de_" + E[j][1] === S.map);
+  else if (S.win !== "All"){ const n = +S.win.split(" ")[1]; if (idx.length > n) idx = idx.slice(-n); }
+  const k = S.ts.k, pts = [], roll = [], q = [];
+  for (const j of idx){
+    const den = Dn[j], v = den > 0 ? N[j] / den * m.scale : null;
+    if (den > 0){ q.push(j); if (q.length > k) q.shift(); }
+    const sn = q.reduce((a, b) => a + N[b], 0), sd = q.reduce((a, b) => a + Dn[b], 0);
+    pts.push({j, v, den}); roll.push(den > 0 && q.length >= Math.min(k, 3) && sd > 0 ? sn / sd * m.scale : null);   // gaps bridged by spanGaps
+  }
+  const sn = idx.reduce((a, j) => a + N[j], 0), sd = idx.reduce((a, j) => a + Dn[j], 0);
+  const lobby = onMap ? (D.mapcells[`${S.map}|${S.side}|${wf}|${i}`] ?? null) : ((D.cells[`All|${S.side}|${wf}|${i}`] || [null])[0]);
+  return {m, i, wf, allW, E, pts, roll, avg: sd > 0 ? sn / sd * m.scale : null, lobby, withData: pts.filter(x => x.v !== null).length, onMap};
+}
+function tsCard(p){
+  if (!D.fx) return "";
+  const t = tsSeries(p), m = t.m, mets = D.meta.metrics;
+  const scope = [t.onMap ? mapName(S.map) : (S.win === "All" ? "all matches" : S.win.toLowerCase()), S.side === "All" ? "both sides" : S.side + " side", t.wf === "All" ? "all weapons" : t.wf].join(" · ");
+  const dirTxt = m.dir > 0 ? "Higher is better." : m.dir < 0 ? "Lower is better." : "";
+  return `<div class="card"><h3>Stat Over Time</h3><p class="lead note">Pick any stat to see it match by match (dots), as a rolling average over the player's last ${S.ts.k} matches with data (line), against the player's own average for the matches shown (dashed) and the lobby average (dotted). Follows the filters above: ${esc(scope)}.</p>
+    <div class="filters" style="position:static;margin:10px 0 0;padding:0;border:0;background:none;box-shadow:none">
+      <div class="ctl"><label for="ts-metric" class="eyebrow">Stat</label><select id="ts-metric">${STAT_GROUPS.map(([lab,g])=>`<optgroup label="${lab}">${D.meta.groups[g].map(k=>`<option value="${k}" ${k===m.key?"selected":""}>${esc(mets[midx(k)].label)}</option>`).join("")}</optgroup>`).join("")}</select></div>
+      <div class="ctl"><span class="eyebrow">Rolling Average</span>${seg("ts-k", ["5 Matches","10 Matches"], S.ts.k + " Matches")}</div>
+    </div>
+    ${t.allW ? `<div class="banner" style="margin-top:10px">${esc(m.label)} has no weapon split, so this chart uses all weapons.</div>` : ""}
+    <div class="chartbox" style="height:300px;margin-top:10px"><canvas id="tschart" aria-label="${esc(m.label)} over time"></canvas></div>
+    <p class="note" style="margin-top:6px">${esc(m.def)} ${dirTxt} ${t.withData} of ${t.pts.length} matches have data. Average for the matches shown: <b>${fmt(t.avg, m.fmt)}</b>${t.lobby !== null ? ` · lobby ${fmt(t.lobby, m.fmt)}` : ""}. Single matches are noisy; read the line, not the dots.</p></div>`;
+}
 function famCard(p){
   const F = D.ins.map_fam, r = F.rows[p] || [];
   return `<div class="card"><h3>Map Familiarity</h3><p class="lead note">Output by the n-th time the player appears on a map in this store, against the player's own average.</p>
@@ -697,10 +740,11 @@ function viewCompare(){
   <div class="grid g2 section">${body}</div>`.replace("__WA__", winsA).replace("__WB__", winsB);
 }
 
+const STAT_GROUPS = [["Headline","headline"],["Aim & Mechanics","aim"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
 // ------------------------------------------------------------------ leaderboards
 function viewBoard(){
   const B = S.board, mets = D.meta.metrics;
-  const groups = [["Headline","headline"],["Aim & Mechanics","aim"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
+  const groups = STAT_GROUPS;
   const i = midx(B.metric), meta = mets[i];
   let wf = S.wf; const allW = !meta.weapon && wf !== "All"; if (allW) wf = "All";
   const rows = D.players.map((P,p) => {
@@ -926,13 +970,32 @@ function drawCharts(){
     const lab = E.map(r => r[0].slice(5,10));
     charts.push(new Chart(ec, {data:{labels:lab, datasets:[
       {type:"line", label:"Elo before match", data:E.map(r=>r[2]), yAxisID:"y", borderColor:acc, backgroundColor:acc, pointRadius:0, borderWidth:2, tension:.2, spanGaps:true},
-      {type:"scatter", label:"Match rating", data:E.map((r,j)=>({x:lab[j], y:r[4]})), yAxisID:"y1", backgroundColor:muted+"99", pointRadius:2.5},
+      {type:"line", label:"Match rating", data:E.map(r=>r[4]), showLine:false, yAxisID:"y1", borderColor:muted+"99", backgroundColor:muted+"99", pointRadius:2.5},
       {type:"line", label:"Rolling 10-match rating", data:E.map(r=>r[8]), yAxisID:"y1", borderColor:css("--neg"), pointRadius:0, borderWidth:2, tension:.25, spanGaps:true}]},
       options:{maintainAspectRatio:false, animation:false, interaction:{mode:"index", intersect:false},
         plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{title:(it)=>{const r=E[it[0].dataIndex]; return `${r[0].slice(0,10)} · ${r[1]}`;}}}},
         scales:{x:{ticks:{maxTicksLimit:10, color:muted}, grid:{color:line}},
           y:{position:"left", title:{display:true, text:"Elo", color:muted}, grid:{color:line}, ticks:{color:muted}},
           y1:{position:"right", title:{display:true, text:"Rating", color:muted}, grid:{drawOnChartArea:false}, ticks:{color:muted}, suggestedMin:0, suggestedMax:2}}}}));
+  }
+  const tc = document.getElementById("tschart");
+  if (tc){
+    const t = tsSeries(S.p), E = t.E, m = t.m;
+    const lab = t.pts.map(x => E[x.j][0].slice(5,10));
+    const flat = v => t.pts.map(() => v);
+    const ds = [
+      {type:"line", label:"Match", data:t.pts.map(x=>x.v), showLine:false, borderColor:muted+"99", backgroundColor:muted+"99", pointRadius:3, pointHoverRadius:5, order:3},
+      {type:"line", label:`Rolling ${S.ts.k}-match average`, data:t.roll, borderColor:acc, backgroundColor:acc, pointRadius:0, borderWidth:2.5, tension:.25, spanGaps:true, order:1},
+      {type:"line", label:"Player average", data:flat(t.avg), borderColor:ink, borderDash:[6,4], pointRadius:0, borderWidth:1.25, order:2}];
+    if (t.lobby !== null) ds.push({type:"line", label:"Lobby average", data:flat(t.lobby), borderColor:css("--neg"), borderDash:[2,3], pointRadius:0, borderWidth:1.5, order:2});
+    charts.push(new Chart(tc, {data:{labels:lab, datasets:ds},
+      options:{maintainAspectRatio:false, animation:false, interaction:{mode:"index", intersect:false},
+        plugins:{legend:{labels:{color:ink, boxWidth:12}},
+          tooltip:{filter:(c)=>c.parsed.y !== null && c.parsed.y !== undefined, callbacks:{title:(it)=>{ const x = t.pts[it[0].dataIndex], r = E[x.j]; return `${r[0].slice(0,10)} · ${mapName("de_"+r[1])} · ${r[5]==="W"?"Win":r[5]==="L"?"Loss":""} ${r[6]??""}-${r[7]??""}`; },
+            label:(c)=>{ const v = c.parsed.y; if (v === null || v === undefined) return null; const x = t.pts[c.dataIndex];
+              return `${c.dataset.label}: ${fmt(v, m.fmt)}${c.datasetIndex === 0 ? ` (n=${Math.round(x.den*10)/10})` : ""}`; }}}},
+        scales:{x:{ticks:{maxTicksLimit:10, color:muted}, grid:{color:line}},
+          y:{title:{display:true, text:m.label, color:muted}, grid:{color:line}, ticks:{color:muted, callback:(v)=>fmt(v, m.fmt)}, reverse:false}}}}));
   }
 }
 
@@ -951,8 +1014,9 @@ function render(){
   app.innerHTML = html;
   bind();
   drawCharts();
-  store.set("state", {win:S.win, side:S.side, wf:S.wf, tab:S.tab, board:S.board, spots:S.spots, maps:S.maps, heatMode:S.heatMode});
+  saveState();
 }
+function saveState(){ store.set("state", {win:S.win, side:S.side, wf:S.wf, tab:S.tab, board:S.board, spots:S.spots, maps:S.maps, heatMode:S.heatMode, ts:S.ts}); }
 function rerenderTab(){ const tb = $("#tabbody"); if (!tb) return render(); killCharts(); tb.innerHTML = tabBody(S.p); bindTab(); drawCharts(); }
 function bind(){
   const fm = $("#f-map"); if (fm) fm.addEventListener("change", () => { S.map = fm.value; render(); });
@@ -969,7 +1033,7 @@ function bind(){
   onSeg("f-win", v => { S.win = v; render(); });
   onSeg("f-side", v => { S.side = v; render(); });
   onSeg("f-wf", v => { S.wf = v; render(); });
-  document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { S.tab = b.dataset.tab; const tb = $("#tabbody"); killCharts(); tb.innerHTML = tabBody(S.p); document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x===b)); bindTab(); drawCharts(); store.set("state", {win:S.win, side:S.side, wf:S.wf, tab:S.tab, board:S.board, spots:S.spots, maps:S.maps}); }));
+  document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { S.tab = b.dataset.tab; const tb = $("#tabbody"); killCharts(); tb.innerHTML = tabBody(S.p); document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x===b)); bindTab(); drawCharts(); saveState(); }));
   bindTab();
   const bm = $("#b-metric"); if (bm) bm.addEventListener("change", () => { S.board.metric = bm.value; render(); });
   onSeg("b-win", v => { S.win = v; render(); }); onSeg("b-side", v => { S.side = v; render(); }); onSeg("b-wf", v => { S.wf = v; render(); });
@@ -981,6 +1045,8 @@ function bind(){
   onSeg("s-side", v => { S.spots.side = v; render(); }); onSeg("s-snap", v => { S.spots.snap = +v; render(); }); onSeg("s-scope", v => { S.spots.scope = v; render(); });
 }
 function bindTab(){
+  const tm = $("#ts-metric"); if (tm) tm.addEventListener("change", () => { S.ts.metric = tm.value; saveState(); rerenderTab(); });
+  onSeg("ts-k", v => { S.ts.k = parseInt(v, 10); saveState(); rerenderTab(); });
   const pm = $("#ph-map"); if (pm) pm.addEventListener("change", () => { S.pheat.map = pm.value; S.pheat.level = null; if (S.map !== "All maps") S.map = pm.value; rerenderTab(); });
   onSeg("ph-mode", v => { S.pheat.mode = {"Where They Stand":"stand", "Where They Get Kills":"kills", "Where They Die":"deaths"}[v]; rerenderTab(); });
   onSeg("ph-level", v => { S.pheat.level = v; rerenderTab(); });
@@ -997,9 +1063,10 @@ if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEven
 new MutationObserver(() => D && drawCharts()).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
 
 const embedded = document.getElementById("tickrate-data");
-(embedded ? Promise.resolve(JSON.parse(embedded.textContent)) : fetch("data.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })).then(d => {
+(embedded ? Promise.resolve(JSON.parse(embedded.textContent)) : fetch("data.json", {cache: "no-cache"}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })).then(d => {
   D = d;
-  const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres"}, st.board?{board:{...S.board, ...st.board}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{});
+  const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres"}, st.board?{board:{...S.board, ...st.board}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{}, st.ts?{ts:{...S.ts, ...st.ts}}:{});
+  if (midx(S.ts.metric) < 0) S.ts.metric = "adr"; if (![5,10].includes(S.ts.k)) S.ts.k = 5;
   wireSearch($("#q"), $("#sugg"));
   fromHash();
   render();
