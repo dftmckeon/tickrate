@@ -104,6 +104,7 @@ select{appearance:none;-webkit-appearance:none;padding:6px 30px 6px 10px;border-
 .banner::before{content:"i";flex:none;width:16px;height:16px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:600 11px/16px var(--sans);text-align:center;margin-top:1px}
 .pill{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;background:var(--surface-3);font-size:12px;color:var(--ink-2);font-weight:500}
 .pill.core{background:var(--accent-soft);color:var(--accent)}
+.pill.pro{background:var(--ink);color:var(--bg);font-weight:600}
 .link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:500;text-decoration:none}
 .link:hover{text-decoration:underline;text-underline-offset:3px}
 
@@ -231,6 +232,32 @@ td.num,td .num{font-size:13px}
 .cmp .edge.a{background:var(--pos-soft);color:var(--pos)}
 .cmp .edge.b{background:var(--neg-soft);color:var(--neg)}
 .cmphead{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* core 5 */
+.c5{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(5,minmax(0,1fr));gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.c5:last-child{border-bottom:0}
+.c5 .lab{color:var(--ink-2);font-size:13px;min-width:0}
+.c5 .lab .note{font-size:11px}
+.c5h{border-bottom:2px solid var(--line);padding-top:2px}
+.c5n{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:600}
+.c5n .link{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c5c{text-align:right;min-width:0;border-radius:6px;padding:3px 5px}
+.c5c.lead{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.c5c .v{font-family:var(--mono);font-size:13px}
+.c5c.lead .v{font-weight:700;color:var(--ink)}
+.c5c .score.lead{outline:2px solid var(--accent);outline-offset:2px}
+.c5c .pbar{margin-top:4px}
+.c5c .nr,.c5c .sub{font-size:10.5px;text-align:right}
+.c5c .score{display:inline-block;font-family:var(--mono);font-size:12.5px;font-weight:600;min-width:32px;text-align:center;padding:2px 6px;border-radius:6px;background:var(--surface-3);color:var(--ink)}
+.c5card{container-type:inline-size}
+.c5cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.c5p{text-align:left;cursor:pointer;display:grid;gap:8px;align-content:start;font:inherit;color:inherit;transition:border-color .12s, transform .12s}
+.c5p:hover{border-color:var(--accent);transform:translateY(-1px)}
+.c5pt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
+.c5pt .ring{transform:scale(.8);transform-origin:left center;margin-right:-12px}
+.c5pn{font-weight:600;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c5pa{font-size:12px;line-height:1.4}
+.c5pl{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:6px}
+@container (max-width:520px){ .c5{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.c5 .lab{grid-column:1/-1}.c5h .lab{display:none}.c5c{padding:3px 3px}.c5c .v{font-size:12px}.c5n{font-size:11.5px} }
 
 @media (max-width:820px){
   .appbar .wrap{flex-wrap:wrap;gap:8px 16px;padding-block:8px}
@@ -262,6 +289,7 @@ td.num,td .num{font-size:13px}
       <button id="nav-home" data-view="home">Players</button>
       <button id="nav-board" data-view="board">Leaderboards</button>
       <button id="nav-compare" data-view="compare">Compare</button>
+      <button id="nav-core5" data-view="core5">Core 5</button>
       <button id="nav-maps" data-view="maps">Maps</button>
       <button id="nav-spots" data-view="spots">Enemy Spots</button>
       <button id="nav-faq" data-view="faq">FAQ</button>
@@ -281,7 +309,7 @@ td.num,td .num{font-size:13px}
 (() => {
 "use strict";
 let D = null;                        // data.json
-const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"rating", sort:"pct", ranked:true}, ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
+const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, c5:{all:false}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"rating", sort:"pct", ranked:true}, ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store = { get(k){try{return JSON.parse(localStorage.getItem("tickrate."+k))}catch(e){return null}}, set(k,v){try{localStorage.setItem("tickrate."+k, JSON.stringify(v))}catch(e){}} };
@@ -374,7 +402,7 @@ function go(view, p){
 function fromHash(){
   const h = location.hash.replace("#","");
   if (/^p\d+$/.test(h) && D.players[+h.slice(1)]) { S.view = "player"; S.p = +h.slice(1); }
-  else if (["home","board","maps","spots","compare","faq"].includes(h)) S.view = h;
+  else if (["home","board","maps","spots","compare","core5","faq"].includes(h)) S.view = h;
   else if (/^(overview|aim|spray|team|deaths|social|form)$/.test(h)) { S.view = "player"; S.tab = h; }
 }
 
@@ -390,7 +418,7 @@ function wireSearch(input, box){
   const draw = () => {
     hits = searchIdx(input.value); on = 0;
     if (!hits.length){ box.hidden = !input.value.trim(); box.innerHTML = input.value.trim() ? `<div style="padding:10px 12px" class="note">No regular matches “${esc(input.value)}”. Pages exist for players with 3+ matches in the store.</div>` : ""; return; }
-    box.innerHTML = hits.map((h,k) => `<button type="button" data-i="${h.i}" class="${k===0?"on":""}"><span>${esc(h.p.name)}${h.s===2?` <small>(was ${esc(h.p.aliases)})</small>`:""}</span><small class="num">Elo ${h.p.last_elo ? Math.round(h.p.last_elo) : "–"} · Overall ${ovr(h.i) ?? "–"}</small></button>`).join("");
+    box.innerHTML = hits.map((h,k) => `<button type="button" data-i="${h.i}" class="${k===0?"on":""}"><span>${esc(h.p.name)}${h.s===2?` <small>(was ${esc(h.p.aliases)})</small>`:""}</span><small class="num">${h.p.pro?"Pro · ":""}Elo ${h.p.last_elo ? Math.round(h.p.last_elo) : "–"} · Overall ${ovr(h.i) ?? "–"}</small></button>`).join("");
     box.hidden = false;
   };
   input.addEventListener("input", draw);
@@ -478,7 +506,7 @@ function viewHome(){
   <div class="section">
     <div><h2>All Regulars</h2><p class="lead">Sorted by matches in the store. The badge is the Overall 1-100 rating.</p></div>
     <div class="chips">${topN.map(({p,i}) => { const r = D.ratings[i] && D.ratings[i].All; const ov = r && r.r[0]!==null ? r.r[0] : null;
-      return `<button class="chip" type="button" data-p="${i}"><span style="min-width:0"><b>${esc(p.name)}</b><small><span class="num">Elo ${p.last_elo ? Math.round(p.last_elo) : "–"}</span> · ${p.matches} matches${p.core?" · Core-5":""}</small></span><span class="score" style="${ov===null?"":`background:${pctTint(ov,.2)};box-shadow:inset 0 0 0 1px ${pctTint(ov,.45)}`}">${ov ?? "–"}</span></button>`; }).join("")}</div>
+      return `<button class="chip" type="button" data-p="${i}"><span style="min-width:0"><b>${esc(p.name)}</b><small><span class="num">Elo ${p.last_elo ? Math.round(p.last_elo) : "–"}</span> · ${p.matches} matches${p.core?" · Core-5":""}${p.pro?` · Pro${p.team?" ("+esc(p.team)+")":""}`:""}</small></span><span class="score" style="${ov===null?"":`background:${pctTint(ov,.2)};box-shadow:inset 0 0 0 1px ${pctTint(ov,.45)}`}">${ov ?? "–"}</span></button>`; }).join("")}</div>
   </div>`;
 }
 
@@ -504,7 +532,7 @@ function viewPlayer(){
       <div style="min-width:0">
         <h1 class="pname">${esc(P.name)}</h1>
         <div class="pmeta">
-          ${P.core ? `<span class="pill core">Core-5</span>` : ""}
+          ${P.core ? `<span class="pill core">Core-5</span>` : ""}${P.pro ? `<span class="pill pro" title="Tier-1 pro (FACEIT pugs)">Pro${P.team?" · "+esc(P.team):""}</span>` : ""}
           <span class="num">${P.matches} matches</span><span class="sep"></span>
           <span class="num">${P.rounds.toLocaleString()} rounds</span><span class="sep"></span>
           <span>${esc(P.first)} → ${esc(P.last)}</span>
@@ -798,7 +826,7 @@ function viewCompare(){
   const pick = (id, cur) => `<select id="${id}">${sorted.map(({x,i})=>`<option value="${i}" ${i===cur?"selected":""}>${esc(x.name)} (Elo ${x.last_elo ? Math.round(x.last_elo) : "–"})</option>`).join("")}</select>`;
   const head = (i, X) => { const r = (D.ratings[i]||{})[w] || (D.ratings[i]||{}).All, ar = (D.arch[i]||{})[w] || (D.arch[i]||{}).All;
     return `<div class="card"><div class="eyebrow">${i===a?"Player A":"Player B"}</div><h2 style="font-size:30px">${esc(X.name)}</h2>
-      <div class="pmeta">${X.core?`<span class="pill core">Core-5</span>`:""}<span class="pill num">${X.matches} matches</span><span class="pill num">Elo ${X.last_elo?Math.round(X.last_elo):"–"}</span><span class="pill num">Overall ${r&&r.r[0]!==null?r.r[0]:"–"}</span></div>
+      <div class="pmeta">${X.core?`<span class="pill core">Core-5</span>`:""}${X.pro?`<span class="pill pro">Pro${X.team?" · "+esc(X.team):""}</span>`:""}<span class="pill num">${X.matches} matches</span><span class="pill num">Elo ${X.last_elo?Math.round(X.last_elo):"–"}</span><span class="pill num">Overall ${r&&r.r[0]!==null?r.r[0]:"–"}</span></div>
       ${ar?`<p class="note" style="margin-top:8px">${esc(ar[0])} · ${esc(ar[1])}</p>`:""}<p style="margin-top:6px"><button class="link" data-p="${i}">Open player page</button></p></div>`; };
   const h = D.h2h[`${a}|${b}`], t = D.mates2[`${a}|${b}`];
   const groups = [["Headline","headline"],["Aim & Mechanics","aim"],["Spray Control","sprayctl"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
@@ -838,6 +866,59 @@ function viewCompare(){
 }
 
 const STAT_GROUPS = [["Headline","headline"],["Aim & Mechanics","aim"],["Spray Control","sprayctl"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
+// ------------------------------------------------------------------ core 5
+const C5_ESSENTIAL = {headline:["rating","adr","kpr","kdr","kast","hs_pct"], aim:["sight_to_shot","xhair_err","first_shot_hit","cs_rate","duel_wr"],
+  sprayctl:["sp_hoe","sp_vdrift"], team:["traded_5s","dmg_left"], utility:["flash_blind_s","flash_team_blind_s","he_dmg","util_wasted"],
+  deaths:["death_reloading","death_audible"], opp:["duel_wr_up","duel_wr_down"]};   // essentials = stats that rank players (all five ranked on the All cell)
+function viewCore5(){
+  const P = D.players;
+  const ids = P.map((x,i)=>({x,i})).filter(o => o.x.core).sort((u,v)=>v.x.matches-u.x.matches).map(o => o.i);
+  if (!ids.length) return `<section class="pagehead"><div class="eyebrow">Core 5</div><h1>The Core 5</h1><p class="lead">No Core-5 players in this data.</p></section>`;
+  const w = ids.every(i => hasWin(i, S.win)) ? S.win : "All";
+  const opts = {win:w, map:"All maps"};
+  const n = ids.length, led = Object.fromEntries(ids.map(i => [i, 0]));
+  const rat = i => (D.ratings[i]||{})[w] || (D.ratings[i]||{}).All;
+  const arc = i => (D.arch[i]||{})[w] || (D.arch[i]||{}).All;
+  // leader = highest ranked percentile, at least 5 points clear of the next player (same rule as Compare's "Edge")
+  const leader = vals => { const r = vals.filter(v => v.v !== null).sort((a,b) => b.v - a.v); return r.length >= 2 && r[0].v - r[1].v >= 5 ? r[0].i : null; };
+  const hdr = `<div class="c5 c5h"><div class="lab eyebrow">Stat</div>${ids.map(i => `<div class="c5n"><button class="link" data-p="${i}" title="${esc(P[i].name)}">${esc(P[i].name)}</button></div>`).join("")}</div>`;
+  const line = key => {
+    const xs = ids.map(i => ({i, x:metric(i, key, opts)})), m = xs[0].x.meta;
+    const top = leader(xs.map(({i,x}) => ({i, v: x.rankable && x.pct !== null ? x.pct : null})));
+    if (top !== null) led[top]++;
+    const cell = ({i,x}) => x.empty ? `<div class="c5c"><div class="v">–</div></div>`
+      : `<div class="c5c${i===top?" lead":""}" title="${esc(P[i].name)}: ${esc(m.label)} ${fmt(x.value, m.fmt)}${x.rankable&&x.pct!==null?` · ${ord(Math.round(x.pct))} percentile`:""}"><div class="v">${fmt(x.value, m.fmt)}</div>${x.rankable&&x.pct!==null?`<div class="pbar"><i style="width:${Math.max(2,x.pct)}%;background:${pctColor(x.pct)}"></i></div>`:`<div class="note nr">not ranked</div>`}</div>`;
+    return `<div class="c5"><div class="lab">${esc(m.label)}${m.dir===-1?` <span class="note">(lower is better)</span>`:""}</div>${xs.map(cell).join("")}</div>`;
+  };
+  const groups = STAT_GROUPS.map(([lab,g]) => [lab, S.c5.all ? D.meta.groups[g] : (C5_ESSENTIAL[g] || []).filter(k => midx(k) >= 0)]).filter(([,ks]) => ks.length);
+  const body = groups.map(([lab,ks]) => `<div class="card c5card"><h3>${esc(titleCase(lab))}</h3>${hdr}${ks.map(line).join("")}</div>`).join("");
+  // 1-100 ratings grid (leader must be 5+ points clear)
+  const cats = D.meta.rating_cats;
+  const rline = (c, j) => { const vs = ids.map(i => ({i, v: rat(i) ? rat(i).r[j] : null})); const top = leader(vs);
+    return `<div class="c5"><div class="lab">${j===0?`<b>${esc(c)}</b>`:esc(c)}</div>${vs.map(({i,v}) => `<div class="c5c"><span class="score num${i===top?" lead":""}" style="${v===null?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null?"–":Math.round(v)}</span></div>`).join("")}</div>`; };
+  const ratings = `<div class="card c5card"><h3>1-100 Ratings</h3><p class="lead note">Same scale as the player pages: 50 = a typical player in the store. Outlined = best of the five by 5+ points.</p>${hdr.replace("Stat","Category")}${cats.map(rline).join("")}</div>`;
+  // teammates matrix: win % when each pair was on the same team
+  const pair = (a,b) => D.mates2[`${a}|${b}`] || D.mates2[`${b}|${a}`] || null;
+  const mcell = (a,b) => { if (a === b) return `<div class="c5c"><span class="note">–</span></div>`; const t = pair(a,b); if (!t || !t[0]) return `<div class="c5c"><span class="note">none</span></div>`;
+    const wp = 100*t[1]/t[0]; return `<div class="c5c" title="${esc(P[a].name)} + ${esc(P[b].name)}: ${t[1]} wins in ${t[0]} matches"><div class="v" style="color:${wp>=50?"var(--pos)":"var(--neg)"}">${wp.toFixed(0)}%</div><div class="note num sub">${t[1]}-${t[0]-t[1]}</div></div>`; };
+  const mates = `<div class="card c5card"><h3>Win % as Teammates</h3><p class="lead note">Every match in the store where both players were on the same team, all-time (the Matches filter doesn't apply). Record shown as wins-losses.</p>${hdr.replace("Stat","With")}${ids.map(a => `<div class="c5"><div class="lab">${esc(P[a].name)}</div>${ids.map(b => mcell(a,b)).join("")}</div>`).join("")}</div>`;
+  const statHtml = body; // computed first so the "stats led" tally is filled before the cards render
+  const card = i => { const r = rat(i), ar = arc(i), X = P[i], ov = r && r.r[0] !== null ? r.r[0] : null;
+    return `<button class="card c5p" type="button" data-p="${i}"><div class="c5pt">${ring(ov)}<div style="min-width:0"><div class="c5pn">${esc(X.name)}</div><div class="note num">Elo ${X.last_elo?Math.round(X.last_elo):"–"}<br>${X.matches} matches</div></div></div>
+      ${ar?`<div class="note c5pa">${esc(ar[0])}<br>${esc(ar[1])}</div>`:""}<div class="c5pl"><span class="eyebrow">Stats led</span><b class="num">${led[i]}</b></div></button>`; };
+  return `<section class="pagehead"><div class="eyebrow">Core 5</div><h1>The Core 5 Side by Side</h1><p class="lead">All five regulars on the essential stats. Bars are Elo-adjusted percentiles (same as Compare); the highlighted cell is the best of the five on a ranked stat, 5+ percentile points clear of the next player.</p></section>
+  <div class="filters">
+    <div class="ctl"><span class="eyebrow">Matches</span>${seg("k-win", D.meta.windows, w, o => o==="All" || ids.every(i => hasWin(i,o)) ? null : "All five need that many matches")}</div>
+    <div class="ctl"><span class="eyebrow">Side</span>${seg("k-side", D.meta.sides, S.side)}</div>
+    <div class="ctl"><span class="eyebrow">Weapon</span>${seg("k-wf", D.meta.wfilters, S.wf)}</div>
+    <div class="ctl"><span class="eyebrow">Stats</span>${seg("k-all", ["Essentials","All stats"], S.c5.all ? "All stats" : "Essentials")}</div>
+  </div>
+  ${w !== S.win ? `<div class="banner" style="margin-top:10px">Not all five have ${esc(S.win)} matches: showing all matches.</div>` : ""}
+  <div class="c5cards section">${ids.map(card).join("")}</div>
+  <div class="grid g2 section">${ratings}${mates}</div>
+  <div class="grid g2 section">${statHtml}</div>`;
+}
+
 // ------------------------------------------------------------------ leaderboards
 function viewBoard(){
   const B = S.board, mets = D.meta.metrics;
@@ -863,7 +944,7 @@ function viewBoard(){
   ${allW ? `<div class="banner" style="margin-top:10px">${esc(meta.label)} has no weapon split: showing all weapons.</div>` : ""}
   ${S.win !== "All" ? `<div class="banner" style="margin-top:10px">Only players with at least ${S.win.split(" ")[1]} matches appear under “${esc(S.win)}”.</div>` : ""}
   <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table><thead><tr><th>#</th><th>Player</th><th class="r">Matches<span class="nw-only"> / Sample</span></th><th class="r">Value<span class="nw-only"> / At their Elo</span></th><th class="r w-only">At their Elo</th><th class="pcol">Elo-adjusted percentile</th><th class="r w-only">Sample</th></tr></thead><tbody>
-  ${rows.map((r,j)=>`<tr><td class="num">${j+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}</td><td class="r num">${r.P.matches}<span class="sub2 nw-only">${Math.round(r.den).toLocaleString()}</span></td><td class="r num"><b>${fmt(r.v, meta.fmt)}</b><span class="sub2 nw-only">${fmt(r.exp, meta.fmt)}</span></td><td class="r num note w-only">${fmt(r.exp, meta.fmt)}</td><td>${r.rk&&r.pct!==null?`<div class="pbar"><i style="width:${Math.max(2,r.pct)}%;background:${pctColor(r.pct)}"></i></div><div class="pct num note" style="font-size:11px">${ord(Math.round(r.pct))}</div>`:`<span class="note">not ranked</span>`}</td><td class="r num note w-only">${Math.round(r.den).toLocaleString()}</td></tr>`).join("") || `<tr><td colspan="7" class="note">Nobody qualifies for this combination.</td></tr>`}
+  ${rows.map((r,j)=>`<tr><td class="num">${j+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}</td><td class="r num">${r.P.matches}<span class="sub2 nw-only">${Math.round(r.den).toLocaleString()}</span></td><td class="r num"><b>${fmt(r.v, meta.fmt)}</b><span class="sub2 nw-only">${fmt(r.exp, meta.fmt)}</span></td><td class="r num note w-only">${fmt(r.exp, meta.fmt)}</td><td>${r.rk&&r.pct!==null?`<div class="pbar"><i style="width:${Math.max(2,r.pct)}%;background:${pctColor(r.pct)}"></i></div><div class="pct num note" style="font-size:11px">${ord(Math.round(r.pct))}</div>`:`<span class="note">not ranked</span>`}</td><td class="r num note w-only">${Math.round(r.den).toLocaleString()}</td></tr>`).join("") || `<tr><td colspan="7" class="note">Nobody qualifies for this combination.</td></tr>`}
   </tbody></table></div>`;
 }
 
@@ -1338,6 +1419,7 @@ function render(){
   let html = "";
   if (S.view === "player" && S.p !== null) html = viewPlayer();
   else if (S.view === "compare") html = viewCompare();
+  else if (S.view === "core5") html = viewCore5();
   else if (S.view === "board") html = viewBoard();
   else if (S.view === "maps") html = viewMaps();
   else if (S.view === "spots") html = viewSpots();
@@ -1349,7 +1431,7 @@ function render(){
   drawCharts();
   saveState();
 }
-function saveState(){ store.set("state", {win:S.win, side:S.side, wf:S.wf, tab:S.tab, board:S.board, spots:S.spots, maps:S.maps, heatMode:S.heatMode, ts:S.ts}); }
+function saveState(){ store.set("state", {win:S.win, side:S.side, wf:S.wf, tab:S.tab, c5:S.c5, board:S.board, spots:S.spots, maps:S.maps, heatMode:S.heatMode, ts:S.ts}); }
 function rerenderTab(){ const tb = $("#tabbody"); if (!tb) return render(); killCharts(); tb.innerHTML = tabBody(S.p); bindTab(); drawCharts(); }
 function bind(){
   const fm = $("#f-map"); if (fm) fm.addEventListener("change", () => { S.map = fm.value; render(); });
@@ -1359,6 +1441,8 @@ function bind(){
   if (cb) cb.addEventListener("change", () => { S.cmp.b = +cb.value; if (S.cmp.b === S.cmp.a) S.cmp.a = null; render(); });
   const sw = $("#c-swap"); if (sw) sw.addEventListener("click", () => { [S.cmp.a, S.cmp.b] = [S.cmp.b, S.cmp.a]; render(); });
   onSeg("c-win", v => { S.win = v; render(); }); onSeg("c-side", v => { S.side = v; render(); }); onSeg("c-wf", v => { S.wf = v; render(); });
+  onSeg("k-win", v => { S.win = v; render(); }); onSeg("k-side", v => { S.side = v; render(); }); onSeg("k-wf", v => { S.wf = v; render(); });
+  onSeg("k-all", v => { S.c5.all = v === "All stats"; render(); });
   onSeg("s-mode", v => { S.heatMode = {"Where They Stand":"pres", "Where Kills Come From":"kills", "Where They Die":"deaths"}[v]; render(); });
   onSeg("s-level", v => { S.spots.level = v; render(); });
   const q2 = $("#q2"); if (q2) wireSearch(q2, $("#sugg2"));
@@ -1404,7 +1488,7 @@ new MutationObserver(() => D && drawCharts()).observe(document.documentElement, 
 const embedded = document.getElementById("tickrate-data");
 (embedded ? Promise.resolve(JSON.parse(embedded.textContent)) : fetch("data.json", {cache: "no-cache"}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })).then(d => {
   D = d;
-  const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres"}, st.board?{board:{...S.board, ...st.board}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{}, st.ts?{ts:{...S.ts, ...st.ts}}:{});
+  const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres"}, st.board?{board:{...S.board, ...st.board}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{}, st.ts?{ts:{...S.ts, ...st.ts}}:{}, st.c5?{c5:{...S.c5, ...st.c5}}:{});
   if (midx(S.ts.metric) < 0) S.ts.metric = "adr"; if (![5,10].includes(S.ts.k)) S.ts.k = 5;
   wireSearch($("#q"), $("#sugg"));
   fromHash();
