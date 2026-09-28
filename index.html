@@ -83,8 +83,8 @@ h3{font-size:15px;font-weight:600}
 .card>h3+.lead{margin-top:4px}
 .grid{display:grid;gap:16px}
 .grid>*,.tiles>*,.section>*{min-width:0}
-.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
-.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
 .section{display:grid;gap:16px;margin-top:20px}
 .span{grid-column:1/-1}
 .pagehead{padding-block:28px 4px;display:grid;gap:4px}
@@ -92,9 +92,9 @@ h3{font-size:15px;font-weight:600}
 
 /* toolbar + controls */
 .filters{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--bar-h));z-index:10;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-top:18px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
-.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0;max-width:100%}
 .ctl>.eyebrow,.ctl>label{font-size:10.5px}
-.seg{display:inline-flex;gap:2px;padding:3px;background:var(--surface-3);border-radius:9px}
+.seg{display:inline-flex;flex-wrap:wrap;max-width:100%;gap:2px;padding:3px;background:var(--surface-3);border-radius:9px}
 .seg button{border:0;background:transparent;padding:5px 11px;border-radius:6px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;white-space:nowrap;transition:background .12s,color .12s}
 .seg button:hover:not(:disabled){color:var(--ink)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
@@ -111,7 +111,16 @@ select{appearance:none;-webkit-appearance:none;padding:6px 30px 6px 10px;border-
 .tscroll{overflow-x:auto;margin-inline:-4px;padding-inline:4px}
 table{border-collapse:collapse;width:100%;font-size:13.5px}
 th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
-th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap;border-bottom-color:var(--line-strong)}
+th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;vertical-align:bottom;border-bottom-color:var(--line-strong)}
+td.num{white-space:nowrap}
+td .sub2{display:block;font-size:11.5px;color:var(--muted);font-weight:400;white-space:nowrap}
+tr.grp td{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface-2);padding-block:5px}
+.pcol{min-width:160px}
+.nw-only,span.sub2.nw-only{display:none}
+@container (max-width:620px){ .w-only{display:none} .nw-only{display:inline} span.sub2.nw-only{display:block} }
+/* h-scroll pass: tables compact themselves in narrow cards instead of scrolling */
+@container (max-width:560px){ th,td{padding:7px 6px} th{letter-spacing:.03em} .pcol{min-width:84px} }
+@container (max-width:380px){ th,td{padding:6px 4px} table{font-size:13px} th{font-size:10.5px;letter-spacing:0} .pcol{min-width:56px} }
 tbody tr:hover td{background:var(--surface-2)}
 tbody tr:last-child td{border-bottom:0}
 td.r,th.r{text-align:right}
@@ -205,6 +214,11 @@ td.num,td .num{font-size:13px}
 .foot{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
 .steps{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;color:var(--ink-2);font-size:13px}
 .steps b{color:var(--ink)}
+.faqtoc{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:8px;font-size:13.5px}
+.faq,.section[id^="faq-"]{scroll-margin-top:calc(var(--bar-h) + 16px)}
+.faq .steps{font-size:13.5px}
+.faqh2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-top:4px}
+.formula{font-family:var(--mono);font-size:12.5px;line-height:1.7;background:var(--surface-3);border-radius:var(--r-sm);padding:10px 12px;margin:8px 0;overflow-wrap:anywhere}
 
 /* heatmap, compare */
 .heatwrap{position:relative;width:100%;max-width:780px;margin-inline:auto}
@@ -227,10 +241,14 @@ td.num,td .num{font-size:13px}
 @media (max-width:640px){
   .wrap{padding-inline:16px}
   .overall{width:100%}
+  .nav{flex-wrap:wrap;overflow-x:visible}
+  .nav button{padding:0 8px;min-height:36px}
+  .nav button[aria-current="page"]::after{left:8px;right:8px}
   .cmp{grid-template-columns:1fr 1fr 56px}.cmp .lab{grid-column:1/-1}
   .cmphead{grid-template-columns:1fr}
   .kpis>div{border-right:0;border-bottom:1px solid var(--line)}
 }
+@media (max-width:400px){ .card{padding:16px 12px} }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -246,6 +264,7 @@ td.num,td .num{font-size:13px}
       <button id="nav-compare" data-view="compare">Compare</button>
       <button id="nav-maps" data-view="maps">Maps</button>
       <button id="nav-spots" data-view="spots">Enemy Spots</button>
+      <button id="nav-faq" data-view="faq">FAQ</button>
     </nav>
     <div class="search">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -355,7 +374,7 @@ function go(view, p){
 function fromHash(){
   const h = location.hash.replace("#","");
   if (/^p\d+$/.test(h) && D.players[+h.slice(1)]) { S.view = "player"; S.p = +h.slice(1); }
-  else if (["home","board","maps","spots","compare"].includes(h)) S.view = h;
+  else if (["home","board","maps","spots","compare","faq"].includes(h)) S.view = h;
   else if (/^(overview|aim|spray|team|deaths|social|form)$/.test(h)) { S.view = "player"; S.tab = h; }
 }
 
@@ -566,9 +585,9 @@ function overview(p){
       <div class="tb" style="margin-top:8px">${tb.bottom.length ? tb.bottom.map((i,n)=>item(i,n+1,"is-bot")).join("") : `<div class="note">No stat is clearly below average for these filters.</div>`}</div>
       <p class="note" style="margin-top:10px">Stats with little data are pulled toward the 50th percentile, so the list favours stats measured on many events.</p>
     </div>
-    <div class="card"><h3>1-100 Ratings</h3><p class="lead note">50 = typical regular; 84 = one true-talent standard deviation above. Bands show ±1 standard error.${w!=="All"?` Last ${rat?rat.n:""} matches.`:""}</p>
+    <div class="card"><h3>1-100 Ratings</h3><p class="lead note">50 = average across everyone in the data; 84 = one true-talent standard deviation above. Bands show ±1 standard error.${w!=="All"?` Last ${rat?rat.n:""} matches.`:""} <button class="link" data-go="faq">How these are calculated</button></p>
       <div class="chartbox" style="height:290px;margin-top:6px"><canvas id="radar" aria-label="Ratings radar"></canvas></div>
-      <div class="tscroll"><table class="num" style="margin-top:8px"><tbody>${D.meta.rating_cats.map((c,j)=>`<tr><td style="font-family:var(--body)">${c}</td><td class="r"><b>${rat&&rat.r[j]!==null?rat.r[j]:"–"}</b></td><td class="r note">${rat&&rat.band[j]?rat.band[j]:""}</td></tr>`).join("")}</tbody></table></div>
+      <div class="tscroll"><table class="num" style="margin-top:8px"><tbody>${D.meta.rating_cats.map((c,j)=>`<tr><td style="font-family:var(--sans)">${c}</td><td class="r"><b>${rat&&rat.r[j]!==null?rat.r[j]:"–"}</b></td><td class="r note">${rat&&rat.band[j]?rat.band[j]:""}</td></tr>`).join("")}</tbody></table></div>
     </div>
     <div class="grid" style="align-content:start">${archCard(p)}${mapsCard(p)}</div>
   </div>`;
@@ -588,12 +607,12 @@ function sprayTab(p){
   const sg = (v, d=2) => v === null || v === undefined ? "–" : (v > 0 ? "+" : "") + v.toFixed(d);
   const vtxt = o.vctrl === null ? "" : o.vctrl > 1.03 ? "Pulls down a little too far (aim drops below the target)." : o.vctrl < 0.97 ? "Pulls down too little (aim rises above the target)." : "Pull-down matches the gun's kick.";
   const ctrl = `<div class="card"><h3>Recoil Control</h3><p class="lead note">All matches, both sides, AK/M4. How much of the gun's kick the player cancels between bullet 1 and bullet 15. 100% = fully cancelled; over 100% = pulling too far.</p>
-    <div class="tscroll"><table class="num" style="margin-top:8px"><thead><tr><th style="font-family:var(--body)"></th><th class="r">Player</th><th class="r">Average</th><th class="r">Rank</th></tr></thead><tbody>
-      <tr><td style="font-family:var(--body)">Vertical control</td><td class="r"><b>${pp(o.vctrl)}</b></td><td class="r note">${pp(H.lobby_vctrl)}</td><td class="r note">${rk(o.vctrl_rank, o.vctrl_of)}</td></tr>
-      <tr><td style="font-family:var(--body)">Horizontal control</td><td class="r"><b>${pp(o.hctrl)}</b></td><td class="r note">${pp(H.lobby_hctrl)}</td><td class="r note">${rk(o.hctrl_rank, o.hctrl_of)}</td></tr>
-      <tr><td style="font-family:var(--body)">Vertical bias, bullets 4-12 (deg)</td><td class="r"><b>${sg(o.vbias)}</b></td><td class="r note">${sg(LC[2])}</td><td class="r note"></td></tr>
-      <tr><td style="font-family:var(--body)">Typical drift, bullets 4-12 (deg)</td><td class="r"><b>${fmt(o.drift_med,"f2")}</b></td><td class="r note">${fmt(LC[3],"f2")}</td><td class="r note"></td></tr>
-      <tr><td style="font-family:var(--body)">Spray hits vs expected, bullets 4+ (pts)</td><td class="r"><b>${sg(o.hoe_b4p === null ? null : o.hoe_b4p * 100, 1)}</b></td><td class="r note">0.0</td><td class="r note">${rk(o.hoe_b4p_rank, o.hoe_b4p_of)}</td></tr>
+    <div class="tscroll"><table class="num" style="margin-top:8px"><thead><tr><th style="font-family:var(--sans)"></th><th class="r">Player</th><th class="r">Average</th><th class="r">Rank</th></tr></thead><tbody>
+      <tr><td style="font-family:var(--sans)">Vertical control</td><td class="r"><b>${pp(o.vctrl)}</b></td><td class="r note">${pp(H.lobby_vctrl)}</td><td class="r note">${rk(o.vctrl_rank, o.vctrl_of)}</td></tr>
+      <tr><td style="font-family:var(--sans)">Horizontal control</td><td class="r"><b>${pp(o.hctrl)}</b></td><td class="r note">${pp(H.lobby_hctrl)}</td><td class="r note">${rk(o.hctrl_rank, o.hctrl_of)}</td></tr>
+      <tr><td style="font-family:var(--sans)">Vertical bias, bullets 4-12 (deg)</td><td class="r"><b>${sg(o.vbias)}</b></td><td class="r note">${sg(LC[2])}</td><td class="r note"></td></tr>
+      <tr><td style="font-family:var(--sans)">Typical drift, bullets 4-12 (deg)</td><td class="r"><b>${fmt(o.drift_med,"f2")}</b></td><td class="r note">${fmt(LC[3],"f2")}</td><td class="r note"></td></tr>
+      <tr><td style="font-family:var(--sans)">Spray hits vs expected, bullets 4+ (pts)</td><td class="r"><b>${sg(o.hoe_b4p === null ? null : o.hoe_b4p * 100, 1)}</b></td><td class="r note">0.0</td><td class="r note">${rk(o.hoe_b4p_rank, o.hoe_b4p_of)}</td></tr>
     </tbody></table></div>
     <p class="note" style="margin-top:8px">${esc(vtxt)} Ranks: vertical = closest to 100%. Horizontal control is noisy for one player (few sprays reach the side-to-side part of the pattern). Based on ${(o.ctrl_n||0).toLocaleString()} bullets.</p></div>`;
   const curve = `<div class="card"><h3>Hit Rate by Bullet</h3><p class="lead note">All matches, AK/M4. Share of bullets that hit, by position in the burst. "Expected" = the lobby rate for the same weapon, bullet, distance and movement, so the gap is skill, not situation.</p>
@@ -624,8 +643,8 @@ function sprayTab(p){
     <p class="note" style="margin-top:8px">Long-range bursts that became full sprays (6+ bullets): <b>${pp(o.long_spray_share)}</b> of ${o.long_groups||0} bursts at 1,500 u+. Full sprays there land far fewer bullets than bursts do (lobby table below).</p></div>`;
   const TY = X.types || [], TN = {tap:"Tap (1)", burst:"Burst (2-5)", spray:"Spray (6+)"};
   const types = `<div class="card"><h3>Tap, Burst or Spray? (Lobby)</h3><p class="lead note">AK/M4 bursts that started on target, all players. Damage per bullet fired and how often the target died. A burst that kills early stays short, so kill rates favour longer sprays; damage per bullet is the fairer read.</p>
-    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Distance</th><th>Type</th><th class="r">Bursts</th><th class="r">Damage per bullet</th><th class="r">Hit per bullet</th><th class="r">Target killed</th></tr></thead><tbody>
-    ${dl.flatMap(d => ["tap","burst","spray"].map(t => TY.find(x => x[0]===d && x[1]===t)).filter(Boolean)).map(x => `<tr><td>${esc(DN[x[0]]||x[0])}</td><td>${TN[x[1]]}</td><td class="r num">${x[2].toLocaleString()}</td><td class="r num">${fmt(x[3],"f1")}</td><td class="r num">${fmt(x[5]===null?null:x[5]*100,"pct")}</td><td class="r num">${fmt(x[4]===null?null:x[4]*100,"pct")}</td></tr>`).join("")}
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Type</th><th class="r">Bursts</th><th class="r">Damage per bullet</th><th class="r">Hit per bullet</th><th class="r">Target killed</th></tr></thead><tbody>
+    ${dl.map(d => { const rs = ["tap","burst","spray"].map(t => TY.find(x => x[0]===d && x[1]===t)).filter(Boolean); return !rs.length ? "" : `<tr class="grp"><td colspan="5">${esc(DN[d]||d)}</td></tr>` + rs.map(x => `<tr><td>${TN[x[1]]}</td><td class="r num">${x[2].toLocaleString()}</td><td class="r num">${fmt(x[3],"f1")}</td><td class="r num">${fmt(x[5]===null?null:x[5]*100,"pct")}</td><td class="r num">${fmt(x[4]===null?null:x[4]*100,"pct")}</td></tr>`).join(""); }).join("")}
     </tbody></table></div>
     ${(X.payoff||[]).length ? `<p class="note" style="margin-top:8px">Spray tightness and fights (lobby, decisive 1v1s): ${X.payoff.slice().sort((a,b)=>a[3]-b[3]).map(r => `${esc(r[0].replace(" (best third)","").replace(" (worst third)",""))} sprays (median drift ${fmt(r[3],"f2")} deg) won ${fmt(r[2]*100,"pct")}`).join(" · ")}.</p>` : ""}</div>`;
   return `<div class="section">${cards}<div class="grid g2">${ctrl}${curve}</div>${pat}<div class="grid g2">${dist}${types}</div></div>`;
@@ -643,16 +662,17 @@ function archCard(p){
   return `<div class="card"><h3>Archetype</h3>
     <p style="margin:8px 0 4px"><b>${esc(ar[0])}</b> <span class="note">fit ${ar[2]}</span></p><p class="note" style="margin:0">${esc(D.meta.archetypes[ar[0]]||"")}</p>
     <p style="margin:12px 0 4px"><b>${esc(ar[1])}</b> <span class="note">fit ${ar[3]}</span></p><p class="note" style="margin:0">${esc(D.meta.archetypes[ar[1]]||"")}</p>
-    ${ar[4] ? `<p class="note" style="margin-top:10px">Close call: the two fits are within a quarter of a standard deviation.</p>` : ""}</div>`;
+    ${ar[4] ? `<p class="note" style="margin-top:10px">Close call: the two fits are within a quarter of a standard deviation.</p>` : ""}
+    <p class="note" style="margin-top:10px"><button class="link" data-go="faq">What each archetype means</button></p></div>`;
 }
 function tradesByStack(p){
   const T = D.ins.trades, rows = (T.rows[p] || []).filter(r => r[0] === S.side), lob = (T.rows.lobby||[]).filter(r => r[0] === S.side);
   const order = ["All","solo","2-3 stack","4-5 stack","unknown"];
   const get = (arr, st) => arr.find(r => r[1] === st);
   const tr = order.filter(st => get(rows, st)).map(st => { const r = get(rows, st), l = get(lob, st) || [];
-    return `<tr><td>${esc(pretty(st))}</td><td class="r num">${r[2]}</td><td class="r num">${fmt(r[4],"pct")}</td><td class="r num note">${fmt(l[4],"pct")}</td><td class="r num">${fmt(r[6],"pct")}</td><td class="r num">${fmt(r[8],"f1")}</td></tr>`; }).join("");
+    return `<tr><td>${esc(pretty(st))}</td><td class="r num">${r[2]}</td><td class="r num">${fmt(r[4],"pct")}<span class="sub2">avg ${fmt(l[4],"pct")}</span></td><td class="r num">${fmt(r[6],"pct")}</td><td class="r num">${fmt(r[8],"f1")}</td></tr>`; }).join("");
   return `<div class="card"><h3>Trading by Stack</h3><p class="lead note">Solo queue vs playing in a party. Side: ${esc(S.side)} (all weapons, all matches).</p>
-    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Queue</th><th class="r">Deaths</th><th class="r">Traded 5 s</th><th class="r">Average</th><th class="r">Untraded openers</th><th class="r">Trade kills /100r</th></tr></thead><tbody>${tr || `<tr><td colspan="6" class="note">No data</td></tr>`}</tbody></table></div></div>`;
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Queue</th><th class="r">Deaths</th><th class="r">Traded 5 s</th><th class="r">Untraded openers</th><th class="r">Trade kills /100r</th></tr></thead><tbody>${tr || `<tr><td colspan="5" class="note">No data</td></tr>`}</tbody></table></div></div>`;
 }
 function utilityExtra(p){
   const U = D.ins.utility, r = U.rows[p], l = U.rows.lobby; if (!r) return "";
@@ -699,8 +719,9 @@ function eloCard(p){
   const last = E.slice(-10).reverse();
   return `<div class="card"><h3>Elo and Match Rating</h3><p class="lead note">Pre-match Elo (line) against the match rating (dots) and its rolling 10-match average. ${E.length} matches in the store.</p>
     <div class="chartbox" style="height:320px;margin-top:8px"><canvas id="elochart" aria-label="Elo and rating over time"></canvas></div>
-    <div class="tscroll"><table style="margin-top:10px"><thead><tr><th>Date</th><th>Map</th><th class="r">Elo before</th><th class="r">Change</th><th>Result</th><th class="r">Score</th><th class="r">Rating</th></tr></thead><tbody>
-    ${last.map(r=>`<tr><td class="num">${esc(r[0].slice(0,10))}</td><td>${esc(mapName("de_"+r[1]))}</td><td class="r num">${r[2]??"–"}</td><td class="r num" style="color:${r[3]&&r[2]?(r[3]-r[2]>=0?"var(--pos)":"var(--neg)"):"inherit"}">${r[3]&&r[2]?((r[3]-r[2]>=0?"+":"")+(r[3]-r[2])):"–"}</td><td>${r[5]==="W"?"Win":r[5]==="L"?"Loss":"–"}</td><td class="r num">${r[6]??""}-${r[7]??""}</td><td class="r num">${fmt(r[4],"f2")}</td></tr>`).join("")}
+    <div class="tscroll"><table style="margin-top:10px"><thead><tr><th>Date</th><th>Map</th><th class="r">Elo before<span class="nw-only"> / Change</span></th><th class="r w-only">Change</th><th>Result</th><th class="r">Rating</th></tr></thead><tbody>
+    ${last.map(r=>{ const ec = r[3]&&r[2]?(r[3]-r[2]>=0?"var(--pos)":"var(--neg)"):"inherit", ed = r[3]&&r[2]?((r[3]-r[2]>=0?"+":"")+(r[3]-r[2])):"–";
+      return `<tr><td class="num">${esc(r[0].slice(0,10))}</td><td>${esc(mapName("de_"+r[1]))}</td><td class="r num">${r[2]??"–"}<span class="sub2 nw-only" style="color:${ec}">${ed}</span></td><td class="r num w-only" style="color:${ec}">${ed}</td><td style="white-space:nowrap">${r[5]==="W"?"Win":r[5]==="L"?"Loss":"–"}<span class="sub2 num">${r[6]??""}-${r[7]??""}</span></td><td class="r num">${fmt(r[4],"f2")}</td></tr>`; }).join("")}
     </tbody></table></div></div>`;
 }
 // v4.11: any stat match by match. Per-match value = num / den from that match's facts; the rolling line and the
@@ -841,8 +862,8 @@ function viewBoard(){
   </div>
   ${allW ? `<div class="banner" style="margin-top:10px">${esc(meta.label)} has no weapon split: showing all weapons.</div>` : ""}
   ${S.win !== "All" ? `<div class="banner" style="margin-top:10px">Only players with at least ${S.win.split(" ")[1]} matches appear under “${esc(S.win)}”.</div>` : ""}
-  <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table><thead><tr><th>#</th><th>Player</th><th class="r">Matches</th><th class="r">Value</th><th class="r">At their Elo</th><th style="min-width:160px">Elo-adjusted percentile</th><th class="r">Sample</th></tr></thead><tbody>
-  ${rows.map((r,j)=>`<tr><td class="num">${j+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}</td><td class="r num">${r.P.matches}</td><td class="r num"><b>${fmt(r.v, meta.fmt)}</b></td><td class="r num note">${fmt(r.exp, meta.fmt)}</td><td>${r.rk&&r.pct!==null?`<div class="pbar"><i style="width:${Math.max(2,r.pct)}%;background:${pctColor(r.pct)}"></i></div><div class="pct num note" style="font-size:11px">${ord(Math.round(r.pct))}</div>`:`<span class="note">not ranked</span>`}</td><td class="r num note">${Math.round(r.den).toLocaleString()}</td></tr>`).join("") || `<tr><td colspan="7" class="note">Nobody qualifies for this combination.</td></tr>`}
+  <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table><thead><tr><th>#</th><th>Player</th><th class="r">Matches<span class="nw-only"> / Sample</span></th><th class="r">Value<span class="nw-only"> / At their Elo</span></th><th class="r w-only">At their Elo</th><th class="pcol">Elo-adjusted percentile</th><th class="r w-only">Sample</th></tr></thead><tbody>
+  ${rows.map((r,j)=>`<tr><td class="num">${j+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}</td><td class="r num">${r.P.matches}<span class="sub2 nw-only">${Math.round(r.den).toLocaleString()}</span></td><td class="r num"><b>${fmt(r.v, meta.fmt)}</b><span class="sub2 nw-only">${fmt(r.exp, meta.fmt)}</span></td><td class="r num note w-only">${fmt(r.exp, meta.fmt)}</td><td>${r.rk&&r.pct!==null?`<div class="pbar"><i style="width:${Math.max(2,r.pct)}%;background:${pctColor(r.pct)}"></i></div><div class="pct num note" style="font-size:11px">${ord(Math.round(r.pct))}</div>`:`<span class="note">not ranked</span>`}</td><td class="r num note w-only">${Math.round(r.den).toLocaleString()}</td></tr>`).join("") || `<tr><td colspan="7" class="note">Nobody qualifies for this combination.</td></tr>`}
   </tbody></table></div>`;
 }
 
@@ -1075,7 +1096,7 @@ function sprayLab(){
   const rd = $("#sl-read");
   if (rd){ const r = sP.find(x => x.b === S.spk) || sP[sP.length - 1], a = A.find(x => x.b === (r ? r.b : S.spk));
     const dir = (v, pos, neg, d = 1) => v === null || v === undefined ? "–" : `${Math.abs(v).toFixed(d)}° ${v >= 0 ? pos : neg}`;
-    const row = (lab, x, y, al) => `<tr><td style="font-family:var(--body)">${lab}</td><td class="r"><b>${x}</b></td><td class="r note">${y}</td></tr>`;
+    const row = (lab, x, y, al) => `<tr><td style="font-family:var(--sans)">${lab}</td><td class="r"><b>${x}</b></td><td class="r note">${y}</td></tr>`;
     rd.innerHTML = !a ? "" : `<thead><tr><th>Bullet ${r ? r.b : a.b}${r ? ` · ${r.n.toLocaleString()} bursts` : ""}</th><th class="r">${esc(D.players[S.p].name)}</th><th class="r">Average</th></tr></thead><tbody>
       ${row("Gun kick", `${dir(a.ku, "up", "down")}, ${dir(a.kr, "right", "left")}`, "same gun")}
       ${row("Counter-pull", r ? `${dir(r.pd, "down", "up")}, ${dir(r.pl, "left", "right")}` : "–", `${dir(a.pd, "down", "up")}, ${dir(a.pl, "left", "right")}`)}
@@ -1083,9 +1104,11 @@ function sprayLab(){
       ${row("Hit rate", r ? fmt(r.hit * 100, "pct") : "–", fmt(a.hit * 100, "pct"))}</tbody>`; }
   const ct = $("#sl-ctrl");
   if (ct){ const L = (D.spray.lob || {})[S.spw] || {}, pp = v => v === null || v === undefined ? "–" : Math.round(v * 100) + "%", sg = v => v === null || v === undefined ? "–" : (v > 0 ? "+" : "") + v.toFixed(2) + "°";
-    ct.innerHTML = `<thead><tr><th>${esc(S.spw)}, all matches</th><th class="r">Vertical control</th><th class="r">Horizontal control</th><th class="r">Vertical bias, bullets 4-12</th><th class="r">Hit rate, bullets 4-6</th><th class="r">Bullets 7-10</th><th class="r">Sprays</th></tr></thead><tbody>
-      <tr><td>${esc(D.players[S.p].name)}</td>${wc ? `<td class="r"><b>${pp(wc[0])}</b></td><td class="r"><b>${pp(wc[1])}</b></td><td class="r">${sg(wc[2])}</td><td class="r">${pp(wc[5])}</td><td class="r">${pp(wc[6])}</td><td class="r">${wc[4].toLocaleString()}</td>` : `<td class="r note" colspan="6">Not enough sprays with this gun</td>`}</tr>
-      <tr><td class="note">Average</td><td class="r note">${pp(lc[0])}</td><td class="r note">${pp(lc[1])}</td><td class="r note">${sg(lc[2])}</td><td class="r note">${pp(L.h46)}</td><td class="r note">${pp(L.h710)}</td><td class="r note"></td></tr></tbody>`; }
+    // h-scroll pass: transposed (one stat per row) so the 7-column strip no longer scrolls sideways
+    const crow = (lab, pv, av, bold) => `<tr><td style="font-family:var(--sans)">${lab}</td><td class="r num">${bold ? `<b>${pv}</b>` : pv}</td><td class="r num note">${av}</td></tr>`;
+    ct.innerHTML = `<thead><tr><th>${esc(S.spw)}, all matches</th><th class="r">${esc(D.players[S.p].name)}</th><th class="r">Average</th></tr></thead><tbody>
+      ${wc ? crow("Vertical control", pp(wc[0]), pp(lc[0]), true) + crow("Horizontal control", pp(wc[1]), pp(lc[1]), true) + crow("Vertical bias, bullets 4-12", sg(wc[2]), sg(lc[2])) + crow("Hit rate, bullets 4-6", pp(wc[5]), pp(L.h46)) + crow("Hit rate, bullets 7-10", pp(wc[6]), pp(L.h710)) + crow("Sprays", wc[4].toLocaleString(), "")
+        : `<tr><td class="note" colspan="3">Not enough sprays with this gun (average: vertical control ${pp(lc[0])}, horizontal ${pp(lc[1])}, vertical bias ${sg(lc[2])}, hit rate ${pp(L.h46)} on bullets 4-6 and ${pp(L.h710)} on 7-10)</td></tr>`}</tbody>`; }
 }
 // ------------------------------------------------------------------ charts
 function drawCharts(){
@@ -1175,6 +1198,140 @@ function drawCharts(){
 }
 
 // ------------------------------------------------------------------ render + events
+// ------------------------------------------------------------------ FAQ (ratings + archetypes)
+// Mirrors cs2pipe/ratings.py (COMPONENTS, CONSISTENCY_SD, OVERALL_W, ARCHETYPES). If those change, update this
+// block and rerun scrap/faq-ratings-page/check_faq_sync.py.
+const FAQ_CATS = [
+  ["Aiming", "How well the player shoots: raw output plus the mechanics behind it.", [
+    ["Kills Per Round", .20, "Per round"], ["Damage Per Round", .20, "Per round"], ["Duel Win %", .20, "Per fight between him and one enemy that ended with one of them killing the other"],
+    ["Headshot %", .15, "Per kill"], ["Crosshair Error (Lower Is Better)", .15, "Per duel that ended in a kill, with the enemy in line of sight; degrees between the aim and the enemy's head when he was first seen, capped at 45°"],
+    ["First-Shot Hit %", .10, "Per first bullet of a burst (no shot in the previous 0.5 s)"]]],
+  ["Clutching", "Winning rounds as the last player alive.", [
+    ["Clutch Wins Over Expected", .70, "Per clutch (1v1 to 1v5): result (win = 1, loss = 0) minus the average win rate for that clutch size"],
+    ["1v1 Win %", .30, "Per 1v1"]]],
+  ["Entrying", "Taking the first fight of the round and making it count.", [
+    ["Opening Duel Win %", .35, "Per opening duel (the round's first kill)"], ["Opening Duels Per Round", .30, "Per round"],
+    ["First Into the Site (T)", .20, "Per T-side site take he entered: share where he was first in"], ["Round Win % After Own Opening Kill", .15, "Per opening kill"]]],
+  ["AWPing", "How much the player AWPs and how well.", [
+    ["AWP Kills Per AWP Round", .35, "Per round started with an AWP"], ["Rounds With an AWP", .25, "Per round"],
+    ["AWP Duel Win %", .25, "Per duel that ended in a kill, with the AWP in hand"], ["AWP Accuracy (Adjusted)", .15, "Per AWP shot, leaving out shots fired blind or through smoke"]]],
+  ["Utility", "Grenade damage and flash quality, minus waste and team flashes.", [
+    ["Utility Damage Per Round", .25, "Per round"], ["Enemies Blinded Per Flash", .20, "Per flash; enemies blinded for 1 s or more"], ["Flash Assists Per Round", .20, "Per round"],
+    ["Flashes Leading to a Kill", .15, "Per flash"], ["Teammates Blinded Per Flash (Lower Is Better)", .10, "Per flash"],
+    ["Unused Utility at Death (Lower Is Better)", .10, "Per death, in $100s of grenades still held"]]],
+  ["Support", "Playing for the team: assists, drops, objective and playing near teammates.", [
+    ["KAST %", .25, "Per round"], ["Assists Per Round", .20, "Per round"], ["Drops Given", .15, "Per round, estimated value of gear the player dropped, in $1,000s"],
+    ["Deaths Near a Teammate", .15, "Per death; an alive teammate within 1,000 units"], ["Teammates Nearby in Duels", .15, "Per duel that ended in a kill; teammates within 800 units when it started"],
+    ["Plants and Defuses Per Round", .10, "Per round"]]],
+  ["Trading", "Avenging teammates and getting avenged.", [
+    ["Trade Conversion", .50, "Per trade chance: trade kills (within 5 s) per teammate death while the player was alive"], ["Own Deaths Traded", .30, "Per death; avenged within 5 s"],
+    ["Trade Kills Per Round", .20, "Per round; kills within 5 s of a teammate's death"]]],
+  ["Pistols", "Output in the pistol rounds.", [
+    ["Pistol-Round Damage", .30, "Per pistol round"], ["Pistol-Round Kills", .25, "Per pistol round"], ["Pistol-Round Win %", .25, "Per pistol round"],
+    ["Pistol-Round KAST", .20, "Per pistol round"]]],
+  ["Knifing", "The knife round, plus knife kills in live rounds. Not part of Overall.", [
+    ["Knife-Round Kills", .35, "Per knife round"], ["Knife-Round Win %", .25, "Per knife round"], ["Knife-Round Survival", .20, "Per knife round"],
+    ["Knife Kills in Live Rounds", .20, "Per 100 rounds"]]],
+  ["Luck", "Kills and survivals that owe something to fortune. Not part of Overall.", [
+    ["Kills Through Smoke", .20, "Per kill"], ["Duel Wins With a 20°+ Flick", .20, "Per fight won"], ["Survived on 20 HP or Less", .20, "Per round survived"],
+    ["Wallbang Kills", .15, "Per kill"], ["Grenade and Molotov Kills", .15, "Per kill"], ["Kills While Blind", .10, "Per kill"]]],
+  ["Consistency", "How steady the player is from match to match (higher = steadier). Not part of Overall.", [
+    ["Spread of Match Rating (Lower Is Better)", .50, "Per match with 10+ rounds"], ["Spread of Match ADR (Lower Is Better)", .25, "Per match with 10+ rounds"],
+    ["Matches Rated Below 0.80 (Lower Is Better)", .25, "Per match"]]],
+];
+const FAQ_OVERALL = [["Aiming", .30], ["Entrying", .12], ["Trading", .12], ["Support", .12], ["Utility", .12], ["Clutching", .10], ["Pistols", .07], ["AWPing", .05]];
+const FAQ_ARCH = [
+  ["The Carry", "Puts up the biggest numbers and wins. The top all-round players.",
+    [["Overall Rating", "+60%"], ["Round Win %", "+40%"]]],
+  ["Mr. Impact", "Wins more than the stat sheet says he should: a high round win %, more than his Overall predicts, plus strong clutching, pistol and knife-round ratings.",
+    [["Round Win %", "+35%"], ["Round Win % Above What His Overall Predicts", "+25%"], ["Clutching Rating", "+15%"], ["Pistols Rating", "+15%"], ["Knifing Rating", "+10%"]]],
+  ["The Backpack", "Low output and low impact: few multi-kills, few opening duels, weak clutching. Gets carried.",
+    [["Overall Rating", "−60%"], ["Impact (Multi-Kill Rounds, Opening Duels Taken, Clutching; Averaged)", "−40%"]]],
+  ["The Glue Guy", "Holds the team together: support, trading and utility, in equal parts.",
+    [["Support Rating", "+⅓"], ["Trading Rating", "+⅓"], ["Utility Rating", "+⅓"]]],
+  ["Mr. Average", "Nothing stands out: the ten category ratings other than Consistency sit closer to 50 than a typical player's would with the same amount of data. Scored differently from the rest (see below).",
+    [["Distance of the Ten Category Ratings from 50, vs a Typical Player with the Same Data", "−100%"]]],
+  ["The Anchor", "Teammates win less with him than without him, and his own win rates and stats are low. Needs a with-and-without test (see below).",
+    [["Round Win %", "−50%"], ["Overall Rating", "−30%"], ["Match Wins Above FACEIT's Forecast", "−20%"]]],
+  ["The Leprechaun", "Gets the lucky kills: through smoke, with grenades and on wild flicks.",
+    [["Luck Rating", "+50%"], ["Kills Through Smoke", "+20%"], ["Grenade and Molotov Kills", "+15%"], ["Duel Wins With a 20°+ Flick", "+15%"]]],
+  ["The Ninja", "Lurks away from the team and wins fights from behind the enemy or through smoke.",
+    [["Duel Wins from Behind the Enemy", "+35%"], ["Distance from the Team's Site Take (T)", "+25%"], ["Kills Through Smoke", "+25%"], ["Rounds in the Lurker Role", "+15%"]]],
+  ["The Tank", "First through the door: takes opening duels, enters sites first, soaks damage and dies first a lot.",
+    [["Opening Duels Per Round", "+30%"], ["Damage Taken Per Round", "+25%"], ["Opening Deaths Per Round", "+25%"], ["First Into the Site (T)", "+20%"]]],
+  ["Mr. Inconsistent", "Big swings from one match to the next. The mirror image of the Consistency rating.",
+    [["Consistency Rating", "−100%"]]],
+  ["Master Angler", "Plays for the last-alive moment: rarely traded, often the last one standing, sits far from the team, and many of his kills are trades off teammates who went first. Lower impact.",
+    [["Own Deaths Not Traded", "+20%"], ["Rounds as Last Alive", "+20%"], ["Distance from the Team's Site Take (T)", "+20%"], ["Share of Kills That Are Trades", "+20%"], ["Impact (Multi-Kill Rounds, Opening Duels Taken, Clutching; Averaged)", "−20%"]]],
+];
+function faqArchStats(){
+  const st = {};
+  FAQ_ARCH.forEach(([a]) => st[a] = {prim:[], sec:0});
+  Object.entries(D.arch || {}).forEach(([p, w]) => { const x = w.All; if (!x) return;
+    if (st[x[0]]) st[x[0]].prim.push({p:+p, fit:x[2]}); if (st[x[1]]) st[x[1]].sec++; });
+  Object.values(st).forEach(s => s.prim.sort((a, b) => (b.fit ?? 0) - (a.fit ?? 0)));
+  return st;
+}
+function viewFaq(){
+  const pct = w => Math.round(w * 100) + "%";
+  const st = faqArchStats(), nArch = Object.values(D.arch || {}).filter(w => w.All).length;
+  const q = (id, title, body) => `<div class="card faq" id="faq-${id}"><h3>${title}</h3>${body}</div>`;
+  const toc = [["kinds","Three Kinds of Numbers"],["rating","The Match Rating"],["calc","How the 1-100 Ratings Work"],["cats","What Each Rating Measures"],
+    ["overall","Overall"],["bands","Bands, Windows and Small Samples"],["arch","How Archetypes Are Assigned"],["types","The 11 Archetypes"],["pct","Elo-Adjusted Percentiles"]];
+  const catCard = ([c, blurb, comps]) => `<div class="card"><h3>${c}</h3><p class="lead note">${blurb}</p>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th><th>Measured</th></tr></thead><tbody>
+    ${comps.map(([l, w, u]) => `<tr><td>${l}</td><td class="r num">${pct(w)}</td><td class="note">${u}</td></tr>`).join("")}</tbody></table></div></div>`;
+  const archCardF = ([a, blurb, ing]) => { const s = st[a], top = s.prim.slice(0, 5);
+    return `<div class="card"><h3>${a}</h3><p class="lead note" style="color:var(--ink-2)">${blurb}</p>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Trait</th><th class="r">Weight</th></tr></thead><tbody>
+    ${ing.map(([l, w]) => `<tr><td>${l}</td><td class="r num" style="color:${w.startsWith("−")?"var(--neg)":"var(--pos)"}">${w}</td></tr>`).join("")}</tbody></table></div>
+    <p class="note" style="margin-top:8px">Primary label for <b>${s.prim.length}</b> of ${nArch} regulars, secondary for <b>${s.sec}</b> (all matches).${top.length ? ` Best fits: ${top.map(x => `<button class="link" data-p="${x.p}">${esc(D.players[x.p].name)}</button> <span class="num">${x.fit ?? "–"}</span>`).join(" · ")}${s.prim.length > 5 ? ` and ${s.prim.length - 5} more` : ""}.` : ""}</p></div>`; };
+  return `<section class="pagehead"><div class="eyebrow">FAQ</div><h1>How the Ratings and Archetypes Work</h1><p class="lead">What every rating means, how it is calculated and how each player gets his two archetype labels. Every number on the site comes from the same ${D.meta.matches} FACEIT matches.</p></section>
+  <div class="card" style="margin-top:18px"><div class="eyebrow">On This Page</div><div class="faqtoc">${toc.map(([id, t]) => `<button class="link" data-faq="${id}">${t}</button>`).join("")}</div></div>
+  <div class="section">
+  ${q("kinds", "What Are the Three Kinds of Numbers?", `<div class="tscroll"><table style="margin-top:8px"><thead><tr><th>Number</th><th>Example</th><th>What It Means</th></tr></thead><tbody>
+    <tr><td><b>Match Rating</b></td><td class="num">1.20</td><td>Output per round on an HLTV-style scale, where 1.00 is roughly average. Shown as the Rating stat and in the Elo table.</td></tr>
+    <tr><td><b>1-100 Rating</b></td><td class="num">84</td><td>Where the player's estimated true skill sits among everyone in the data (50 = average). Twelve of them: Overall plus eleven categories. Not adjusted for Elo.</td></tr>
+    <tr><td><b>Elo-Adjusted Percentile</b></td><td class="num">71st</td><td>One stat against what players at the same FACEIT Elo usually post. Used on the stat rows, Leaderboards and Compare.</td></tr>
+    </tbody></table></div>`)}
+  ${q("rating", "How Is the Match Rating Calculated?", `<p class="note" style="color:var(--ink-2)">An HLTV 2.0-style formula applied to each match:</p>
+    <div class="formula">Rating = 0.0073 × KAST% + 0.3591 × KPR − 0.5329 × DPR + 0.2372 × Impact + 0.0032 × ADR + 0.1587<br>Impact = 2.13 × KPR + 0.42 × APR − 0.41</div>
+    <p class="note">KPR, DPR and APR = kills, deaths and assists per round; ADR = damage per round; KAST% = share of rounds with a kill, assist, survival or traded death. The Rating stat over several matches is weighted by rounds, so a 30-round match counts more than a 16-round one.</p>`)}
+  ${q("calc", "How Are the 1-100 Ratings Calculated?", `<ol class="steps">
+    <li><b>Break each category into ingredients.</b> Every ingredient is a rate (Consistency also uses match-to-match spreads) (for example kills per round, or headshots per kill). The next section lists each one and its weight.</li>
+    <li><b>Compare with everyone.</b> Each rate is compared with the pooled rate across all ${D.meta.players_in_store.toLocaleString()} players in the data, not just the regulars. The comparison is not adjusted for Elo.</li>
+    <li><b>Separate skill from luck of the draw.</b> A random-effects model measures how much players really differ on that ingredient (their true spread) and how noisy one player's number is, given how much data (rounds, kills, duels) it comes from. Rounds in the same match share teammates, opponents and form, so the match, not the round, is the unit of evidence.</li>
+    <li><b>Shrink small samples.</b> The player's number is pulled toward the average in proportion to its noise, then expressed as a z-score on the true-skill scale. With 3 matches a player's ratings are pulled well toward 50 and carry wide bands; with 100 matches they sit close to his raw numbers.</li>
+    <li><b>Combine the ingredients.</b> The category z-score is the weighted sum of the ingredient z-scores, divided by its own spread. The spread allows for ingredients that measure the same thing (kills and damage), using their true-skill correlations among players with 3+ matches.</li>
+    <li><b>Convert to 1-100.</b> Rating = 100 × the normal-curve percentile of that z-score, kept between 1 and 100. 50 = average, 84 = one standard deviation of true skill above it, 98 = two above, 16 = one below.</li></ol>
+    <p class="note" style="margin-top:10px">When the model finds no measurable spread between players on an ingredient (typical for rare events such as knife kills or pistol-round kills), the spread is borrowed from the closest measurable ingredient so the ingredient still counts.</p>`)}
+  </div>
+  <div class="section" id="faq-cats"><div><div class="eyebrow">Ingredients</div><h2 class="faqh2">What Each Rating Measures</h2><p class="lead">Weights add to 100% within each rating. “Lower is better” ingredients count in reverse.</p></div>
+    <div class="grid g2">${FAQ_CATS.map(catCard).join("")}</div></div>
+  <div class="section">
+  ${q("overall", "How Is Overall Built?", `<p class="note" style="color:var(--ink-2)">Overall mixes eight skill ratings. Knifing, Luck and Consistency are left out: they describe the player but are not skill at winning rounds.</p>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Rating</th><th class="r">Weight in Overall</th></tr></thead><tbody>${FAQ_OVERALL.map(([c, w]) => `<tr><td>${c}</td><td class="r num">${pct(w)}</td></tr>`).join("")}</tbody></table></div>
+    <p class="note" style="margin-top:8px">Overall is the weighted sum of the eight category scores, rescaled by its own true-skill spread. That spread is worked out from the correlations of all the ingredients at once, so categories that overlap (Aiming and Entrying, say) don't stretch the scale. It is the number in the ring on each player's page.</p>`)}
+  ${q("bands", "What Do the Bands, Match Windows and Small Samples Mean?", `<ul class="steps">
+    <li><b>Band</b> (for example 71-88): the rating one standard error either side, about a two-in-three range for the player's true level. It allows for correlated noise between ingredients. A wide band means little data.</li>
+    <li><b>Last 10 / 30 / 50</b>: the same model scored on only those matches, against the same all-data average and spread, so the scale doesn't move between windows. A shorter window has less evidence and is pulled harder toward 50. A window only appears when the player has that many matches.</li>
+    <li><b>Consistency</b> uses the spread of the player's match ratings and ADR (on a log scale, shrunk toward the typical spread when the player has few matches), plus the share of matches rated below 0.80. It needs 3+ matches of 10+ rounds.</li>
+    <li><b>Why are newcomers' ratings less extreme?</b> Three matches is weak evidence, so the model pulls them toward average and gives them wide bands until the data says otherwise.</li></ul>`)}
+  ${q("arch", "How Are Archetypes Assigned?", `<ol class="steps">
+    <li><b>Traits.</b> Each archetype is a weighted mix of traits (the tables below). The traits are ratings or shrunk true-skill z-scores, so small samples are pulled toward average here too. A minus weight means less of that trait fits better.</li>
+    <li><b>Fit.</b> The weighted sum is divided by its own true-skill spread and shown as 100 × its normal-curve percentile: fit 50 = a typical player on that mix, fit 84 = one standard deviation more of it.</li>
+    <li><b>Labels.</b> The primary label is the best-fitting archetype and the secondary is the next best; both are shown on the Overview tab. When the two are within a quarter of a standard deviation, the page flags a close call.</li>
+    <li><b>Mr. Average</b> is scored differently. It compares how far the ten category ratings other than Consistency sit from 50 with how far a typical player's would sit with the same amount of data. Fewer extremes than expected = a better fit.</li>
+    <li><b>The Anchor</b> also needs a with-and-without test: at least 3 of the other Core-5 players must win a lower share of rounds with him on their team than without him (without = any match where he wasn't on their team). The test can only be run inside the Core-5, so for everyone else (and any Core-5 player who fails it) the Anchor is moved to the bottom of the list and never assigned.</li>
+    <li><b>Mr. Inconsistent</b> needs 3+ matches of 10+ rounds, like the Consistency rating.</li></ol>`)}
+  </div>
+  <div class="section" id="faq-types"><div><div class="eyebrow">Archetypes</div><h2 class="faqh2">The 11 Archetypes</h2><p class="lead">Weights are shares of each archetype's mix. Counts and best fits use all matches and update with the data.</p></div>
+    <div class="grid g2">${FAQ_ARCH.map(archCardF).join("")}</div></div>
+  <div class="section">
+  ${q("pct", "How Do the Elo-Adjusted Percentiles Differ?", `<p class="note" style="color:var(--ink-2)">The stat rows, Leaderboards and Compare use a different yardstick. For each stat, a line of expected value against pre-match Elo is fitted on every player's matches. The player's gap to that line is shrunk with the same model as the ratings, and the percentile is the share of players he is estimated to be better than, given his Elo. A 2,800 Elo player needs a better number than a 1,800 Elo player to reach the same percentile. A stat where players don't differ measurably once Elo is allowed for is shown but not ranked.</p>`)}
+  </div>`;
+}
+
 function render(){
   const app = $("#app");
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", (b.dataset.view === S.view || (S.view==="player" && b.dataset.view==="home")) ? "page" : "false"));
@@ -1184,6 +1341,7 @@ function render(){
   else if (S.view === "board") html = viewBoard();
   else if (S.view === "maps") html = viewMaps();
   else if (S.view === "spots") html = viewSpots();
+  else if (S.view === "faq") html = viewFaq();
   else { S.view = "home"; html = viewHome(); }
   html += `<p class="foot">Built from ${D.meta.matches} FACEIT matches · ${D.players.length} regulars (3+ matches) · data ${esc(D.meta.built_utc)} · pipeline v${esc(D.meta.version)}. Percentiles are Elo-adjusted and shrunk toward 50 for small samples.</p>`;
   app.innerHTML = html;
@@ -1217,6 +1375,7 @@ function bind(){
   const mm = $("#m-map"); if (mm) mm.addEventListener("change", () => { S.maps.map = mm.value; render(); });
   onSeg("m-scope", v => { S.maps.scope = v; render(); });
   const sm = $("#s-map"); if (sm) sm.addEventListener("change", () => { S.spots.map = sm.value; render(); });
+  document.querySelectorAll("[data-faq]").forEach(b => b.addEventListener("click", () => { const t = document.getElementById("faq-" + b.dataset.faq); if (t) t.scrollIntoView({behavior:"smooth", block:"start"}); }));
   onSeg("s-side", v => { S.spots.side = v; render(); }); onSeg("s-snap", v => { S.spots.snap = +v; render(); }); onSeg("s-scope", v => { S.spots.scope = v; render(); });
 }
 function bindTab(){
@@ -1229,6 +1388,7 @@ function bindTab(){
   const pm = $("#ph-map"); if (pm) pm.addEventListener("change", () => { S.pheat.map = pm.value; S.pheat.level = null; if (S.map !== "All maps") S.map = pm.value; rerenderTab(); });
   onSeg("ph-mode", v => { S.pheat.mode = {"Where They Stand":"stand", "Where They Get Kills":"kills", "Where They Die":"deaths"}[v]; rerenderTab(); });
   onSeg("ph-level", v => { S.pheat.level = v; rerenderTab(); });
+  document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => go(b.dataset.go)));
   document.querySelectorAll("#tabbody [data-p]").forEach(b => b.addEventListener("click", () => { S.tab = "overview"; go("player", +b.dataset.p); }));
   document.querySelectorAll("[data-def]").forEach(b => b.addEventListener("click", () => { const k = b.dataset.def; S.open[k] = !S.open[k]; const y = window.scrollY; if ($("#tabbody") && $("#tabbody").contains(b)) { killCharts(); $("#tabbody").innerHTML = tabBody(S.p); bindTab(); drawCharts(); } else render(); window.scrollTo({top:y}); }));
 }
