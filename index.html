@@ -1,5 +1,5 @@
-<title>Tickrate</title>
-<meta name="description" content="Tickrate: per-player CS2 FACEIT pug analytics: Elo-adjusted percentiles, mechanics, team play, maps and enemy spots.">
+<title>Ticklab</title>
+<meta name="description" content="Ticklab: per-player CS2 FACEIT pug analytics: Elo-adjusted percentiles, mechanics, team play, maps and enemy spots.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%236E4F86'/%3E%3Cg transform='translate(4 4)' fill='none' stroke='%23FFFFFF' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='7'/%3E%3Cpath d='M12 2v5M12 17v5M2 12h5M17 12h5'/%3E%3C/g%3E%3C/svg%3E">
 <meta name="theme-color" content="#6E4F86">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -332,9 +332,9 @@ a.pill.fc:hover{border-color:var(--accent)}
 
 <header class="appbar">
   <div class="wrap">
-    <a class="brand" href="#home" id="brand" aria-label="Tickrate home">
+    <a class="brand" href="#home" id="brand" aria-label="Ticklab home">
       <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg></span>
-      Tickrate
+      Ticklab
     </a>
     <nav class="nav" aria-label="Pages">
       <button id="nav-home" data-view="home">Players</button>
@@ -1677,6 +1677,9 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-29T23:24:34Z", "v4.24", "Tickrate Is Now Ticklab", [
+    "New name and new address: the site now lives at ticklab.gg.",
+    "Old dftmckeon.github.io/tickrate links redirect here automatically. Because the address changed, your browser treats it as a new site, so any remembered filters or theme choice reset once."]],
   ["2026-09-29T22:51:15Z", "v4.23", "Multi-Stat Charts, Compare Refresh, More Filters", [
     "Form & Elo: Stat Over Time can plot up to four stats at once. “+ Metric” adds a stat, × removes one. Each keeps its own axis, or switch Scale to Standardized to put them on one scale, and a panel shows how strongly each pair moves together (correlation).",
     "Compare: bigger header cards with the Overall ring and FACEIT Elo (with the last-10 change) up front, archetypes as pills, and Stats led / Ratings led with narrow leads.",
