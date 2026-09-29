@@ -85,6 +85,7 @@ h3{font-size:15px;font-weight:600}
 .grid>*,.tiles>*,.section>*{min-width:0}
 .g2{grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+.upd{display:grid;gap:12px}.updh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.updh h3{margin:0;flex:1 1 auto}.updc ul{margin-top:8px}
 .gx2{grid-template-columns:repeat(2,minmax(0,1fr))}.gx3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:1060px){ .gx3{grid-template-columns:1fr} }
 @media (max-width:860px){ .gx2{grid-template-columns:1fr} }
@@ -261,6 +262,9 @@ a.pill.fc:hover{border-color:var(--accent)}
 .c5c.lead{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
 .c5c .v{font-family:var(--mono);font-size:13px}
 .c5c.lead .v{font-weight:700;color:var(--ink)}
+.c5c.lead2{box-shadow:none;border:1px dashed var(--accent);padding:2px 4px}
+.c5c .score.lead2{outline:1px dashed var(--accent);outline-offset:2px}
+.c5pl small{font-weight:400;color:var(--muted);font-size:11px;margin-left:4px}
 .c5c .score.lead{outline:2px solid var(--accent);outline-offset:2px}
 .c5c .pbar{margin-top:4px}
 .c5c .nr,.c5c .sub{font-size:10.5px;text-align:right}
@@ -311,6 +315,7 @@ a.pill.fc:hover{border-color:var(--accent)}
       <button id="nav-maps" data-view="maps">Maps</button>
       <button id="nav-spots" data-view="spots">Enemy Spots</button>
       <button id="nav-faq" data-view="faq">FAQ</button>
+      <button id="nav-updates" data-view="updates">Updates</button>
     </nav>
     <div class="search">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -435,7 +440,7 @@ function go(view, p){
 function fromHash(){
   const h = location.hash.replace("#","");
   if (/^p\d+$/.test(h) && D.players[+h.slice(1)]) { S.view = "player"; S.p = +h.slice(1); }
-  else if (["home","board","maps","spots","compare","core5","faq"].includes(h)) S.view = h;
+  else if (["home","board","maps","spots","compare","core5","faq","updates"].includes(h)) S.view = h;
   else if (/^(overview|aim|spray|team|deaths|social|form)$/.test(h)) { S.view = "player"; S.tab = h; }
 }
 
@@ -868,14 +873,15 @@ function viewCompare(){
   const line = key => {
     const x = metric(a, key, opts), y = metric(b, key, opts), m = x.meta;
     const px = cmpPct(x), py = cmpPct(y);
-    let top = null;
-    if (px !== null && py !== null && Math.abs(px - py) >= 5){ top = px > py ? a : b; if (top === a) winsA++; else winsB++; }
+    let top = null, clear = false;                                   // v4.20: the better player is always marked
+    if (px !== null && py !== null){ top = px >= py ? a : b; clear = Math.abs(px - py) >= 5; if (clear){ if (top === a) winsA++; else winsB++; } }
+    else if (px !== null || py !== null) top = px !== null ? a : b;
     const cellv = (i, z, pz) => { if (z.empty) return `<div class="c5c"><div class="v">–</div></div>`; const cv = cmpVal(z);
-      return `<div class="c5c${i===top?" lead":""}" title="${esc(P[i].name)}: ${esc(m.label)} ${fmt(z.value, m.fmt)} raw${z.exp!=null?` · at their Elo ${fmt(z.exp, m.fmt)}`:""}${pz!==null?` · ${ord(Math.round(pz))} percentile (${adjLabel()})`:""}"><div class="v">${fmt(cv.v, m.fmt)}</div>${pz!==null?`<div class="pbar"><i style="width:${Math.max(2,pz)}%;background:${pctColor(pz)}"></i></div>`:`<div class="note nr">not ranked</div>`}${cv.sub?`<div class="note sub">${cv.sub}</div>`:""}</div>`; };
+      return `<div class="c5c${i===top?(clear?" lead":" lead2"):""}" title="${esc(P[i].name)}: ${esc(m.label)} ${fmt(z.value, m.fmt)} raw${z.exp!=null?` · at their Elo ${fmt(z.exp, m.fmt)}`:""}${pz!==null?` · ${ord(Math.round(pz))} percentile (${adjLabel()})`:""}"><div class="v">${fmt(cv.v, m.fmt)}</div>${pz!==null?`<div class="pbar"><i style="width:${Math.max(2,pz)}%;background:${pctColor(pz)}"></i></div>`:`<div class="note nr">not ranked</div>`}${cv.sub?`<div class="note sub">${cv.sub}</div>`:""}</div>`; };
     return `<div class="cmp"><div class="lab">${esc(m.label)}${m.dir===-1?` <span class="note">(lower is better)</span>`:""}</div>${cellv(a, x, px)}${cellv(b, y, py)}</div>`;
   };
   const body = groups.map(([lab,g]) => `<div class="card"><h3>${esc(titleCase(lab))}</h3><div class="cmp" style="border-bottom:2px solid var(--line)"><div class="eyebrow">Stat</div><div class="eyebrow" style="text-align:right">${esc(A.name)}</div><div class="eyebrow" style="text-align:right">${esc(B.name)}</div></div>${D.meta.groups[g].map(line).join("")}</div>`).join("");
-  return `<section class="pagehead"><div class="eyebrow">Compare</div><h1>Head to Head</h1><p class="lead">Two regulars side by side. The highlighted cell is the player at least 5 percentile points ahead on a ranked stat. ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (the raw value is shown underneath), and bars are Elo-adjusted percentiles."}</p></section>
+  return `<section class="pagehead"><div class="eyebrow">Compare</div><h1>Head to Head</h1><p class="lead">Two regulars side by side. The better player on each ranked stat is highlighted: solid when 5+ percentile points ahead, dashed when closer. ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (the raw value is shown underneath), and bars are Elo-adjusted percentiles."}</p></section>
   <div class="filters">
     <div class="ctl"><label class="eyebrow" for="c-a">Player A</label>${pick("c-a", a)}</div>
     <div class="ctl"><label class="eyebrow" for="c-b">Player B</label>${pick("c-b", b)}</div>
@@ -915,14 +921,18 @@ function viewCore5(){
   const rat = i => (D.ratings[i]||{})[w] || (D.ratings[i]||{}).All;
   const arc = i => (D.arch[i]||{})[w] || (D.arch[i]||{}).All;
   // leader = highest ranked percentile, at least 5 points clear of the next player (same rule as Compare's "Edge")
-  const leader = vals => { const r = vals.filter(v => v.v !== null).sort((a,b) => b.v - a.v); return r.length >= 2 && r[0].v - r[1].v >= 5 ? r[0].i : null; };
+  // v4.20: the best player is always marked; clear = 5+ points ahead of the next (solid), otherwise a narrow lead (dashed)
+  const leader = vals => { const r = vals.filter(v => v.v !== null && v.v !== undefined).sort((a,b) => b.v - a.v); if (!r.length) return {i:null, clear:false};
+    return {i:r[0].i, clear: r.length >= 2 && r[0].v - r[1].v >= 5}; };
+  const hl = (t, i) => t.i === i ? (t.clear ? " lead" : " lead2") : "";
+  const nled = Object.fromEntries(ids.map(i => [i, 0])), nrled = Object.fromEntries(ids.map(i => [i, 0]));
   const hdr = `<div class="c5 c5h"><div class="lab eyebrow">Stat</div>${ids.map(i => `<div class="c5n"><button class="link" data-p="${i}" title="${esc(P[i].name)}">${esc(P[i].name)}</button></div>`).join("")}</div>`;
   const line = key => {
     const xs = ids.map(i => ({i, x:metric(i, key, opts)})), m = xs[0].x.meta;
     const top = leader(xs.map(({i,x}) => ({i, v: cmpPct(x)})));
-    if (top !== null) led[top]++;
+    if (top.i !== null) (top.clear ? led : nled)[top.i]++;
     const cell = ({i,x}) => { if (x.empty) return `<div class="c5c"><div class="v">–</div></div>`; const pz = cmpPct(x), cv = cmpVal(x);
-      return `<div class="c5c${i===top?" lead":""}" title="${esc(P[i].name)}: ${esc(m.label)} ${fmt(x.value, m.fmt)} raw${x.exp!=null?` · at their Elo ${fmt(x.exp, m.fmt)}`:""}${pz!==null?` · ${ord(Math.round(pz))} percentile (${adjLabel()})`:""}"><div class="v">${fmt(cv.v, m.fmt)}</div>${pz!==null?`<div class="pbar"><i style="width:${Math.max(2,pz)}%;background:${pctColor(pz)}"></i></div>`:`<div class="note nr">not ranked</div>`}${cv.sub?`<div class="note sub">${cv.sub}</div>`:""}</div>`; };
+      return `<div class="c5c${hl(top, i)}" title="${esc(P[i].name)}: ${esc(m.label)} ${fmt(x.value, m.fmt)} raw${x.exp!=null?` · at their Elo ${fmt(x.exp, m.fmt)}`:""}${pz!==null?` · ${ord(Math.round(pz))} percentile (${adjLabel()})`:""}"><div class="v">${fmt(cv.v, m.fmt)}</div>${pz!==null?`<div class="pbar"><i style="width:${Math.max(2,pz)}%;background:${pctColor(pz)}"></i></div>`:`<div class="note nr">not ranked</div>`}${cv.sub?`<div class="note sub">${cv.sub}</div>`:""}</div>`; };
     return `<div class="c5"><div class="lab">${esc(m.label)}${m.dir===-1?` <span class="note">(lower is better)</span>`:""}</div>${xs.map(cell).join("")}</div>`;
   };
   const groups = STAT_GROUPS.map(([lab,g]) => [lab, S.c5.all ? D.meta.groups[g] : (C5_ESSENTIAL[g] || []).filter(k => midx(k) >= 0)]).filter(([,ks]) => ks.length);
@@ -930,9 +940,9 @@ function viewCore5(){
   // 1-100 ratings grid (leader must be 5+ points clear)
   const cats = D.meta.rating_cats;
   const rled = Object.fromEntries(ids.map(i => [i, 0]));
-  const rline = (c, j) => { const vs = ids.map(i => ({i, v: rat(i) ? rat(i).r[j] : null})); const top = leader(vs); if (top !== null) rled[top]++;
-    return `<div class="c5"><div class="lab">${j===0?`<b>${esc(c)}</b>`:esc(c)}</div>${vs.map(({i,v}) => `<div class="c5c"><span class="score num${i===top?" lead":""}" style="${v===null?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null?"–":Math.round(v)}</span></div>`).join("")}</div>`; };
-  const ratings = `<div class="card c5card"><h3>1-100 Ratings</h3><p class="lead note">Same scale as the player pages: 50 = a typical player in the store. Outlined = best of the five by 5+ points.</p>${hdr.replace("Stat","Category")}${cats.map(rline).join("")}</div>`;
+  const rline = (c, j) => { const vs = ids.map(i => ({i, v: rat(i) ? rat(i).r[j] : null})); const top = leader(vs); if (top.i !== null) (top.clear ? rled : nrled)[top.i]++;
+    return `<div class="c5"><div class="lab">${j===0?`<b>${esc(c)}</b>`:esc(c)}</div>${vs.map(({i,v}) => `<div class="c5c"><span class="score num${hl(top, i)}" style="${v===null?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null?"–":Math.round(v)}</span></div>`).join("")}</div>`; };
+  const ratings = `<div class="card c5card"><h3>1-100 Ratings</h3><p class="lead note">Same scale as the player pages: 50 = a typical player in the store. Solid outline = best of the five by 5+ points; dashed = best by a narrower margin.</p>${hdr.replace("Stat","Category")}${cats.map(rline).join("")}</div>`;
   // teammates matrix: win % when each pair was on the same team
   const pair = (a,b) => D.mates2[`${a}|${b}`] || D.mates2[`${b}|${a}`] || null;
   const mcell = (a,b) => { if (a === b) return `<div class="c5c"><span class="note">–</span></div>`; const t = pair(a,b); if (!t || !t[0]) return `<div class="c5c"><span class="note">none</span></div>`;
@@ -941,8 +951,8 @@ function viewCore5(){
   const statHtml = body; // computed first so the "stats led" tally is filled before the cards render
   const card = i => { const r = rat(i), ar = arc(i), X = P[i], ov = r && r.r[0] !== null ? r.r[0] : null;
     return `<button class="card c5p" type="button" data-p="${i}"><div class="c5pt">${ring(ov)}<div style="min-width:0"><div class="c5pn">${esc(X.name)}</div><div class="note num">Elo ${X.last_elo?Math.round(X.last_elo):"–"}<br>${X.matches} matches</div></div></div>
-      ${ar?`<div class="note c5pa">${esc(ar[0])}<br>${esc(ar[1])}</div>`:""}<div class="c5pl"><span class="eyebrow">Stats led</span><b class="num">${led[i]}</b></div><div class="c5pl c5pl2"><span class="eyebrow">Ratings led</span><b class="num">${rled[i]}</b></div></button>`; };
-  return `<section class="pagehead"><div class="eyebrow">Core 5</div><h1>The Core 5 Side by Side</h1><p class="lead">All five regulars on the essential stats. The highlighted cell is the best of the five on a ranked stat, 5+ percentile points clear of the next player (same rule as Compare). ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (raw value underneath), and bars are Elo-adjusted percentiles."} No highlight means the top two are within 5 points, or fewer than two of the five are ranked on that stat. “Stats led” follows the Raw / Elo-adjusted toggle and the filters; “Ratings led” counts the 1-100 ratings (Overall included) where a player is 5+ points clear, and doesn't change with the toggle.</p></section>
+      ${ar?`<div class="note c5pa">${esc(ar[0])}<br>${esc(ar[1])}</div>`:""}<div class="c5pl"><span class="eyebrow">Stats led</span><span><b class="num">${led[i]}</b><small>+${nled[i]} narrow</small></span></div><div class="c5pl c5pl2"><span class="eyebrow">Ratings led</span><span><b class="num">${rled[i]}</b><small>+${nrled[i]} narrow</small></span></div></button>`; };
+  return `<section class="pagehead"><div class="eyebrow">Core 5</div><h1>The Core 5 Side by Side</h1><p class="lead">All five regulars on the essential stats. The best of the five on every ranked stat is highlighted: solid when 5+ percentile points clear of the next player, dashed when the lead is narrower (same rule as Compare). ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (raw value underneath), and bars are Elo-adjusted percentiles."} “Stats led” counts the clear (solid) leads, with narrow ones shown as “+n narrow”; it follows the Raw / Elo-adjusted toggle and the filters. “Ratings led” does the same for the 1-100 ratings (Overall included) and doesn't change with the toggle.</p></section>
   <div class="filters">
     <div class="ctl"><span class="eyebrow">Matches</span>${seg("k-win", D.meta.windows, w, o => o==="All" || ids.every(i => hasWin(i,o)) ? null : "All five need that many matches")}</div>
     <div class="ctl"><span class="eyebrow">Side</span>${seg("k-side", D.meta.sides, S.side)}</div>
@@ -1542,6 +1552,83 @@ function faqArchStats(){
   Object.values(st).forEach(s => s.prim.sort((a, b) => (b.fit ?? 0) - (a.fit ?? 0)));
   return st;
 }
+// ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
+const UPDATES = [
+  ["2026-09-29T21:24:22Z", "v4.20", "Always Show the Leader, and This Page", [
+    "Core 5 and Compare now always highlight the best player on every ranked stat and rating: a solid outline when they lead by 5+ points, a dashed outline when the lead is narrower.",
+    "Core 5 cards show narrow leads next to the counters (for example “5 +3 narrow”).",
+    "New Updates page (this one) with notes for every update since launch."]],
+  ["2026-09-29T21:13:38Z", "v4.19a", "Maps List Tidy-Up", [
+    "The Maps dropdown only lists maps with 50+ rounds in the selected Rounds filter, with the round count next to each name (Vertigo, with 2 matches, was showing empty charts)."]],
+  ["2026-09-29T21:11:04Z", "v4.19", "Maps Page Rework, Ratings Led", [
+    "Maps: new headline row (T and CT win %, most common T plan and CT shape, share of CT rounds with no rotation).",
+    "Maps: bar charts on T take timing, T strategy, CT formations and CT shapes / rotations (blue = better than the map average, orange = worse), laid out 2 × 2.",
+    "Maps: new bottom row of three charts: win % by map (click a bar to open that map), the cost of an untraded opening death, and team Elo gap vs FACEIT's forecast.",
+    "Core 5: new “Ratings led” counter under “Stats led”.",
+    "Leaderboards always open on the Overall rating.",
+    "The Pro tag is quieter, in the same soft style as the C5 tag."]],
+  ["2026-09-29T20:56:46Z", "v4.18", "Rating Ingredients, Pistols Weight, Pro on Maps", [
+    "Leaderboards: a rating now shows the raw values of the ingredients it is built from, with each one's weight (Overall shows its 8 category ratings). On phones they fold under the player's name.",
+    "Overall rating: Entrying, Trading, Support and Utility at 13% each; Pistols up from 7% to 8%.",
+    "Maps: new Pro option in the Rounds filter (rounds with at least one Tier-1 pro on that side)."]],
+  ["2026-09-29T20:41:24Z", "v4.17", "One Stat List, Hotspots", [
+    "Leaderboards: the 1-100 ratings, FACEIT Elo and matches played are now entries in the Stat list instead of a separate view.",
+    "Heatmaps: the two % layers are replaced by Hotspots, kills minus deaths per 100 position samples in each spot, coloured on the same blue (good) to orange (bad) scale as the stat bars. On player pages and Enemy Spots."]],
+  ["2026-09-29T20:34:38Z", "v4.16a", "Leaderboard Fit", [
+    "The ratings leaderboard no longer scrolls sideways on desktop."]],
+  ["2026-09-29T20:31:16Z", "v4.16", "Leaderboard Ratings, Raw vs Elo-Adjusted, Ratings Model Update", [
+    "Player pages link to the player's FACEIT profile (also on Compare).",
+    "Leaderboards: new ratings board with every 1-100 rating, Elo and matches, sorted by Overall.",
+    "Compare: the Edge column is gone; the player ahead now gets the highlighted cell, as on Core 5.",
+    "Compare and Core 5: new Raw / Elo-adjusted toggle. Elo-adjusted values are shifted by what players at that Elo usually post; Raw shows the numbers as posted.",
+    "Heatmaps: new kills % and deaths % layers (per 100 position samples).",
+    "Aiming rating adds spray hits vs expected and time-to-damage (first-shot accuracy was already in).",
+    "AWPing rating: less weight on rounds with an AWP (25% to 10%), and AWP sight-to-shot added.",
+    "Luck rating adds kills while moving and no-scope AWP kills.",
+    "Overall rating: Aiming down from 30% to 25%, spread over Entrying, Trading, Support and Utility.",
+    "The Carry now includes ADR; The Anchor is now the mirror image of Mr. Impact.",
+    "The FAQ was updated to match."]],
+  ["2026-09-29T02:13:44Z", "Data", "Pro Players Join the Data", [
+    "142 matches from Tier-1 pros' FACEIT pugs added (406 matches in total); regulars went from 107 to 206.",
+    "Pro players carry a “Pro” tag with their team.",
+    "The data file is now compressed, so the site loads faster.",
+    "Percentiles shifted with the bigger, stronger pool."]],
+  ["2026-09-28T23:57:21Z", "v4.14", "Core 5 Page", [
+    "New Core 5 page: the five side by side with header cards, the 1-100 ratings grid, win % as teammates, and 23 essential stats (or all stats), with the leader on each highlighted."]],
+  ["2026-09-28T22:18:51Z", "v4.13", "FAQ and Phone Layout", [
+    "New FAQ page: how the match rating and the 1-100 ratings are calculated, every ingredient and weight, and the 11 archetypes with live counts.",
+    "Much less sideways scrolling on phones: tables wrap, fold or transpose to fit (30 scrolling panels down to 0 at phone width)."]],
+  ["2026-09-28T20:28:05Z", "v4.12b", "Spray Pattern Card", [
+    "Spray tab: new “Spray Pattern vs the Gun” card with the gun's kick against the player's counter-pull, where the bullets land on a target, a bullet slider with Play, and a per-weapon control table."]],
+  ["2026-09-28T20:12:29Z", "v4.12", "Spray Tab", [
+    "New Spray tab on player pages: recoil control, hit rate by bullet vs expected, spray hits by distance, and tap / burst / spray outcomes.",
+    "9 new spray-control stats (hits vs expected, vertical and horizontal drift, spraying while moving, crouch spraying, re-bursts before the recoil resets, spray transfers).",
+    "Data refresh."]],
+  ["2026-09-28T18:18:16Z", "Site", "Favicon", [
+    "Browser-tab icon matching the Tickrate logo."]],
+  ["2026-09-28T18:12:08Z", "UI", "Elo Up Front, Clearer Colours", [
+    "Player header shows FACEIT Elo with the change over the last 10 matches and the peak.",
+    "Elo appears in search suggestions, the home page and the Compare dropdowns.",
+    "Rankings use colour-blind-safe blue (good) and orange (bad).",
+    "Navigation reordered: Players, Leaderboards, Compare, Maps, Enemy Spots; pool averages are labelled “Average”."]],
+  ["2026-09-28T17:46:55Z", "v4.11", "Stat Over Time", [
+    "Form & Elo tab: new Stat Over Time chart for any of the 44 stats, match by match with a rolling 5- or 10-match average against the player's and everyone's average.",
+    "The site always fetches the latest data instead of a cached copy.",
+    "Fixed Elo chart points collapsing when two matches fell on the same day."]],
+  ["2026-09-28T17:07:04Z", "Data", "Data Refresh", [
+    "39 new Core-5 matches (264 in total); 107 regulars.",
+    "Players are labelled by their current FACEIT name, with former names searchable."]],
+  ["2026-09-28T15:59:56Z", "v4.10", "Tickrate Launches", [
+    "Player pages for every regular (3+ matches): headline stats, 1-100 ratings and archetype, strongest and weakest stats, aim and mechanics, team play and utility, how they die, social, heatmaps, form and Elo.",
+    "Every stat compared with the average and with what players at the same Elo post; filters for matches, side, weapon and map.",
+    "Leaderboards, Compare, Maps and Enemy Spots (prefire lists, clear order and heatmaps of where they stand, get kills and die).",
+    "225 matches at launch."]],
+];
+function viewUpdates(){
+  const when = iso => { const d = new Date(iso); try { return d.toLocaleString(undefined, {year:"numeric", month:"short", day:"numeric", hour:"numeric", minute:"2-digit", timeZoneName:"short"}); } catch (e) { return iso.replace("T", " ").slice(0, 16) + " UTC"; } };
+  return `<section class="pagehead"><div class="eyebrow">Updates</div><h1>Patch Notes</h1><p class="lead">Every update to the live site, newest first. Times are in your time zone.</p></section>
+  <div class="section upd">${UPDATES.map(([t, v, title, items], k) => `<div class="card updc"><div class="updh"><span class="pill${k === 0 ? " core" : ""} num">${esc(v)}</span><h3>${esc(title)}</h3><span class="note num">${esc(when(t))}</span></div><ul class="steps">${items.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`).join("")}</div>`;
+}
 function viewFaq(){
   const pct = w => (Math.round(w * 10000) / 100) + "%";
   const st = faqArchStats(), nArch = Object.values(D.arch || {}).filter(w => w.All).length;
@@ -1612,6 +1699,7 @@ function render(){
   else if (S.view === "maps") html = viewMaps();
   else if (S.view === "spots") html = viewSpots();
   else if (S.view === "faq") html = viewFaq();
+  else if (S.view === "updates") html = viewUpdates();
   else { S.view = "home"; html = viewHome(); }
   html += `<p class="foot">Built from ${D.meta.matches} FACEIT matches · ${D.players.length} regulars (3+ matches) · data ${esc(D.meta.built_utc)} · pipeline v${esc(D.meta.version)}. Percentiles are Elo-adjusted and shrunk toward 50 for small samples.</p>`;
   app.innerHTML = html;
