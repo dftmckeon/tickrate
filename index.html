@@ -91,6 +91,10 @@ h3{font-size:15px;font-weight:600}
 @media (max-width:860px){ .gx2{grid-template-columns:1fr} }
 .lbcard{overflow-x:clip}
 .lbt thead th{position:sticky;top:var(--lbtop,56px);z-index:4;background:var(--surface);box-shadow:inset 0 -1px 0 var(--line-strong)}
+.lbt thead th::before{content:"";position:absolute;left:-1px;right:-1px;bottom:100%;height:6px;background:var(--surface);pointer-events:none}
+.lbt thead th:first-child::before{left:-10px}.lbt thead th:last-child::before{right:-10px}
+.nin{width:76px;padding:6px 8px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface-3);font-size:13px;min-height:32px;font-variant-numeric:tabular-nums}
+.nin:focus{outline:2px solid var(--accent);outline-offset:1px}.ninr{display:flex;gap:6px;align-items:center}
 .mtab{margin-top:6px}.mtab td,.mtab th{font-size:12.5px}
 .section{display:grid;gap:16px;margin-top:20px}
 .span{grid-column:1/-1}
@@ -315,7 +319,7 @@ a.pill.fc:hover{border-color:var(--accent)}
       <button id="nav-compare" data-view="compare">Compare</button>
       <button id="nav-core5" data-view="core5">Core 5</button>
       <button id="nav-maps" data-view="maps">Maps</button>
-      <button id="nav-spots" data-view="spots">Enemy Spots</button>
+      <button id="nav-spots" data-view="spots">Heatmaps</button>
       <button id="nav-faq" data-view="faq">FAQ</button>
       <button id="nav-updates" data-view="updates">Updates</button>
     </nav>
@@ -536,10 +540,10 @@ function viewHome(){
       <p class="lead">Five views, all built from the same match data.</p>
       <ul class="steps">
         <li><b>Players</b>: headline stats, 1-100 ratings, archetype, strongest and weakest stats, aim and movement, spray control and recoil patterns, trading, utility, how they die, teammates, rivals, Elo and form. Any page can be filtered to one map.</li>
-        <li><b>Leaderboards</b>: rank every regular by 1-100 ratings, Elo or matches played, or on any of the ${D.meta.metrics.length} stats.</li>
+        <li><b>Leaderboards</b>: rank every regular by 1-100 ratings, Elo or matches played, or on any of the ${D.meta.metrics.length} stats, filtered by matches and Elo.</li>
         <li><b>Compare</b>: two regulars side by side, plus their record against and alongside each other.</li>
         <li><b>Maps</b>: T take timing and strategy, CT setups and rotations, win % per map.</li>
-        <li><b>Enemy Spots</b>: heatmaps of where opponents stand and where kills come from, with prefire and clear-order lists.</li>
+        <li><b>Heatmaps</b>: where each side stands, gets kills and dies (plus Hotspots), with prefire and clear-order lists.</li>
       </ul>
     </div>
   </div>
@@ -976,6 +980,25 @@ function boardPick(B){
   const sp = BOARD_SPECIAL().map(([k,l]) => `<option value="${k}" ${k===B.metric?"selected":""}>${esc(l)}</option>`);
   return `<select id="b-metric"><optgroup label="Ratings">${sp.slice(0, D.meta.rating_cats.length).join("")}</optgroup><optgroup label="Player">${sp.slice(D.meta.rating_cats.length).join("")}</optgroup>${STAT_GROUPS.map(([lab,g])=>`<optgroup label="${lab}">${D.meta.groups[g].map(k=>`<option value="${k}" ${k===B.metric?"selected":""}>${esc(mets[midx(k)].label)}</option>`).join("")}</optgroup>`).join("")}</select>`;
 }
+// v4.22: population filter (matches in the store, current FACEIT Elo); ranks renumber, percentiles stay against everyone
+const bnum = v => v === "" || v === null || v === undefined || isNaN(+v) ? null : +v;
+function boardKeep(P){
+  const B = S.board, mn = bnum(B.minM), e0 = bnum(B.eloMin), e1 = bnum(B.eloMax), e = P.last_elo;
+  if (mn !== null && P.matches < mn) return false;
+  if ((e0 !== null || e1 !== null) && (e === null || e === undefined)) return false;
+  if (e0 !== null && e < e0) return false;
+  if (e1 !== null && e > e1) return false;
+  return true;
+}
+function boardPopCtl(){
+  const B = S.board, v = x => bnum(x) === null ? "" : bnum(x);
+  const on = bnum(B.minM) !== null || bnum(B.eloMin) !== null || bnum(B.eloMax) !== null;
+  return `<div class="ctl"><label class="eyebrow" for="b-minm">Min. matches</label><input id="b-minm" class="nin" type="number" min="0" step="1" inputmode="numeric" placeholder="Any" value="${v(B.minM)}"></div>
+    <div class="ctl"><span class="eyebrow">FACEIT Elo</span><div class="ninr"><input id="b-elo0" class="nin" type="number" min="0" step="50" inputmode="numeric" placeholder="From" aria-label="Elo from" value="${v(B.eloMin)}"><span class="note">–</span><input id="b-elo1" class="nin" type="number" min="0" step="50" inputmode="numeric" placeholder="To" aria-label="Elo to" value="${v(B.eloMax)}"></div></div>
+    ${on ? `<button class="link" id="b-popreset" type="button" style="align-self:center">Clear player filters</button>` : ""}`;
+}
+const boardPopNote = (shown, total) => (bnum(S.board.minM) !== null || bnum(S.board.eloMin) !== null || bnum(S.board.eloMax) !== null)
+  ? `<div class="banner" style="margin-top:10px">Showing ${shown} of ${total} players (${[bnum(S.board.minM) !== null ? `${bnum(S.board.minM)}+ matches` : "", bnum(S.board.eloMin) !== null || bnum(S.board.eloMax) !== null ? `Elo ${bnum(S.board.eloMin) ?? "any"}–${bnum(S.board.eloMax) ?? "any"}` : ""].filter(Boolean).join(", ")}). Ranks count only the players shown; percentiles still compare with everyone.</div>` : "";
 function viewBoardSpecial(){
   const B = S.board, isR = B.metric.startsWith("r:"), j = isR ? +B.metric.slice(2) : null, cats = D.meta.rating_cats;
   const label = (BOARD_SPECIAL().find(([k]) => k === B.metric) || [null, ""])[1];
@@ -986,6 +1009,7 @@ function viewBoardSpecial(){
       return {p, P, v:r.r[j], band:(r.band||[])[j], cv}; }
     return {p, P, v: B.metric === "elo" ? (P.last_elo ?? null) : P.matches};
   }).filter(Boolean);
+  const total = rows.length; rows.splice(0, rows.length, ...rows.filter(r => boardKeep(r.P)));
   rows.sort((a,b) => (a.v === null || a.v === undefined) - (b.v === null || b.v === undefined) || (b.v ?? 0) - (a.v ?? 0) || a.P.name.localeCompare(b.P.name));
   const sc = v => `<span class="score" style="${v===null||v===undefined?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null||v===undefined?"–":Math.round(v)}</span>`;
   const cfmt = (v, f) => f === "rating" ? sc(v) : fmt(v, f);
@@ -995,10 +1019,12 @@ function viewBoardSpecial(){
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
     <div class="ctl"><label for="b-metric" class="eyebrow">Stat</label>${boardPick(B)}</div>
     ${isR ? `<div class="ctl"><span class="eyebrow">Matches</span>${seg("b-win", D.meta.windows, S.win)}</div>` : ""}
+    ${boardPopCtl()}
   </div>
+  ${boardPopNote(rows.length, total)}
   ${isR && S.win !== "All" ? `<div class="banner" style="margin-top:10px">Ratings over “${esc(S.win)}” exist only for players with at least ${S.win.split(" ")[1]} matches (${rows.length} players).</div>` : ""}
   <div class="card lbcard" style="margin-top:14px;padding:6px 10px"><table class="rb lbt"><thead><tr><th>#</th><th>Player</th>${isR ? `<th class="r on">${esc(cats[j])}</th><th class="r rcw">Range</th>${RC.map(c => `<th class="r rcw">${esc(c[1].replace(/ Rating$/,""))}<small class="rw">${Math.round(c[3]*1000)/10}%${c[4] < 0 ? " · lower is better" : ""}</small></th>`).join("")}` : `<th class="r${B.metric==="elo"?" on":""}">Elo</th><th class="r${B.metric==="matches"?" on":""}">Matches</th>`}</tr></thead><tbody>
-  ${rows.map((r,k) => `<tr><td class="num">${k+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}${isR ? `<div class="rcn">${RC.map((c,k) => `<span>${esc(c[1].replace(/ Rating$/,""))} <b class="num">${c[2]==="rating" ? (r.cv[k] ?? "–") : fmt(r.cv[k], c[2])}</b></span>`).join("")}</div>` : ""}</td>${isR ? `<td class="r on">${sc(r.v)}</td><td class="r num note rcw">${r.band ? esc(r.band) : "–"}</td>${RC.map((c,k) => `<td class="r num rcw">${cfmt(r.cv[k], c[2])}</td>`).join("")}` : `<td class="r num">${r.P.last_elo!=null?Math.round(r.P.last_elo):"–"}</td><td class="r num">${r.P.matches}</td>`}</tr>`).join("") || `<tr><td colspan="${isR ? 4 + RC.length : 4}" class="note">Nobody qualifies for this window.</td></tr>`}
+  ${rows.map((r,k) => `<tr><td class="num">${k+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}${isR ? `<div class="rcn">${RC.map((c,k) => `<span>${esc(c[1].replace(/ Rating$/,""))} <b class="num">${c[2]==="rating" ? (r.cv[k] ?? "–") : fmt(r.cv[k], c[2])}</b></span>`).join("")}</div>` : ""}</td>${isR ? `<td class="r on">${sc(r.v)}</td><td class="r num note rcw">${r.band ? esc(r.band) : "–"}</td>${RC.map((c,k) => `<td class="r num rcw">${cfmt(r.cv[k], c[2])}</td>`).join("")}` : `<td class="r num">${r.P.last_elo!=null?Math.round(r.P.last_elo):"–"}</td><td class="r num">${r.P.matches}</td>`}</tr>`).join("") || `<tr><td colspan="${isR ? 4 + RC.length : 4}" class="note">Nobody matches these filters.</td></tr>`}
   </tbody></table></div>`;
 }
 function viewBoard(){
@@ -1013,6 +1039,7 @@ function viewBoard(){
     const r = cellRows(p, w, S.side, wf).find(x => x[0] === i); if (!r) return null;
     return {p, P, v:r[1], exp:r[2], pct:r[3], rank:r[4], nr:r[5], den:r[7], rk:r[8]};
   }).filter(Boolean).filter(r => !B.ranked || (r.rk && r.pct !== null));
+  const total = rows.length; rows.splice(0, rows.length, ...rows.filter(r => boardKeep(r.P)));
   const dir = meta.dir || 1;
   rows.sort((a,b) => B.sort === "pct" ? ((b.pct??-1)-(a.pct??-1)) : (dir*((b.v??-1e9)-(a.v??-1e9))));
   return `<section class="pagehead"><div class="eyebrow">Leaderboards</div><h1>Rank the Regulars</h1><p class="lead">${esc(meta.def)}</p></section>
@@ -1023,7 +1050,9 @@ function viewBoard(){
     <div class="ctl"><span class="eyebrow">Weapon</span>${seg("b-wf", D.meta.wfilters, S.wf)}</div>
     <div class="ctl"><span class="eyebrow">Sort by</span>${seg("b-sort", ["Elo-adjusted","Raw value"], B.sort==="pct"?"Elo-adjusted":"Raw value")}</div>
     <div class="ctl"><span class="eyebrow">Show</span>${seg("b-ranked", ["Ranked only","Everyone"], B.ranked?"Ranked only":"Everyone")}</div>
+    ${boardPopCtl()}
   </div>
+  ${boardPopNote(rows.length, total)}
   ${allW ? `<div class="banner" style="margin-top:10px">${esc(meta.label)} has no weapon split: showing all weapons.</div>` : ""}
   ${S.win !== "All" ? `<div class="banner" style="margin-top:10px">Only players with at least ${S.win.split(" ")[1]} matches appear under “${esc(S.win)}”.</div>` : ""}
   <div class="card lbcard" style="margin-top:14px;padding:6px 10px"><table class="lbt"><thead><tr><th>#</th><th>Player</th><th class="r">Matches<span class="nw-only"> / Sample</span></th><th class="r">Value<span class="nw-only"> / At their Elo</span></th><th class="r w-only">At their Elo</th><th class="pcol">Elo-adjusted percentile</th><th class="r w-only">Sample</th></tr></thead><tbody>
@@ -1146,7 +1175,7 @@ function viewSpots(){
   const mxO = Math.max(1, ...occ.map(r=>r[5])), mxT = Math.max(1, ...thr.map(r=>r[7]));
   const list = (arr, j, mx, f, sub) => arr.map((r,k)=>`<div class="hbar"><div><b class="num" style="color:var(--muted)">${k+1}</b> ${esc(placeName(r[4]))}</div><div class="t"><i style="width:${100*r[j]/mx}%"></i></div><div class="num r">${f(r[j])}</div></div><div class="note" style="margin:-5px 0 5px">${sub(r)}</div>`).join("") || `<div class="note">No data for this combination.</div>`;
   const enemy = sp.side === "T" ? "Terrorists" : "Counter-Terrorists";
-  return `<section class="pagehead"><div class="eyebrow">Enemy Spots</div><h1>Where They Stand and Where the Kills Come From</h1><p class="lead">Pick the side you are playing against and a moment in the round. Prefire list: callouts most often occupied. Clear order: callouts that produce the most kills within 7.5 s of that moment.</p></section>
+  return `<section class="pagehead"><div class="eyebrow">Heatmaps</div><h1>Where They Stand and Where the Kills Come From</h1><p class="lead">Pick the side you are playing against and a moment in the round. Prefire list: callouts most often occupied. Clear order: callouts that produce the most kills within 7.5 s of that moment.</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
     <div class="ctl"><label class="eyebrow" for="s-map">Map</label><select id="s-map">${maps.map(m=>`<option value="${m}" ${m===sp.map?"selected":""}>${esc(mapName(m))}</option>`).join("")}</select></div>
     <div class="ctl"><span class="eyebrow">Enemy side</span>${seg("s-side", ["T","CT"], sp.side)}</div>
@@ -1556,6 +1585,10 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-29T21:38:20Z", "v4.22", "Leaderboard Filters, Heatmaps Tab", [
+    "Leaderboards: filter the players shown by minimum matches and by a FACEIT Elo range (from / to). Ranks renumber for the players shown; percentiles still compare with everyone. “Clear player filters” resets them.",
+    "Leaderboards: fixed rows showing through the gap between the filter bar and the frozen column headers while scrolling.",
+    "The Enemy Spots tab is now called Heatmaps (old links still work)."]],
   ["2026-09-29T21:32:13Z", "v4.21", "Frozen Leaderboard Header", [
     "Leaderboards: the column names now stay pinned under the filter bar as you scroll down the table, like frozen panes in a spreadsheet."]],
   ["2026-09-29T21:24:22Z", "v4.20", "Always Show the Leader, and This Page", [
@@ -1696,7 +1729,7 @@ function setStickyTop(){                                       // v4.21: frozen 
   const ab = document.querySelector(".appbar"), f = document.querySelector("#app .filters"); if (!ab) return;
   let top = ab.getBoundingClientRect().height;
   if (f && getComputedStyle(f).position === "sticky") top = (parseFloat(getComputedStyle(f).top) || top) + f.getBoundingClientRect().height;
-  document.documentElement.style.setProperty("--lbtop", Math.round(top) + "px");
+  document.documentElement.style.setProperty("--lbtop", (Math.floor(top) - 1) + "px");      // 1 px overlap: no sub-pixel seam
 }
 addEventListener("resize", () => { if (S.view === "board") setStickyTop(); });
 function render(){
@@ -1742,6 +1775,11 @@ function bind(){
   document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { S.tab = b.dataset.tab; const tb = $("#tabbody"); killCharts(); tb.innerHTML = tabBody(S.p); document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x===b)); bindTab(); drawCharts(); saveState(); }));
   bindTab();
   const bm = $("#b-metric"); if (bm) bm.addEventListener("change", () => { S.board.metric = bm.value; render(); });
+  // v4.22 player filters: apply on change (Enter / leaving the box / spinner), keep focus-friendly
+  for (const [id, k] of [["b-minm","minM"],["b-elo0","eloMin"],["b-elo1","eloMax"]]){ const el = $("#"+id); if (!el) continue;
+    const apply = () => { const v = bnum(el.value); if (v === bnum(S.board[k])) return; S.board[k] = v; const had = document.activeElement === el, y = scrollY; render(); scrollTo(0, y); if (had){ const n = $("#"+id); if (n) n.focus(); } };
+    el.addEventListener("change", apply); el.addEventListener("keydown", e => { if (e.key === "Enter") apply(); }); }
+  const bpr = $("#b-popreset"); if (bpr) bpr.addEventListener("click", () => { S.board.minM = S.board.eloMin = S.board.eloMax = null; render(); });
   onSeg("b-win", v => { S.win = v; render(); }); onSeg("b-side", v => { S.side = v; render(); }); onSeg("b-wf", v => { S.wf = v; render(); });
   onSeg("b-sort", v => { S.board.sort = v === "Elo-adjusted" ? "pct" : "raw"; render(); });
   onSeg("b-ranked", v => { S.board.ranked = v === "Ranked only"; render(); });
