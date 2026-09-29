@@ -461,7 +461,7 @@ function wireSearch(input, box){
   let hits = [], on = 0;
   const draw = () => {
     hits = searchIdx(input.value); on = 0;
-    if (!hits.length){ box.hidden = !input.value.trim(); box.innerHTML = input.value.trim() ? `<div style="padding:10px 12px" class="note">No regular matches “${esc(input.value)}”. Pages exist for players with 3+ matches in the store.</div>` : ""; return; }
+    if (!hits.length){ box.hidden = !input.value.trim(); box.innerHTML = input.value.trim() ? `<div style="padding:10px 12px" class="note">No regular matches “${esc(input.value)}”. Pages exist for players with 3+ matches in the database.</div>` : ""; return; }
     box.innerHTML = hits.map((h,k) => `<button type="button" data-i="${h.i}" class="${k===0?"on":""}"><span>${esc(h.p.name)}${h.s===2?` <small>(was ${esc(h.p.aliases)})</small>`:""}</span><small class="num">${h.p.pro?"Pro · ":""}Elo ${h.p.last_elo ? Math.round(h.p.last_elo) : "–"} · Overall ${ovr(h.i) ?? "–"}</small></button>`).join("");
     box.hidden = false;
   };
@@ -513,7 +513,7 @@ function viewHome(){
   <section class="hero">
     <div class="eyebrow">FACEIT CS2 pugs</div>
     <h1>Scout Any Regular From Our Lobbies</h1>
-    <p class="lead">Every player with 3+ matches in the store has a page. Each stat is compared with the average across all players and with what players at the same Elo usually post.</p>
+    <p class="lead">Every player with 3+ matches in the database has a page. Each stat is compared with the average across all players and with what players at the same Elo usually post.</p>
     <div class="bigsearch"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q2" type="search" placeholder="Search a nickname, e.g. ${esc(P[0].name)}" autocomplete="off" aria-label="Search players"><div class="sugg" id="sugg2" hidden></div></div>
   </section>
   <div class="kpis">
@@ -548,7 +548,7 @@ function viewHome(){
     </div>
   </div>
   <div class="section">
-    <div><h2>All Regulars</h2><p class="lead">Sorted by matches in the store. The badge is the Overall 1-100 rating.</p></div>
+    <div><h2>All Regulars</h2><p class="lead">Sorted by matches in the database. The badge is the Overall 1-100 rating.</p></div>
     <div class="chips">${topN.map(({p,i}) => { const r = D.ratings[i] && D.ratings[i].All; const ov = r && r.r[0]!==null ? r.r[0] : null;
       return `<button class="chip" type="button" data-p="${i}"><span style="min-width:0"><b>${esc(p.name)}</b><small><span class="num">Elo ${p.last_elo ? Math.round(p.last_elo) : "–"}</span> · ${p.matches} matches${p.core?" · Core-5":""}${p.pro?` · Pro${p.team?" ("+esc(p.team)+")":""}`:""}</small></span><span class="score" style="${ov===null?"":`background:${pctTint(ov,.2)};box-shadow:inset 0 0 0 1px ${pctTint(ov,.45)}`}">${ov ?? "–"}</span></button>`; }).join("")}</div>
   </div>`;
@@ -614,7 +614,7 @@ function eloBlock(p){
   const last10 = known.slice(-10), start = last10.length ? (last10[0][2] ?? last10[0][3]) : null, end = last10.length ? (last10[last10.length-1][3] ?? last10[last10.length-1][2]) : null;
   const d = start !== null && end !== null ? Math.round(end - start) : null;
   const hi = known.length ? Math.max(...known.map(r => Math.max(r[2] ?? -1e9, r[3] ?? -1e9))) : null;
-  return `<div class="eloblk" title="Latest FACEIT Elo in the store">
+  return `<div class="eloblk" title="Latest FACEIT Elo in the database">
     <div class="eyebrow">FACEIT Elo</div>
     <div class="ev num">${elo ?? "–"}</div>
     <div class="es num">${d === null ? "" : `<span style="color:${d > 0 ? "var(--pos)" : d < 0 ? "var(--neg)" : "var(--muted)"}">${d > 0 ? "+" : ""}${d}</span> last ${last10.length}`}${hi !== null && hi > 0 ? ` · peak ${Math.round(hi)}` : ""}</div>
@@ -790,7 +790,7 @@ function oppDuelsCard(p){
 function eloCard(p){
   const E = D.elo[p] || [];
   const last = E.slice(-10).reverse();
-  return `<div class="card"><h3>Elo and Match Rating</h3><p class="lead note">Pre-match Elo (line) against the match rating (dots) and its rolling 10-match average. ${E.length} matches in the store.</p>
+  return `<div class="card"><h3>Elo and Match Rating</h3><p class="lead note">Pre-match Elo (line) against the match rating (dots) and its rolling 10-match average. ${E.length} matches in the database.</p>
     <div class="chartbox" style="height:320px;margin-top:8px"><canvas id="elochart" aria-label="Elo and rating over time"></canvas></div>
     <div class="tscroll"><table style="margin-top:10px"><thead><tr><th>Date</th><th>Map</th><th class="r">Elo before<span class="nw-only"> / Change</span></th><th class="r w-only">Change</th><th>Result</th><th class="r">Rating</th></tr></thead><tbody>
     ${last.map(r=>{ const ec = r[3]&&r[2]?(r[3]-r[2]>=0?"var(--pos)":"var(--neg)"):"inherit", ed = r[3]&&r[2]?((r[3]-r[2]>=0?"+":"")+(r[3]-r[2])):"–";
@@ -842,7 +842,7 @@ function tsCard(p){
 }
 function famCard(p){
   const F = D.ins.map_fam, r = F.rows[p] || [];
-  return `<div class="card"><h3>Map Familiarity</h3><p class="lead note">Output by the n-th time the player appears on a map in this store, against the player's own average.</p>
+  return `<div class="card"><h3>Map Familiarity</h3><p class="lead note">Output by the n-th time the player appears on a map in this database, against the player's own average.</p>
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Time on map</th><th class="r">Matches</th><th class="r">Rating</th><th class="r">vs own avg</th><th class="r">Round win %</th></tr></thead><tbody>
     ${r.map(x=>`<tr><td>${esc(x[0])}</td><td class="r num">${x[1]}</td><td class="r num">${fmt(x[2],"f2")}</td><td class="r num" style="color:${x[3]>0?"var(--pos)":x[3]<0?"var(--neg)":"inherit"}">${x[3]===null?"–":(x[3]>0?"+":"")+x[3].toFixed(2)}</td><td class="r num">${fmt(x[4],"pct")}</td></tr>`).join("")}
     </tbody></table></div></div>`;
@@ -901,7 +901,7 @@ function viewCompare(){
   <div class="grid g2 section">
     <div class="card"><h3>1-100 Ratings</h3><div class="chartbox" style="height:300px;margin-top:6px"><canvas id="radar2" aria-label="Ratings of both players"></canvas></div></div>
     <div class="card"><h3>When They Meet</h3>
-      <p class="lead note">From every match in the store with both players.</p>
+      <p class="lead note">From every match in the database with both players.</p>
       <div class="tb" style="margin-top:10px">
         <div class="tbi" style="grid-template-columns:1fr auto"><div><div class="eyebrow">As opponents</div><div>${h ? `${esc(A.name)} killed ${esc(B.name)} <b class="num">${h[0]}</b> times; ${esc(B.name)} killed ${esc(A.name)} <b class="num">${h[1]}</b> times` : "Never on opposite teams"}</div></div><div class="note num">${h?h[2]+" match"+(h[2]===1?"":"es"):""}</div></div>
         <div class="tbi" style="grid-template-columns:1fr auto"><div><div class="eyebrow">As teammates</div><div>${t ? `<b class="num">${t[0]}</b> matches together, <b class="num">${t[1]}</b> won (${Math.round(100*t[1]/t[0])}%)` : "Never on the same team"}</div></div></div>
@@ -948,12 +948,12 @@ function viewCore5(){
   const rled = Object.fromEntries(ids.map(i => [i, 0]));
   const rline = (c, j) => { const vs = ids.map(i => ({i, v: rat(i) ? rat(i).r[j] : null})); const top = leader(vs); if (top.i !== null) (top.clear ? rled : nrled)[top.i]++;
     return `<div class="c5"><div class="lab">${j===0?`<b>${esc(c)}</b>`:esc(c)}</div>${vs.map(({i,v}) => `<div class="c5c"><span class="score num${hl(top, i)}" style="${v===null?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null?"–":Math.round(v)}</span></div>`).join("")}</div>`; };
-  const ratings = `<div class="card c5card"><h3>1-100 Ratings</h3><p class="lead note">Same scale as the player pages: 50 = a typical player in the store. Solid outline = best of the five by 5+ points; dashed = best by a narrower margin.</p>${hdr.replace("Stat","Category")}${cats.map(rline).join("")}</div>`;
+  const ratings = `<div class="card c5card"><h3>1-100 Ratings</h3><p class="lead note">Same scale as the player pages: 50 = a typical player in the database. Solid outline = best of the five by 5+ points; dashed = best by a narrower margin.</p>${hdr.replace("Stat","Category")}${cats.map(rline).join("")}</div>`;
   // teammates matrix: win % when each pair was on the same team
   const pair = (a,b) => D.mates2[`${a}|${b}`] || D.mates2[`${b}|${a}`] || null;
   const mcell = (a,b) => { if (a === b) return `<div class="c5c"><span class="note">–</span></div>`; const t = pair(a,b); if (!t || !t[0]) return `<div class="c5c"><span class="note">none</span></div>`;
     const wp = 100*t[1]/t[0]; return `<div class="c5c" title="${esc(P[a].name)} + ${esc(P[b].name)}: ${t[1]} wins in ${t[0]} matches"><div class="v" style="color:${wp>=50?"var(--pos)":"var(--neg)"}">${wp.toFixed(0)}%</div><div class="note num sub">${t[1]}-${t[0]-t[1]}</div></div>`; };
-  const mates = `<div class="card c5card"><h3>Win % as Teammates</h3><p class="lead note">Every match in the store where both players were on the same team, all-time (the Matches filter doesn't apply). Record shown as wins-losses.</p>${hdr.replace("Stat","With")}${ids.map(a => `<div class="c5"><div class="lab">${esc(P[a].name)}</div>${ids.map(b => mcell(a,b)).join("")}</div>`).join("")}</div>`;
+  const mates = `<div class="card c5card"><h3>Win % as Teammates</h3><p class="lead note">Every match in the database where both players were on the same team, all-time (the Matches filter doesn't apply). Record shown as wins-losses.</p>${hdr.replace("Stat","With")}${ids.map(a => `<div class="c5"><div class="lab">${esc(P[a].name)}</div>${ids.map(b => mcell(a,b)).join("")}</div>`).join("")}</div>`;
   const statHtml = body; // computed first so the "stats led" tally is filled before the cards render
   const card = i => { const r = rat(i), ar = arc(i), X = P[i], ov = r && r.r[0] !== null ? r.r[0] : null;
     return `<button class="card c5p" type="button" data-p="${i}"><div class="c5pt">${ring(ov)}<div style="min-width:0"><div class="c5pn">${esc(X.name)}</div><div class="note num">Elo ${X.last_elo?Math.round(X.last_elo):"–"}<br>${X.matches} matches</div></div></div>
@@ -980,7 +980,7 @@ function boardPick(B){
   const sp = BOARD_SPECIAL().map(([k,l]) => `<option value="${k}" ${k===B.metric?"selected":""}>${esc(l)}</option>`);
   return `<select id="b-metric"><optgroup label="Ratings">${sp.slice(0, D.meta.rating_cats.length).join("")}</optgroup><optgroup label="Player">${sp.slice(D.meta.rating_cats.length).join("")}</optgroup>${STAT_GROUPS.map(([lab,g])=>`<optgroup label="${lab}">${D.meta.groups[g].map(k=>`<option value="${k}" ${k===B.metric?"selected":""}>${esc(mets[midx(k)].label)}</option>`).join("")}</optgroup>`).join("")}</select>`;
 }
-// v4.22: population filter (matches in the store, current FACEIT Elo); ranks renumber, percentiles stay against everyone
+// v4.22: population filter (matches in the database, current FACEIT Elo); ranks renumber, percentiles stay against everyone
 const bnum = v => v === "" || v === null || v === undefined || isNaN(+v) ? null : +v;
 function boardKeep(P){
   const B = S.board, mn = bnum(B.minM), e0 = bnum(B.eloMin), e1 = bnum(B.eloMax), e = P.last_elo;
@@ -1013,8 +1013,8 @@ function viewBoardSpecial(){
   rows.sort((a,b) => (a.v === null || a.v === undefined) - (b.v === null || b.v === undefined) || (b.v ?? 0) - (a.v ?? 0) || a.P.name.localeCompare(b.P.name));
   const sc = v => `<span class="score" style="${v===null||v===undefined?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null||v===undefined?"–":Math.round(v)}</span>`;
   const cfmt = (v, f) => f === "rating" ? sc(v) : fmt(v, f);
-  const lead = isR ? `1-100 ${esc(cats[j])} rating (50 = a typical player in the store, 84 = one standard deviation above), then the ${cats[j] === "Overall" ? "category ratings it is built from" : "raw values of the ingredients it is built from"}, with each one's weight. Range = the rating one standard error either side. How it's built: see the FAQ.`
-    : B.metric === "elo" ? "Current FACEIT Elo (after the player's latest match in the store)." : "Matches in the store.";
+  const lead = isR ? `1-100 ${esc(cats[j])} rating (50 = a typical player in the database, 84 = one standard deviation above), then the ${cats[j] === "Overall" ? "category ratings it is built from" : "raw values of the ingredients it is built from"}, with each one's weight. Range = the rating one standard error either side. How it's built: see the FAQ.`
+    : B.metric === "elo" ? "Current FACEIT Elo (after the player's latest match in the database)." : "Matches in the database.";
   return `<section class="pagehead"><div class="eyebrow">Leaderboards</div><h1>Rank the Regulars</h1><p class="lead">${lead}</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
     <div class="ctl"><label for="b-metric" class="eyebrow">Stat</label>${boardPick(B)}</div>
@@ -1585,6 +1585,8 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-29T21:40:33Z", "v4.22a", "Wording", [
+    "The site now calls the match data the “database” everywhere (it said “store” in a few places)."]],
   ["2026-09-29T21:38:20Z", "v4.22", "Leaderboard Filters, Heatmaps Tab", [
     "Leaderboards: filter the players shown by minimum matches and by a FACEIT Elo range (from / to). Ranks renumber for the players shown; percentiles still compare with everyone. “Clear player filters” resets them.",
     "Leaderboards: fixed rows showing through the gap between the filter bar and the frozen column headers while scrolling.",
