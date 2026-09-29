@@ -1024,12 +1024,14 @@ let MAPV = null;                                              // v4.19: chart da
 const T_TIMING_ORDER = ["early (<30 s)", "default (30-60 s)", "late (>60 s)", "no site take"];
 function viewMaps(){
   const M = S.maps, T = D.ins.t_timing, C = D.ins.ct_setups;
-  const maps = ["All maps", ...[...new Set(T.rows.map(r=>r[1]))].filter(m=>m!=="All maps").sort()];
-  if (!maps.includes(M.map)) M.map = "All maps";
   const tScope = M.scope === "Core-5" ? "Core-5 on T" : M.scope === "Pro" ? "Pro on T" : "All rounds", cScope = M.scope === "Core-5" ? "Core-5 on CT" : M.scope === "Pro" ? "Pro on CT" : "All rounds";
   const tr = (b, m = M.map) => T.rows.filter(r => r[0]===tScope && r[1]===m && r[2]===b).sort((a,b2)=>b2[4]-a[4]);
   const cr = (b, m = M.map) => C.rows.filter(r => r[0]===cScope && r[1]===m && r[2]===b).sort((a,b2)=>b2[4]-a[4]);
   const sum = (rs, j) => rs.reduce((a, r) => a + (r[j] || 0), 0);
+  // v4.19: only maps with 50+ T gun rounds in this scope (e.g. Vertigo has 2 matches)
+  const mapN = m => sum(T.rows.filter(r => r[0]===tScope && r[1]===m && r[2]==="timing"), 4);
+  const maps = ["All maps", ...[...new Set(T.rows.map(r=>r[1]))].filter(m => m !== "All maps" && mapN(m) >= 50).sort()];
+  if (!maps.includes(M.map)) M.map = "All maps";
   const tWinOf = rs => { const n = sum(rs, 4); return n ? rs.reduce((a, r) => a + r[4] * r[5], 0) / n : null; };
   const dlt = (v, base) => v===null||base===null ? "" : `<span style="color:${v-base>=0?"var(--pos)":"var(--neg)"}">${v-base>=0?"+":""}${(v-base).toFixed(1)}</span>`;
   const tim = tr("timing").sort((a,b2) => T_TIMING_ORDER.indexOf(a[3]) - T_TIMING_ORDER.indexOf(b2[3])), strat = tr("t_strategy");
@@ -1049,7 +1051,7 @@ function viewMaps(){
   const scopeNote = M.scope === "Pro" ? "Rounds with at least one Tier-1 pro on that side (T cards: pro on T; CT cards: pro on CT)." : M.scope === "Core-5" ? "Rounds with at least one Core-5 player on that side." : "";
   return `<section class="pagehead"><div class="eyebrow">Maps</div><h1>How Rounds Are Won on Each Map</h1><p class="lead">T take timing and strategy, CT setups at 10 seconds and rotation speed, map by map. These are patterns in how rounds went, not guaranteed causes: a late take needs T alive at 60 s, so read the “4+ alive” numbers as the like-for-like comparison.</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
-    <div class="ctl"><label class="eyebrow" for="m-map">Map</label><select id="m-map">${maps.map(m=>`<option value="${m}" ${m===M.map?"selected":""}>${esc(mapName(m))}</option>`).join("")}</select></div>
+    <div class="ctl"><label class="eyebrow" for="m-map">Map</label><select id="m-map">${maps.map(m=>`<option value="${m}" ${m===M.map?"selected":""}>${esc(mapName(m))} (${mapN(m).toLocaleString()} rounds)</option>`).join("")}</select></div>
     <div class="ctl"><span class="eyebrow">Rounds</span>${seg("m-scope", ["All rounds","Core-5","Pro"], M.scope)}</div>
   </div>
   ${scopeNote ? `<div class="banner" style="margin-top:10px">${scopeNote} The opening-death and Elo-gap cards use all rounds.</div>` : ""}
