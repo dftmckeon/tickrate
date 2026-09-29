@@ -241,6 +241,10 @@ a.pill.fc:hover{border-color:var(--accent)}
 .rb .score{display:inline-block;font-family:var(--mono);font-size:12.5px;font-weight:600;min-width:30px;text-align:center;padding:2px 5px;border-radius:6px;background:var(--surface-3);color:var(--ink)}
 .rb td.on .score{outline:2px solid var(--accent);outline-offset:1px}
 .rb th,.rb td{padding-left:5px;padding-right:5px}
+.rb th small.rw{display:block;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:10.5px}
+.rb .rcn{display:none;font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.rb .rcn span{display:inline-block;margin-right:10px}.rb .rcn b{color:var(--ink);font-weight:600}
+@container (max-width:900px){ .rb .rcw{display:none} .rb .rcn{display:block} }
 /* core 5 */
 .c5{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(5,minmax(0,1fr));gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
 .c5:last-child{border-bottom:0}
@@ -957,13 +961,17 @@ function boardPick(B){
 function viewBoardSpecial(){
   const B = S.board, isR = B.metric.startsWith("r:"), j = isR ? +B.metric.slice(2) : null, cats = D.meta.rating_cats;
   const label = (BOARD_SPECIAL().find(([k]) => k === B.metric) || [null, ""])[1];
+  const RC = (D.meta.rating_components || {cats:{}}).cats[cats[j]] || [];
   const rows = D.players.map((P,p) => {
-    if (isR){ const r = (D.ratings[p]||{})[S.win]; if (!r) return null; return {p, P, v:r.r[j], band:(r.band||[])[j]}; }
+    if (isR){ const r = (D.ratings[p]||{})[S.win]; if (!r) return null;
+      const cv = cats[j] === "Overall" ? RC.map(c => r.r[cats.indexOf(c[1].replace(/ Rating$/,""))]) : RC.map(c => (((D.rcomp||{})[p]||{})[S.win]||[])[c[0]] ?? null);
+      return {p, P, v:r.r[j], band:(r.band||[])[j], cv}; }
     return {p, P, v: B.metric === "elo" ? (P.last_elo ?? null) : P.matches};
   }).filter(Boolean);
   rows.sort((a,b) => (a.v === null || a.v === undefined) - (b.v === null || b.v === undefined) || (b.v ?? 0) - (a.v ?? 0) || a.P.name.localeCompare(b.P.name));
   const sc = v => `<span class="score" style="${v===null||v===undefined?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null||v===undefined?"–":Math.round(v)}</span>`;
-  const lead = isR ? `1-100 ${esc(cats[j])} rating (50 = a typical player in the store, 84 = one standard deviation above). The range is the rating one standard error either side. How it's built: see the FAQ.`
+  const cfmt = (v, f) => f === "rating" ? sc(v) : fmt(v, f);
+  const lead = isR ? `1-100 ${esc(cats[j])} rating (50 = a typical player in the store, 84 = one standard deviation above), then the ${cats[j] === "Overall" ? "category ratings it is built from" : "raw values of the ingredients it is built from"}, with each one's weight. Range = the rating one standard error either side. How it's built: see the FAQ.`
     : B.metric === "elo" ? "Current FACEIT Elo (after the player's latest match in the store)." : "Matches in the store.";
   return `<section class="pagehead"><div class="eyebrow">Leaderboards</div><h1>Rank the Regulars</h1><p class="lead">${lead}</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
@@ -971,8 +979,8 @@ function viewBoardSpecial(){
     ${isR ? `<div class="ctl"><span class="eyebrow">Matches</span>${seg("b-win", D.meta.windows, S.win)}</div>` : ""}
   </div>
   ${isR && S.win !== "All" ? `<div class="banner" style="margin-top:10px">Ratings over “${esc(S.win)}” exist only for players with at least ${S.win.split(" ")[1]} matches (${rows.length} players).</div>` : ""}
-  <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table class="rb"><thead><tr><th>#</th><th>Player</th><th class="r${B.metric==="elo"?" on":""}">Elo</th><th class="r${B.metric==="matches"?" on":""}">Matches</th>${isR ? `<th class="r on">${esc(label)}</th><th class="r">Range</th>` : ""}</tr></thead><tbody>
-  ${rows.map((r,k) => `<tr><td class="num">${k+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}</td><td class="r num">${r.P.last_elo!=null?Math.round(r.P.last_elo):"–"}</td><td class="r num">${r.P.matches}</td>${isR ? `<td class="r on">${sc(r.v)}</td><td class="r num note">${r.band ? esc(r.band) : "–"}</td>` : ""}</tr>`).join("") || `<tr><td colspan="6" class="note">Nobody qualifies for this window.</td></tr>`}
+  <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table class="rb"><thead><tr><th>#</th><th>Player</th>${isR ? `<th class="r on">${esc(cats[j])}</th><th class="r rcw">Range</th>${RC.map(c => `<th class="r rcw">${esc(c[1].replace(/ Rating$/,""))}<small class="rw">${Math.round(c[3]*1000)/10}%${c[4] < 0 ? " · lower is better" : ""}</small></th>`).join("")}` : `<th class="r${B.metric==="elo"?" on":""}">Elo</th><th class="r${B.metric==="matches"?" on":""}">Matches</th>`}</tr></thead><tbody>
+  ${rows.map((r,k) => `<tr><td class="num">${k+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}${isR ? `<div class="rcn">${RC.map((c,k) => `<span>${esc(c[1].replace(/ Rating$/,""))} <b class="num">${c[2]==="rating" ? (r.cv[k] ?? "–") : fmt(r.cv[k], c[2])}</b></span>`).join("")}</div>` : ""}</td>${isR ? `<td class="r on">${sc(r.v)}</td><td class="r num note rcw">${r.band ? esc(r.band) : "–"}</td>${RC.map((c,k) => `<td class="r num rcw">${cfmt(r.cv[k], c[2])}</td>`).join("")}` : `<td class="r num">${r.P.last_elo!=null?Math.round(r.P.last_elo):"–"}</td><td class="r num">${r.P.matches}</td>`}</tr>`).join("") || `<tr><td colspan="${isR ? 4 + RC.length : 4}" class="note">Nobody qualifies for this window.</td></tr>`}
   </tbody></table></div>`;
 }
 function viewBoard(){
@@ -1010,7 +1018,7 @@ function viewMaps(){
   const M = S.maps, T = D.ins.t_timing, C = D.ins.ct_setups;
   const maps = ["All maps", ...[...new Set(T.rows.map(r=>r[1]))].filter(m=>m!=="All maps").sort()];
   const tcol = T.cols, ccol = C.cols;
-  const tScope = M.scope === "Core-5" ? "Core-5 on T" : "All rounds", cScope = M.scope === "Core-5" ? "Core-5 on CT" : "All rounds";
+  const tScope = M.scope === "Core-5" ? "Core-5 on T" : M.scope === "Pro" ? "Pro on T" : "All rounds", cScope = M.scope === "Core-5" ? "Core-5 on CT" : M.scope === "Pro" ? "Pro on CT" : "All rounds";
   const tr = (b) => T.rows.filter(r => r[0]===tScope && r[1]===M.map && r[2]===b).sort((a,b2)=>b2[4]-a[4]);
   const cr = (b) => C.rows.filter(r => r[0]===cScope && r[1]===M.map && r[2]===b).sort((a,b2)=>b2[4]-a[4]);
   const dlt = (v, base) => v===null||base===null ? "" : `<span style="color:${v-base>=0?"var(--pos)":"var(--neg)"}">${v-base>=0?"+":""}${(v-base).toFixed(1)}</span>`;
@@ -1020,8 +1028,9 @@ function viewMaps(){
   return `<section class="pagehead"><div class="eyebrow">Maps</div><h1>How Rounds Are Won on Each Map</h1><p class="lead">T take timing and strategy, CT setups at 10 seconds and rotation speed. These are patterns in how rounds went, not guaranteed causes: a late take needs T alive at 60 s, so compare the like-for-like column (4+ T alive at the take).</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
     <div class="ctl"><label class="eyebrow" for="m-map">Map</label><select id="m-map">${maps.map(m=>`<option value="${m}" ${m===M.map?"selected":""}>${esc(mapName(m))}</option>`).join("")}</select></div>
-    <div class="ctl"><span class="eyebrow">Rounds</span>${seg("m-scope", ["All rounds","Core-5"], M.scope)}</div>
+    <div class="ctl"><span class="eyebrow">Rounds</span>${seg("m-scope", ["All rounds","Core-5","Pro"], M.scope)}</div>
   </div>
+  ${M.scope !== "All rounds" ? `<div class="banner" style="margin-top:10px">${M.scope === "Pro" ? "Rounds with at least one Tier-1 pro on that side (T tables: pro on T; CT tables: pro on CT)." : "Rounds with at least one Core-5 player on that side."} The opening-death and Elo-gap tables below use all rounds.</div>` : ""}
   <div class="grid g2 section">
     <div class="card"><h3>T Take Timing</h3><p class="lead note">When the T side entered a site (T gun rounds).</p>${tTable(tr("timing"),"Timing")}</div>
     <div class="card"><h3>T Strategy</h3><p class="lead note">Classified from movement and utility: rush, execute, contact, mid-round call, no site take.</p>${tTable(tr("t_strategy"),"Strategy")}</div>
@@ -1423,7 +1432,7 @@ const FAQ_CATS = [
     ["Spread of Match Rating (Lower Is Better)", .50, "Per match with 10+ rounds"], ["Spread of Match ADR (Lower Is Better)", .25, "Per match with 10+ rounds"],
     ["Matches Rated Below 0.80 (Lower Is Better)", .25, "Per match"]]],
 ];
-const FAQ_OVERALL = [["Aiming", .25], ["Entrying", .1325], ["Trading", .1325], ["Support", .1325], ["Utility", .1325], ["Clutching", .10], ["Pistols", .07], ["AWPing", .05]];
+const FAQ_OVERALL = [["Aiming", .25], ["Entrying", .13], ["Trading", .13], ["Support", .13], ["Utility", .13], ["Clutching", .10], ["Pistols", .08], ["AWPing", .05]];
 const FAQ_ARCH = [
   ["The Carry", "Puts up the biggest numbers and wins. The top all-round players.",
     [["Overall Rating", "+50%"], ["Round Win %", "+30%"], ["Damage Per Round (ADR)", "+20%"]]],
