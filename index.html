@@ -241,7 +241,6 @@ a.pill.fc:hover{border-color:var(--accent)}
 .rb .score{display:inline-block;font-family:var(--mono);font-size:12.5px;font-weight:600;min-width:30px;text-align:center;padding:2px 5px;border-radius:6px;background:var(--surface-3);color:var(--ink)}
 .rb td.on .score{outline:2px solid var(--accent);outline-offset:1px}
 .rb th,.rb td{padding-left:5px;padding-right:5px}
-@container (max-width:1080px){ .rb .rc.hn{display:none} }
 /* core 5 */
 .c5{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(5,minmax(0,1fr));gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
 .c5:last-child{border-bottom:0}
@@ -319,7 +318,7 @@ a.pill.fc:hover{border-color:var(--accent)}
 (() => {
 "use strict";
 let D = null;                        // data.json
-const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, c5:{all:false}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{mode:"ratings", rsort:"0", metric:"rating", sort:"pct", ranked:true}, adj:"elo", ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
+const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, c5:{all:false}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"r:0", sort:"pct", ranked:true}, adj:"elo", ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store = { get(k){try{return JSON.parse(localStorage.getItem("tickrate."+k))}catch(e){return null}}, set(k,v){try{localStorage.setItem("tickrate."+k, JSON.stringify(v))}catch(e){}} };
@@ -948,29 +947,38 @@ function viewCore5(){
 }
 
 // ------------------------------------------------------------------ leaderboards
-function viewBoardRatings(){
-  const B = S.board, cats = D.meta.rating_cats, sk = B.rsort ?? "0";
-  const rows = D.players.map((P,p) => { const r = (D.ratings[p]||{})[S.win]; return r ? {p, P, r:r.r, elo:P.last_elo ?? null} : null; }).filter(Boolean);
-  const key = r => sk === "elo" ? r.elo : sk === "matches" ? r.P.matches : r.r[+sk];
-  rows.sort((a,b) => { const u = key(a), v = key(b); if (u === null || u === undefined) return (v === null || v === undefined) ? a.P.name.localeCompare(b.P.name) : 1; if (v === null || v === undefined) return -1;
-    return (v - u) || ((b.r[0] ?? -1) - (a.r[0] ?? -1)) || a.P.name.localeCompare(b.P.name); });
-  const th = (k, lab, cls="") => `<th class="r ${cls}${sk===k?" on":""}"><button type="button" data-rsort="${k}" aria-pressed="${sk===k}" title="Sort by ${esc(lab)}">${esc(lab)}${sk===k?" ↓":""}</button></th>`;
+// v4.17: the Stat list also holds the 1-100 ratings ("r:<category index>"), FACEIT Elo and matches played
+const BOARD_SPECIAL = () => [...D.meta.rating_cats.map((c,j) => [`r:${j}`, `${c} Rating`]), ["elo","FACEIT Elo"], ["matches","Matches Played"]];
+function boardPick(B){
+  const mets = D.meta.metrics;
+  const sp = BOARD_SPECIAL().map(([k,l]) => `<option value="${k}" ${k===B.metric?"selected":""}>${esc(l)}</option>`);
+  return `<select id="b-metric"><optgroup label="Ratings">${sp.slice(0, D.meta.rating_cats.length).join("")}</optgroup><optgroup label="Player">${sp.slice(D.meta.rating_cats.length).join("")}</optgroup>${STAT_GROUPS.map(([lab,g])=>`<optgroup label="${lab}">${D.meta.groups[g].map(k=>`<option value="${k}" ${k===B.metric?"selected":""}>${esc(mets[midx(k)].label)}</option>`).join("")}</optgroup>`).join("")}</select>`;
+}
+function viewBoardSpecial(){
+  const B = S.board, isR = B.metric.startsWith("r:"), j = isR ? +B.metric.slice(2) : null, cats = D.meta.rating_cats;
+  const label = (BOARD_SPECIAL().find(([k]) => k === B.metric) || [null, ""])[1];
+  const rows = D.players.map((P,p) => {
+    if (isR){ const r = (D.ratings[p]||{})[S.win]; if (!r) return null; return {p, P, v:r.r[j], band:(r.band||[])[j]}; }
+    return {p, P, v: B.metric === "elo" ? (P.last_elo ?? null) : P.matches};
+  }).filter(Boolean);
+  rows.sort((a,b) => (a.v === null || a.v === undefined) - (b.v === null || b.v === undefined) || (b.v ?? 0) - (a.v ?? 0) || a.P.name.localeCompare(b.P.name));
   const sc = v => `<span class="score" style="${v===null||v===undefined?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null||v===undefined?"–":Math.round(v)}</span>`;
-  const sortOpts = [...cats.map((c,j) => [String(j), c]), ["elo","FACEIT Elo"], ["matches","Matches Played"]];
-  return `<section class="pagehead"><div class="eyebrow">Leaderboards</div><h1>Rank the Regulars</h1><p class="lead">Every regular's 1-100 ratings (50 = a typical player in the store), current FACEIT Elo and matches in the store. Click a column header, or use Sort by, to re-rank.</p></section>
+  const lead = isR ? `1-100 ${esc(cats[j])} rating (50 = a typical player in the store, 84 = one standard deviation above). The range is the rating one standard error either side. How it's built: see the FAQ.`
+    : B.metric === "elo" ? "Current FACEIT Elo (after the player's latest match in the store)." : "Matches in the store.";
+  return `<section class="pagehead"><div class="eyebrow">Leaderboards</div><h1>Rank the Regulars</h1><p class="lead">${lead}</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
-    <div class="ctl"><span class="eyebrow">Board</span>${seg("b-mode", ["Ratings","Stats"], "Ratings")}</div>
-    <div class="ctl"><label for="b-rsort" class="eyebrow">Sort by</label><select id="b-rsort">${sortOpts.map(([k,l]) => `<option value="${k}" ${k===sk?"selected":""}>${esc(l)}</option>`).join("")}</select></div>
-    <div class="ctl"><span class="eyebrow">Matches</span>${seg("b-win", D.meta.windows, S.win)}</div>
+    <div class="ctl"><label for="b-metric" class="eyebrow">Stat</label>${boardPick(B)}</div>
+    ${isR ? `<div class="ctl"><span class="eyebrow">Matches</span>${seg("b-win", D.meta.windows, S.win)}</div>` : ""}
   </div>
-  ${S.win !== "All" ? `<div class="banner" style="margin-top:10px">Ratings over “${esc(S.win)}” exist only for players with at least ${S.win.split(" ")[1]} matches (${rows.length} players).</div>` : ""}
-  <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table class="rb"><thead><tr><th>#</th><th>Player</th>${th("elo","Elo")}${th("matches","Matches")}${cats.map((c,j) => th(String(j), c, "rc" + (j===0 || String(j)===sk ? "" : " hn"))).join("")}</tr></thead><tbody>
-  ${rows.map((r,j) => `<tr><td class="num">${j+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}</td><td class="r num${sk==="elo"?" on":""}">${r.elo!==null?Math.round(r.elo):"–"}</td><td class="r num${sk==="matches"?" on":""}">${r.P.matches}</td>${cats.map((c,k) => `<td class="r rc${k===0 || String(k)===sk ? "" : " hn"}${String(k)===sk?" on":""}">${sc(r.r[k])}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${4+cats.length}" class="note">Nobody qualifies for this window.</td></tr>`}
+  ${isR && S.win !== "All" ? `<div class="banner" style="margin-top:10px">Ratings over “${esc(S.win)}” exist only for players with at least ${S.win.split(" ")[1]} matches (${rows.length} players).</div>` : ""}
+  <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table class="rb"><thead><tr><th>#</th><th>Player</th><th class="r${B.metric==="elo"?" on":""}">Elo</th><th class="r${B.metric==="matches"?" on":""}">Matches</th>${isR ? `<th class="r on">${esc(label)}</th><th class="r">Range</th>` : ""}</tr></thead><tbody>
+  ${rows.map((r,k) => `<tr><td class="num">${k+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}</td><td class="r num">${r.P.last_elo!=null?Math.round(r.P.last_elo):"–"}</td><td class="r num">${r.P.matches}</td>${isR ? `<td class="r on">${sc(r.v)}</td><td class="r num note">${r.band ? esc(r.band) : "–"}</td>` : ""}</tr>`).join("") || `<tr><td colspan="6" class="note">Nobody qualifies for this window.</td></tr>`}
   </tbody></table></div>`;
 }
 function viewBoard(){
   const B = S.board, mets = D.meta.metrics;
-  if (B.mode !== "stats") return viewBoardRatings();
+  if (!BOARD_SPECIAL().some(([k]) => k === B.metric) && midx(B.metric) < 0) B.metric = "r:0";
+  if (BOARD_SPECIAL().some(([k]) => k === B.metric)) return viewBoardSpecial();
   const groups = STAT_GROUPS;
   const i = midx(B.metric), meta = mets[i];
   let wf = S.wf; const allW = !meta.weapon && wf !== "All"; if (allW) wf = "All";
@@ -983,8 +991,7 @@ function viewBoard(){
   rows.sort((a,b) => B.sort === "pct" ? ((b.pct??-1)-(a.pct??-1)) : (dir*((b.v??-1e9)-(a.v??-1e9))));
   return `<section class="pagehead"><div class="eyebrow">Leaderboards</div><h1>Rank the Regulars</h1><p class="lead">${esc(meta.def)}</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
-    <div class="ctl"><span class="eyebrow">Board</span>${seg("b-mode", ["Ratings","Stats"], "Stats")}</div>
-    <div class="ctl"><label for="b-metric" class="eyebrow">Stat</label><select id="b-metric">${groups.map(([lab,g])=>`<optgroup label="${lab}">${D.meta.groups[g].map(k=>`<option value="${k}" ${k===B.metric?"selected":""}>${esc(mets[midx(k)].label)}</option>`).join("")}</optgroup>`).join("")}</select></div>
+    <div class="ctl"><label for="b-metric" class="eyebrow">Stat</label>${boardPick(B)}</div>
     <div class="ctl"><span class="eyebrow">Matches</span>${seg("b-win", D.meta.windows, S.win)}</div>
     <div class="ctl"><span class="eyebrow">Side</span>${seg("b-side", D.meta.sides, S.side)}</div>
     <div class="ctl"><span class="eyebrow">Weapon</span>${seg("b-wf", D.meta.wfilters, S.wf)}</div>
@@ -1051,9 +1058,9 @@ function viewSpots(){
   </div>
   <div class="card section">
     <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:end">
-      <div><h3>Heatmap</h3><p class="lead note">Top-down view built from player positions (north up). The faint layer outlines where anyone ever stood; the bright layer is the selected moment: where that side stands, where its kills come from, or where its players die. The % layers divide kills or deaths by positions, spot by spot, to show where standing is most productive or most dangerous.</p></div>
+      <div><h3>Heatmap</h3><p class="lead note">Top-down view built from player positions (north up). The faint layer outlines where anyone ever stood; the bright layer is the selected moment: where that side stands, where its kills come from, or where its players die. Hotspots shows, spot by spot, kills minus deaths per position: blue where that side wins its fights, orange where it loses them.</p></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <div class="ctl"><span class="eyebrow">Layer</span>${seg("s-mode", ["Where They Stand","Where Kills Come From","Where They Die","Where Kills Come From %","Where They Die %"], {pres:"Where They Stand", kills:"Where Kills Come From", deaths:"Where They Die", kpct:"Where Kills Come From %", dpct:"Where They Die %"}[S.heatMode] || "Where They Stand")}</div>
+        <div class="ctl"><span class="eyebrow">Layer</span>${seg("s-mode", ["Where They Stand","Where Kills Come From","Where They Die","Hotspots"], {pres:"Where They Stand", kills:"Where Kills Come From", deaths:"Where They Die", hot:"Hotspots"}[S.heatMode] || "Where They Stand")}</div>
         ${levels.length > 1 ? `<div class="ctl"><span class="eyebrow">Level</span>${seg("s-level", levels, sp.level)}</div>` : ""}
       </div>
     </div>
@@ -1068,7 +1075,7 @@ function viewSpots(){
 }
 
 // ------------------------------------------------------------------ heatmap
-function paintGrid(cv, HM, lvl, layer, labels, cap){
+function paintGrid(cv, HM, lvl, layer, labels, cap, hot){
   const W = HM.w, H = HM.h, L = HM.levels[lvl];
   const wrap = cv.parentElement, cssW = wrap.clientWidth || 700, cell = cssW / W, cssH = cell * H;
   const dpr = window.devicePixelRatio || 1;
@@ -1085,30 +1092,39 @@ function paintGrid(cv, HM, lvl, layer, labels, cap){
     g.globalAlpha = 1; return mx;
   };
   draw(L.base, css("--base"), .05, .32);
-  const mx = draw(layer, css("--heat"), cap ? .10 : .18, 1, cap);
+  const mx = hot ? (paintHot(g, layer, cap, W, cell), cap) : draw(layer, css("--heat"), cap ? .10 : .18, 1, cap);
   g.font = `600 ${Math.max(9, Math.min(12, cell * 1.6))}px ${getComputedStyle(document.body).fontFamily}`;
   g.textAlign = "center"; g.textBaseline = "middle"; g.lineWidth = 3; g.strokeStyle = css("--surface"); g.fillStyle = css("--ink");
   (labels || L.labels).forEach(([name, x, y]) => { const px = (x + .5) * cell, py = (y + .5) * cell, t = placeName(name); g.strokeText(t, px, py); g.fillText(t, px, py); });
   return mx;
 }
-// v4.16 ratio layers: events (kills / deaths) per 100 position samples, pooled over each cell's 3x3 neighbourhood;
-// only cells the player / side actually stands in, with at least minDen samples in the neighbourhood
-const RATIO_MIN_PLAYER = 10, RATIO_MIN_SPOTS = 20;
-function ratioLayer(num, den, W, minDen){
-  const N = new Map(), Dn = new Map(); let tn = 0, td = 0;
-  for (let k = 0; k < (num||[]).length; k += 2){ N.set(num[k], (N.get(num[k])||0) + num[k+1]); tn += num[k+1]; }
-  for (let k = 0; k < (den||[]).length; k += 2){ Dn.set(den[k], (Dn.get(den[k])||0) + den[k+1]); td += den[k+1]; }
-  const out = [], vals = [];
+const RATIO_MIN_PLAYER = 10, RATIO_MIN_SPOTS = 20;   // min position samples in a cell's 3x3 neighbourhood
+// v4.17 Hotspots: (kills - deaths) per 100 position samples, pooled over each cell's 3x3 neighbourhood; + = good
+function hotLayer(kills, deaths, den, W, minDen){
+  const K = new Map(), Dd = new Map(), Dn = new Map(); let tk = 0, td = 0, tn = 0;
+  const add = (arr, M) => { let t = 0; for (let k = 0; k < (arr||[]).length; k += 2){ M.set(arr[k], (M.get(arr[k])||0) + arr[k+1]); t += arr[k+1]; } return t; };
+  tk = add(kills, K); td = add(deaths, Dd); tn = add(den, Dn);
+  const out = [], mags = [];
   for (const idx of Dn.keys()){
-    const x = idx % W, y = Math.floor(idx / W); let sn = 0, sd = 0;
-    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){ if (x + dx < 0 || x + dx >= W) continue; const j = idx + dy * W + dx; sn += N.get(j) || 0; sd += Dn.get(j) || 0; }
-    if (sd < minDen) continue;
-    const v = 100 * sn / sd; out.push(idx, v); vals.push(v);
+    const x = idx % W; let sk = 0, sd = 0, sn = 0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){ if (x + dx < 0 || x + dx >= W) continue; const j = idx + dy * W + dx; sk += K.get(j) || 0; sd += Dd.get(j) || 0; sn += Dn.get(j) || 0; }
+    if (sn < minDen) continue;
+    const v = 100 * (sk - sd) / sn; out.push(idx, v); mags.push(Math.abs(v));
   }
-  vals.sort((a, b) => a - b);
-  const cap = vals.length ? Math.max(vals[Math.floor(.95 * (vals.length - 1))], 1e-9) : 1;
-  return {arr: out, cap, overall: td ? 100 * tn / td : null, cells: vals.length, events: tn, samples: td};
+  mags.sort((a, b) => a - b);
+  const cap = mags.length ? Math.max(mags[Math.floor(.95 * (mags.length - 1))], 1e-9) : 1;
+  return {arr: out, cap, kpct: tn ? 100 * tk / tn : null, dpct: tn ? 100 * td / tn : null, net: tn ? 100 * (tk - td) / tn : null, cells: out.length / 2};
 }
+// diverging paint on the good / bad scale used by every stat bar (value / cap mapped to a 0-100 "percentile")
+function paintHot(g, arr, cap, W, cell){
+  for (let k = 0; k < arr.length; k += 2){ const idx = arr[k], f = Math.max(-1, Math.min(1, arr[k+1] / cap));
+    g.fillStyle = pctColor(50 + 35 * f); g.globalAlpha = .25 + .75 * Math.sqrt(Math.abs(f));
+    g.fillRect((idx % W) * cell, Math.floor(idx / W) * cell, cell + .5, cell + .5); }
+  g.globalAlpha = 1;
+}
+const hotNote = (R, who, minN) => R.cells
+  ? `Hotspots = kills minus deaths per 100 position samples in each spot (Where ${who.k} % − Where They Die %, pooled over neighbouring cells). Blue = more kills than deaths there, orange = more deaths; full colour at ±${R.cap.toFixed(1)}. Overall: ${R.kpct.toFixed(1)} kills − ${R.dpct.toFixed(1)} deaths = ${R.net >= 0 ? "+" : ""}${R.net.toFixed(1)}. Spots with fewer than ${minN} ${who.n} nearby are left out.`
+  : "Not enough position samples for Hotspots.";
 function mergeSparse(a, b){ const m = new Map(); for (const arr of [a||[], b||[]]) for (let k = 0; k < arr.length; k += 2) m.set(arr[k], (m.get(arr[k])||0) + arr[k+1]); return [...m].flat(); }
 function playerHeatCard(p){
   const PH = D.pheat[p] || {}, ms = D.mapsum[p] || {};
@@ -1121,10 +1137,10 @@ function playerHeatCard(p){
   if (!levels.includes(ph.level)) ph.level = levels[0];
   return `<div class="section"><div class="card">
     <div style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-end">
-      <div><h3>Where ${esc(D.players[p].name)} Plays</h3><p class="lead">Top-down view, north up. The faint layer outlines the map from every player's positions; the bright layer is this player. The % layers divide kills or deaths by position samples, spot by spot. Side follows the filter above (${esc(S.side)}).</p></div>
+      <div><h3>Where ${esc(D.players[p].name)} Plays</h3><p class="lead">Top-down view, north up. The faint layer outlines the map from every player's positions; the bright layer is this player. Hotspots shows kills minus deaths per position sample, spot by spot: blue where the player wins fights, orange where he loses them. Side follows the filter above (${esc(S.side)}).</p></div>
       <div style="display:flex;gap:14px;flex-wrap:wrap">
         <div class="ctl"><label class="eyebrow" for="ph-map">Map</label><select id="ph-map">${maps.map(m=>`<option value="${m}" ${m===ph.map?"selected":""}>${esc(mapName(m))}${ms[m]?` (${ms[m][0]})`:""}</option>`).join("")}</select></div>
-        <div class="ctl"><span class="eyebrow">Layer</span>${seg("ph-mode", ["Where They Stand","Where They Get Kills","Where They Die","Where They Get Kills %","Where They Die %"], {stand:"Where They Stand", kills:"Where They Get Kills", deaths:"Where They Die", kpct:"Where They Get Kills %", dpct:"Where They Die %"}[ph.mode] || "Where They Stand")}</div>
+        <div class="ctl"><span class="eyebrow">Layer</span>${seg("ph-mode", ["Where They Stand","Where They Get Kills","Where They Die","Hotspots"], {stand:"Where They Stand", kills:"Where They Get Kills", deaths:"Where They Die", hot:"Hotspots"}[ph.mode] || "Where They Stand")}</div>
         ${levels.length > 1 ? `<div class="ctl"><span class="eyebrow">Level</span>${seg("ph-level", levels, ph.level)}</div>` : ""}
       </div>
     </div>
@@ -1139,12 +1155,11 @@ function drawPlayerHeat(){
   const pickM = (mode, side) => X[`${mode}|${side}`] || [];
   const get = mode => S.side === "All" ? mergeSparse(pickM(mode, "T"), pickM(mode, "CT")) : pickM(mode, S.side);
   const note = document.getElementById("pheatnote");
-  if (ph.mode === "kpct" || ph.mode === "dpct"){
-    const ev = ph.mode === "kpct" ? "kills" : "deaths", R = ratioLayer(get(ev), get("stand"), HM.w, RATIO_MIN_PLAYER);
-    paintGrid(cv, HM, ph.level, R.arr, null, R.cap);
-    if (note) note.textContent = R.cells
-      ? `${ev === "kills" ? "Kills" : "Deaths"} per 100 position samples in each spot (Where They ${ev === "kills" ? "Get Kills" : "Die"} ÷ Where They Stand, pooled over neighbouring cells). Overall ${R.overall.toFixed(1)}; the brightest colour is ${R.cap.toFixed(1)}+. Spots with fewer than ${RATIO_MIN_PLAYER} position samples nearby are left out.`
-      : `Not enough position samples on this map and side for a ratio.`;
+  if (["kpct", "dpct"].includes(ph.mode)) ph.mode = "hot";
+  if (ph.mode === "hot"){
+    const R = hotLayer(get("kills"), get("deaths"), get("stand"), HM.w, RATIO_MIN_PLAYER);
+    paintGrid(cv, HM, ph.level, R.arr, null, R.cap, true);
+    if (note) note.textContent = hotNote(R, {k: "They Get Kills", n: "position samples"}, RATIO_MIN_PLAYER);
     return;
   }
   const layer = get(ph.mode);
@@ -1176,17 +1191,18 @@ function drawHeat(){
   };
   draw(L.base, css("--base"), .05, .32);
   const key = `${sp.scope}|${sp.side}|${sp.snap}`;
-  const ratio = S.heatMode === "kpct" || S.heatMode === "dpct";
-  const R = ratio ? ratioLayer(((S.heatMode === "kpct" ? L.kills : (L.deaths || {}))[key]) || [], L.pres[key] || [], W, RATIO_MIN_SPOTS) : null;
+  if (["kpct", "dpct"].includes(S.heatMode)) S.heatMode = "hot";
+  const ratio = S.heatMode === "hot";
+  const R = ratio ? hotLayer(L.kills[key] || [], (L.deaths || {})[key] || [], L.pres[key] || [], W, RATIO_MIN_SPOTS) : null;
   const layer = ratio ? R.arr : ((S.heatMode === "pres" ? L.pres : S.heatMode === "deaths" ? (L.deaths || {}) : L.kills)[key]) || [];
-  const mx = draw(layer, css("--heat"), ratio ? .10 : .18, 1, ratio ? R.cap : null);
+  const mx = ratio ? (paintHot(g, layer, R.cap, W, cell), R.cap) : draw(layer, css("--heat"), .18, 1, null);
   g.font = `600 ${Math.max(9, Math.min(12, cell * 1.6))}px ${getComputedStyle(document.body).fontFamily}`;
   g.textAlign = "center"; g.textBaseline = "middle"; g.lineWidth = 3; g.strokeStyle = css("--surface"); g.fillStyle = css("--ink");
   L.labels.forEach(([name, x, y]) => { const px = (x + .5) * cell, py = (y + .5) * cell, t = placeName(name); g.strokeText(t, px, py); g.fillText(t, px, py); });
   const n = L.rounds[key] || 0, tot = layer.reduce((s2, v, k) => k % 2 ? s2 + v : s2, 0);
   const note = document.getElementById("heatnote");
   if (note) note.textContent = ratio
-    ? (R.cells ? `${S.heatMode === "kpct" ? "Kills by" : "Deaths of"} ${sp.side} players within 7.5 s of ${sp.snap} s per 100 ${sp.side} positions at ${sp.snap} s, spot by spot (${S.heatMode === "kpct" ? "Where Kills Come From" : "Where They Die"} ÷ Where They Stand, pooled over neighbouring cells). Overall ${R.overall.toFixed(1)}; the brightest colour is ${R.cap.toFixed(1)}+. Spots with fewer than ${RATIO_MIN_SPOTS} positions nearby are left out.` : "Not enough positions for a ratio.")
+    ? hotNote(R, {k: "Kills Come From", n: `${sp.side} positions`}, RATIO_MIN_SPOTS).replace("Hotspots = kills minus deaths", `Hotspots = kills minus deaths of ${sp.side} players within 7.5 s of ${sp.snap} s`)
     : S.heatMode === "pres"
     ? `${n.toLocaleString()} rounds; ${tot.toLocaleString()} ${sp.side} player positions at ${sp.snap} s. Brightest cell: ${mx} positions.`
     : S.heatMode === "deaths"
@@ -1530,10 +1546,7 @@ function bind(){
   onSeg("k-win", v => { S.win = v; render(); }); onSeg("k-side", v => { S.side = v; render(); }); onSeg("k-wf", v => { S.wf = v; render(); });
   onSeg("k-all", v => { S.c5.all = v === "All stats"; render(); });
   onSeg("c-adj", v => { S.adj = v === "Raw" ? "raw" : "elo"; render(); }); onSeg("k-adj", v => { S.adj = v === "Raw" ? "raw" : "elo"; render(); });
-  onSeg("b-mode", v => { S.board.mode = v === "Stats" ? "stats" : "ratings"; render(); });
-  const brs = $("#b-rsort"); if (brs) brs.addEventListener("change", () => { S.board.rsort = brs.value; render(); });
-  document.querySelectorAll("[data-rsort]").forEach(b => b.addEventListener("click", () => { S.board.rsort = b.dataset.rsort; render(); }));
-  onSeg("s-mode", v => { S.heatMode = {"Where They Stand":"pres", "Where Kills Come From":"kills", "Where They Die":"deaths", "Where Kills Come From %":"kpct", "Where They Die %":"dpct"}[v]; render(); });
+  onSeg("s-mode", v => { S.heatMode = {"Where They Stand":"pres", "Where Kills Come From":"kills", "Where They Die":"deaths", "Hotspots":"hot"}[v]; render(); });
   onSeg("s-level", v => { S.spots.level = v; render(); });
   const q2 = $("#q2"); if (q2) wireSearch(q2, $("#sugg2"));
   document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { S.tab = "overview"; S.map = "All maps"; go("player", +b.dataset.p); }));
@@ -1560,7 +1573,7 @@ function bindTab(){
   const spb = $("#sp-play"); if (spb) spb.addEventListener("click", () => { if (slTimer) return slStop(); S.spk = 1; sprayLab(); spb.textContent = "Stop";
     slTimer = setInterval(() => { const mx = +($("#sp-k") || {max:1}).max; if (!$("#sl-pat") || S.spk >= mx) return slStop(); S.spk++; sprayLab(); }, 110); });
   const pm = $("#ph-map"); if (pm) pm.addEventListener("change", () => { S.pheat.map = pm.value; S.pheat.level = null; if (S.map !== "All maps") S.map = pm.value; rerenderTab(); });
-  onSeg("ph-mode", v => { S.pheat.mode = {"Where They Stand":"stand", "Where They Get Kills":"kills", "Where They Die":"deaths", "Where They Get Kills %":"kpct", "Where They Die %":"dpct"}[v]; rerenderTab(); });
+  onSeg("ph-mode", v => { S.pheat.mode = {"Where They Stand":"stand", "Where They Get Kills":"kills", "Where They Die":"deaths", "Hotspots":"hot"}[v]; rerenderTab(); });
   onSeg("ph-level", v => { S.pheat.level = v; rerenderTab(); });
   document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => go(b.dataset.go)));
   document.querySelectorAll("#tabbody [data-p]").forEach(b => b.addEventListener("click", () => { S.tab = "overview"; go("player", +b.dataset.p); }));
@@ -1596,6 +1609,11 @@ const loadData = async () => {
 (embedded ? Promise.resolve(JSON.parse(embedded.textContent)) : loadData()).then(d => {
   D = d;
   const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres", adj:st.adj==="raw"?"raw":"elo"}, st.board?{board:{...S.board, ...st.board}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{}, st.ts?{ts:{...S.ts, ...st.ts}}:{}, st.c5?{c5:{...S.c5, ...st.c5}}:{});
+  if (S.board.mode !== undefined){                                  // v4.16 saved state -> v4.17 (ratings board = a metric)
+    if (S.board.mode !== "stats") S.board.metric = ["elo","matches"].includes(S.board.rsort) ? S.board.rsort : `r:${S.board.rsort || 0}`;
+    delete S.board.mode; delete S.board.rsort;
+  }
+  if (["kpct","dpct"].includes(S.heatMode)) S.heatMode = "hot";
   if (midx(S.ts.metric) < 0) S.ts.metric = "adr"; if (![5,10].includes(S.ts.k)) S.ts.k = 5;
   wireSearch($("#q"), $("#sugg"));
   fromHash();
