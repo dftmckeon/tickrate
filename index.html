@@ -85,6 +85,10 @@ h3{font-size:15px;font-weight:600}
 .grid>*,.tiles>*,.section>*{min-width:0}
 .g2{grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+.gx2{grid-template-columns:repeat(2,minmax(0,1fr))}.gx3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:1060px){ .gx3{grid-template-columns:1fr} }
+@media (max-width:860px){ .gx2{grid-template-columns:1fr} }
+.mtab{margin-top:6px}.mtab td,.mtab th{font-size:12.5px}
 .section{display:grid;gap:16px;margin-top:20px}
 .span{grid-column:1/-1}
 .pagehead{padding-block:28px 4px;display:grid;gap:4px}
@@ -104,7 +108,7 @@ select{appearance:none;-webkit-appearance:none;padding:6px 30px 6px 10px;border-
 .banner::before{content:"i";flex:none;width:16px;height:16px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:600 11px/16px var(--sans);text-align:center;margin-top:1px}
 .pill{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;background:var(--surface-3);font-size:12px;color:var(--ink-2);font-weight:500}
 .pill.core{background:var(--accent-soft);color:var(--accent)}
-.pill.pro{background:var(--ink);color:var(--bg);font-weight:600}
+.pill.pro{background:var(--surface-3);color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line)}
 .link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:500;text-decoration:none}
 .link:hover{text-decoration:underline;text-underline-offset:3px}
 
@@ -270,6 +274,7 @@ a.pill.fc:hover{border-color:var(--accent)}
 .c5pn{font-weight:600;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .c5pa{font-size:12px;line-height:1.4}
 .c5pl{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:6px}
+.c5pl2{border-top:0;padding-top:0;margin-top:-4px}
 @container (max-width:520px){ .c5{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.c5 .lab{grid-column:1/-1}.c5h .lab{display:none}.c5c{padding:3px 3px}.c5c .v{font-size:12px}.c5n{font-size:11.5px} }
 
 @media (max-width:820px){
@@ -924,7 +929,8 @@ function viewCore5(){
   const body = groups.map(([lab,ks]) => `<div class="card c5card"><h3>${esc(titleCase(lab))}</h3>${hdr}${ks.map(line).join("")}</div>`).join("");
   // 1-100 ratings grid (leader must be 5+ points clear)
   const cats = D.meta.rating_cats;
-  const rline = (c, j) => { const vs = ids.map(i => ({i, v: rat(i) ? rat(i).r[j] : null})); const top = leader(vs);
+  const rled = Object.fromEntries(ids.map(i => [i, 0]));
+  const rline = (c, j) => { const vs = ids.map(i => ({i, v: rat(i) ? rat(i).r[j] : null})); const top = leader(vs); if (top !== null) rled[top]++;
     return `<div class="c5"><div class="lab">${j===0?`<b>${esc(c)}</b>`:esc(c)}</div>${vs.map(({i,v}) => `<div class="c5c"><span class="score num${i===top?" lead":""}" style="${v===null?"":`background:${pctTint(v,.22)};box-shadow:inset 0 0 0 1px ${pctTint(v,.45)}`}">${v===null?"–":Math.round(v)}</span></div>`).join("")}</div>`; };
   const ratings = `<div class="card c5card"><h3>1-100 Ratings</h3><p class="lead note">Same scale as the player pages: 50 = a typical player in the store. Outlined = best of the five by 5+ points.</p>${hdr.replace("Stat","Category")}${cats.map(rline).join("")}</div>`;
   // teammates matrix: win % when each pair was on the same team
@@ -935,8 +941,8 @@ function viewCore5(){
   const statHtml = body; // computed first so the "stats led" tally is filled before the cards render
   const card = i => { const r = rat(i), ar = arc(i), X = P[i], ov = r && r.r[0] !== null ? r.r[0] : null;
     return `<button class="card c5p" type="button" data-p="${i}"><div class="c5pt">${ring(ov)}<div style="min-width:0"><div class="c5pn">${esc(X.name)}</div><div class="note num">Elo ${X.last_elo?Math.round(X.last_elo):"–"}<br>${X.matches} matches</div></div></div>
-      ${ar?`<div class="note c5pa">${esc(ar[0])}<br>${esc(ar[1])}</div>`:""}<div class="c5pl"><span class="eyebrow">Stats led</span><b class="num">${led[i]}</b></div></button>`; };
-  return `<section class="pagehead"><div class="eyebrow">Core 5</div><h1>The Core 5 Side by Side</h1><p class="lead">All five regulars on the essential stats. The highlighted cell is the best of the five on a ranked stat, 5+ percentile points clear of the next player (same rule as Compare). ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (raw value underneath), and bars are Elo-adjusted percentiles."} The 1-100 ratings don't change with this toggle.</p></section>
+      ${ar?`<div class="note c5pa">${esc(ar[0])}<br>${esc(ar[1])}</div>`:""}<div class="c5pl"><span class="eyebrow">Stats led</span><b class="num">${led[i]}</b></div><div class="c5pl c5pl2"><span class="eyebrow">Ratings led</span><b class="num">${rled[i]}</b></div></button>`; };
+  return `<section class="pagehead"><div class="eyebrow">Core 5</div><h1>The Core 5 Side by Side</h1><p class="lead">All five regulars on the essential stats. The highlighted cell is the best of the five on a ranked stat, 5+ percentile points clear of the next player (same rule as Compare). ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (raw value underneath), and bars are Elo-adjusted percentiles."} No highlight means the top two are within 5 points, or fewer than two of the five are ranked on that stat. “Stats led” follows the Raw / Elo-adjusted toggle and the filters; “Ratings led” counts the 1-100 ratings (Overall included) where a player is 5+ points clear, and doesn't change with the toggle.</p></section>
   <div class="filters">
     <div class="ctl"><span class="eyebrow">Matches</span>${seg("k-win", D.meta.windows, w, o => o==="All" || ids.every(i => hasWin(i,o)) ? null : "All five need that many matches")}</div>
     <div class="ctl"><span class="eyebrow">Side</span>${seg("k-side", D.meta.sides, S.side)}</div>
@@ -1014,33 +1020,101 @@ function viewBoard(){
 }
 
 // ------------------------------------------------------------------ maps
+let MAPV = null;                                              // v4.19: chart data for the Maps page (drawn in drawCharts)
+const T_TIMING_ORDER = ["early (<30 s)", "default (30-60 s)", "late (>60 s)", "no site take"];
 function viewMaps(){
   const M = S.maps, T = D.ins.t_timing, C = D.ins.ct_setups;
   const maps = ["All maps", ...[...new Set(T.rows.map(r=>r[1]))].filter(m=>m!=="All maps").sort()];
-  const tcol = T.cols, ccol = C.cols;
+  if (!maps.includes(M.map)) M.map = "All maps";
   const tScope = M.scope === "Core-5" ? "Core-5 on T" : M.scope === "Pro" ? "Pro on T" : "All rounds", cScope = M.scope === "Core-5" ? "Core-5 on CT" : M.scope === "Pro" ? "Pro on CT" : "All rounds";
-  const tr = (b) => T.rows.filter(r => r[0]===tScope && r[1]===M.map && r[2]===b).sort((a,b2)=>b2[4]-a[4]);
-  const cr = (b) => C.rows.filter(r => r[0]===cScope && r[1]===M.map && r[2]===b).sort((a,b2)=>b2[4]-a[4]);
+  const tr = (b, m = M.map) => T.rows.filter(r => r[0]===tScope && r[1]===m && r[2]===b).sort((a,b2)=>b2[4]-a[4]);
+  const cr = (b, m = M.map) => C.rows.filter(r => r[0]===cScope && r[1]===m && r[2]===b).sort((a,b2)=>b2[4]-a[4]);
+  const sum = (rs, j) => rs.reduce((a, r) => a + (r[j] || 0), 0);
+  const tWinOf = rs => { const n = sum(rs, 4); return n ? rs.reduce((a, r) => a + r[4] * r[5], 0) / n : null; };
   const dlt = (v, base) => v===null||base===null ? "" : `<span style="color:${v-base>=0?"var(--pos)":"var(--neg)"}">${v-base>=0?"+":""}${(v-base).toFixed(1)}</span>`;
-  const tTable = (rows, label) => `<div class="tscroll"><table style="margin-top:6px"><thead><tr><th>${label}</th><th class="r">Rounds</th><th class="r">T win %</th><th class="r">Like-for-like</th><th class="r">First contact</th><th class="r">Take at</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(pretty(r[3]))}</td><td class="r num">${r[4]}</td><td class="r num"><b>${fmt(r[5],"pct")}</b></td><td class="r num">${r[6]>=20?fmt(r[7],"pct"):"<span class='note'>n&lt;20</span>"}</td><td class="r num">${r[8]!==null?r[8].toFixed(0)+" s":"–"}</td><td class="r num">${r[9]!==null?r[9].toFixed(0)+" s":"–"}</td></tr>`).join("") || `<tr><td colspan="6" class="note">No rounds</td></tr>`}</tbody></table></div>`;
-  const cTable = (rows, label, n) => `<div class="tscroll"><table style="margin-top:6px"><thead><tr><th>${label}</th><th class="r">Rounds</th><th class="r">Share</th><th class="r">CT win %</th><th class="r">vs map</th></tr></thead><tbody>${rows.slice(0,n).map(r=>`<tr><td class="${label==="Formation"?"num":""}">${esc(pretty(r[3]))}</td><td class="r num">${r[4]}</td><td class="r num">${fmt(r[6],"pct")}</td><td class="r num"><b>${fmt(r[5],"pct")}</b></td><td class="r num">${r[4]>=15?dlt(r[5],r[7]):"<span class='note'>n&lt;15</span>"}</td></tr>`).join("") || `<tr><td colspan="5" class="note">No rounds</td></tr>`}</tbody></table></div>`;
+  const tim = tr("timing").sort((a,b2) => T_TIMING_ORDER.indexOf(a[3]) - T_TIMING_ORDER.indexOf(b2[3])), strat = tr("t_strategy");
+  const form = cr("formation"), shape = cr("shape"), rot = cr("rotation");
+  const tRounds = sum(tim, 4), tWin = tWinOf(tim), ctBase = form.length ? form[0][7] : (shape.length ? shape[0][7] : null), cRounds = sum(form, 4);
+  const topS = strat.filter(r => r[3] !== "no_site_take")[0], topShape = shape.filter(r => r[3] !== "other")[0];
+  const noRot = rot.find(r => r[3] === "no rotation");
+  // per-map overview (same scope)
+  const perMap = maps.filter(m => m !== "All maps").map(m => { const t = tr("timing", m), f = cr("formation", m);
+    return {m, tn: sum(t, 4), tw: tWinOf(t), cn: sum(f, 4), cw: f.length ? f[0][7] : null}; }).filter(x => x.tn >= 50).sort((a, b2) => b2.tn - a.tn);
   const oc = D.ins.opening_cost.rows, ot = D.ins.opp_teams.rows;
-  return `<section class="pagehead"><div class="eyebrow">Maps</div><h1>How Rounds Are Won on Each Map</h1><p class="lead">T take timing and strategy, CT setups at 10 seconds and rotation speed. These are patterns in how rounds went, not guaranteed causes: a late take needs T alive at 60 s, so compare the like-for-like column (4+ T alive at the take).</p></section>
+  MAPV = {tim, strat, form: form.slice(0, 8), shape, rot, tWin, ctBase, perMap, sel: M.map, oc, ot};
+  const kpi = (lab, val, sub) => `<div><div class="eyebrow">${lab}</div><b>${val}</b>${sub ? `<div class="note" style="margin-top:2px">${sub}</div>` : ""}</div>`;
+  const tTable = rows => `<div class="tscroll"><table class="mtab"><thead><tr><th></th><th class="r">Rounds</th><th class="r">T win %</th><th class="r">4+ alive</th><th class="r">Contact</th><th class="r">Take</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(pretty(r[3]))}</td><td class="r num">${r[4].toLocaleString()}</td><td class="r num"><b>${fmt(r[5],"pct")}</b></td><td class="r num">${r[6]>=20?fmt(r[7],"pct"):"<span class='note'>n&lt;20</span>"}</td><td class="r num">${r[8]!==null?r[8].toFixed(0)+" s":"–"}</td><td class="r num">${r[9]!==null?r[9].toFixed(0)+" s":"–"}</td></tr>`).join("") || `<tr><td colspan="6" class="note">No rounds</td></tr>`}</tbody></table></div>`;
+  const cTable = (rows, n) => `<div class="tscroll"><table class="mtab"><thead><tr><th></th><th class="r">Rounds</th><th class="r">Share</th><th class="r">CT win %</th><th class="r">vs map</th></tr></thead><tbody>${rows.slice(0,n).map(r=>`<tr><td class="num">${esc(pretty(r[3]))}</td><td class="r num">${r[4].toLocaleString()}</td><td class="r num">${fmt(r[6],"pct")}</td><td class="r num"><b>${fmt(r[5],"pct")}</b></td><td class="r num">${r[4]>=15?dlt(r[5],r[7]):"<span class='note'>n&lt;15</span>"}</td></tr>`).join("") || `<tr><td colspan="5" class="note">No rounds</td></tr>`}</tbody></table></div>`;
+  const cv = (id, h, lab) => `<div class="chartbox" style="height:${h}px;margin-top:8px"><canvas id="${id}" role="img" aria-label="${esc(lab)}"></canvas></div>`;
+  const scopeNote = M.scope === "Pro" ? "Rounds with at least one Tier-1 pro on that side (T cards: pro on T; CT cards: pro on CT)." : M.scope === "Core-5" ? "Rounds with at least one Core-5 player on that side." : "";
+  return `<section class="pagehead"><div class="eyebrow">Maps</div><h1>How Rounds Are Won on Each Map</h1><p class="lead">T take timing and strategy, CT setups at 10 seconds and rotation speed, map by map. These are patterns in how rounds went, not guaranteed causes: a late take needs T alive at 60 s, so read the “4+ alive” numbers as the like-for-like comparison.</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
     <div class="ctl"><label class="eyebrow" for="m-map">Map</label><select id="m-map">${maps.map(m=>`<option value="${m}" ${m===M.map?"selected":""}>${esc(mapName(m))}</option>`).join("")}</select></div>
     <div class="ctl"><span class="eyebrow">Rounds</span>${seg("m-scope", ["All rounds","Core-5","Pro"], M.scope)}</div>
   </div>
-  ${M.scope !== "All rounds" ? `<div class="banner" style="margin-top:10px">${M.scope === "Pro" ? "Rounds with at least one Tier-1 pro on that side (T tables: pro on T; CT tables: pro on CT)." : "Rounds with at least one Core-5 player on that side."} The opening-death and Elo-gap tables below use all rounds.</div>` : ""}
-  <div class="grid g2 section">
-    <div class="card"><h3>T Take Timing</h3><p class="lead note">When the T side entered a site (T gun rounds).</p>${tTable(tr("timing"),"Timing")}</div>
-    <div class="card"><h3>T Strategy</h3><p class="lead note">Classified from movement and utility: rush, execute, contact, mid-round call, no site take.</p>${tTable(tr("t_strategy"),"Strategy")}</div>
-    <div class="card"><h3>CT Formations at 10 s</h3><p class="lead note">CT players at A / Mid / B (CT gun rounds, 4+ alive). “vs map” compares with the map's CT win % across all setups.</p>${cTable(cr("formation"),"Formation",10)}</div>
-    <div class="card"><h3>CT Shapes and Rotations</h3>${cTable(cr("shape"),"Shape",6)}${cTable(cr("rotation"),"First rotation arrives",6)}</div>
+  ${scopeNote ? `<div class="banner" style="margin-top:10px">${scopeNote} The opening-death and Elo-gap cards use all rounds.</div>` : ""}
+  <div class="kpis" style="margin-top:16px">
+    ${kpi("T win % (gun rounds)", fmt(tWin, "pct"), `${tRounds.toLocaleString()} rounds`)}
+    ${kpi("CT win % (4+ alive at 10 s)", fmt(ctBase, "pct"), `${cRounds.toLocaleString()} rounds`)}
+    ${kpi("Most common T plan", topS ? esc(pretty(topS[3])) : "–", topS ? `${Math.round(100 * topS[4] / Math.max(1, tRounds))}% of rounds · T win ${fmt(topS[5], "pct")}` : "")}
+    ${kpi("Most common CT shape", topShape ? esc(pretty(topShape[3])) : "–", topShape ? `${fmt(topShape[6], "pct")} of rounds · CT win ${fmt(topShape[5], "pct")}` : "")}
+    ${kpi("CT rounds with no rotation", noRot ? fmt(noRot[6], "pct") : "–", noRot ? `CT win ${fmt(noRot[5], "pct")}` : "")}
   </div>
-  <div class="grid g2 section">
-    <div class="card"><h3>Cost of an Untraded Opening Death</h3><p class="lead note">Round win % for the side that lost the first player, all maps.</p><div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Side</th><th>Opening death</th><th class="r">Rounds</th><th class="r">Round win %</th></tr></thead><tbody>${oc.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(pretty(r[1]))}</td><td class="r num">${r[2].toLocaleString()}</td><td class="r num"><b>${fmt(r[3],"pct")}</b></td></tr>`).join("")}</tbody></table></div><p class="note">Part of the gap is mechanical: a trade puts the teams level again.</p></div>
-    <div class="card"><h3>Team Elo Gap vs FACEIT's Forecast</h3><p class="lead note">Own team average Elo minus the opponents'. FACEIT balances lobbies, so most matches are within ±25.</p><div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Gap</th><th class="r">Matches</th><th class="r">Won</th><th class="r">FACEIT expected</th></tr></thead><tbody>${ot.map(r=>`<tr><td>${esc(pretty(r[0]))}</td><td class="r num">${r[1]}</td><td class="r num"><b>${fmt(r[2],"pct")}</b></td><td class="r num note">${fmt(r[3],"pct")}</td></tr>`).join("")}</tbody></table></div></div>
+  <div class="grid gx2 section">
+    <div class="card"><h3>T Take Timing</h3><p class="lead note">When the T side entered a site (T gun rounds). Bars: T win % in all rounds and with 4+ T alive at the take.</p>${cv("mc-timing", 210, "T win % by take timing")}${tTable(tim)}</div>
+    <div class="card"><h3>T Strategy</h3><p class="lead note">Classified from movement and utility: rush, execute, contact, mid-round call, no site take.</p>${cv("mc-strat", 210, "T win % by strategy")}${tTable(strat)}</div>
+    <div class="card"><h3>CT Formations at 10 s</h3><p class="lead note">CT players at A / Mid / B (CT gun rounds, 4+ alive). Bars: CT win % above (blue) or below (orange) the map's CT win % across all setups.</p>${cv("mc-form", 250, "CT formations vs map")}${cTable(form, 8)}</div>
+    <div class="card"><h3>CT Shapes and Rotations</h3><p class="lead note">Setup shape at 10 s, and when the first rotating CT arrives at the other site. Same colours: blue = better than the map's CT win %.</p>${cv("mc-shape", 150, "CT shapes vs map")}${cv("mc-rot", 150, "CT rotation timing vs map")}${cTable([...shape, ...rot], 12)}</div>
+  </div>
+  <div class="grid gx3 section">
+    <div class="card"><h3>Win % by Map</h3><p class="lead note">T and CT gun-round win % on every map (${esc(M.scope === "All rounds" ? "all rounds" : M.scope + " rounds")}). ${M.map !== "All maps" ? `${esc(mapName(M.map))} is highlighted.` : "Click a bar to open that map."}</p>${cv("mc-maps", 260, "Win % by map")}</div>
+    <div class="card"><h3>Cost of an Untraded Opening Death</h3><p class="lead note">Round win % for the side that lost the first player, all maps. Part of the gap is mechanical: a trade puts the teams level again.</p>${cv("mc-open", 260, "Round win % after an opening death")}</div>
+    <div class="card"><h3>Team Elo Gap vs FACEIT's Forecast</h3><p class="lead note">Own team average Elo minus the opponents'. Bars: matches won; line: FACEIT's expected win %.</p>${cv("mc-elo", 260, "Win % by team Elo gap")}</div>
   </div>`;
+}
+function drawMapCharts(){
+  if (S.view !== "maps" || !MAPV || !window.Chart) return;
+  const V = MAPV, ink = css("--ink"), muted = css("--muted"), line = css("--line"), acc = css("--accent");
+  const good = (v, base, span = 12) => v === null || base === null ? css("--mid") : pctColor(50 + 35 * Math.max(-1, Math.min(1, (v - base) / span)));
+  const mk = (id, cfg) => { const el = document.getElementById(id); if (el) charts.push(new Chart(el, cfg)); };
+  const pctAxis = (o = {}) => ({grid:{color:line}, ticks:{color:muted, callback:(v)=>v+"%"}, ...o});
+  const catAxis = {grid:{display:false}, ticks:{color:ink}};
+  const base = (ix, extra = {}) => ({maintainAspectRatio:false, animation:false, indexAxis:ix, plugins:{legend:{labels:{color:ink, boxWidth:12}}}, ...extra});
+  // T timing / strategy: T win %, all rounds vs 4+ alive
+  const tSets = rows => [{label:"All rounds", data:rows.map(r=>r[5]), backgroundColor:rows.map(r=>good(r[5], V.tWin)), borderRadius:4},
+    {label:"4+ T alive at the take", data:rows.map(r=>r[6]>=20?r[7]:null), backgroundColor:muted+"66", borderRadius:4}];
+  for (const [id, rows] of [["mc-timing", V.tim], ["mc-strat", V.strat]])
+    mk(id, {type:"bar", data:{labels:rows.map(r=>pretty(r[3])), datasets:tSets(rows)},
+      options:base("x", {plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmt(c.parsed.y,"pct")} (${(c.datasetIndex ? rows[c.dataIndex][6] : rows[c.dataIndex][4]).toLocaleString()} rounds)`}}},
+        scales:{y:pctAxis({suggestedMin:0, suggestedMax:100}), x:catAxis}})});
+  // CT: win % minus the map's CT win %
+  const ctBar = (id, rows) => mk(id, {type:"bar", data:{labels:rows.map(r=>pretty(r[3])), datasets:[{label:"CT win % vs map", data:rows.map(r=>r[4]>=15 ? +(r[5]-r[7]).toFixed(1) : null), backgroundColor:rows.map(r=>good(r[5], r[7])), borderRadius:4}]},
+    options:base("y", {plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>{ const r = rows[c.dataIndex]; return `CT win ${fmt(r[5],"pct")} vs map ${fmt(r[7],"pct")} (${r[4].toLocaleString()} rounds, ${fmt(r[6],"pct")} of rounds)`; }}}},
+      scales:{x:{grid:{color:line}, ticks:{color:muted, callback:(v)=>(v>0?"+":"")+v+" pts"}}, y:catAxis}})});
+  ctBar("mc-form", V.form); ctBar("mc-shape", V.shape); ctBar("mc-rot", V.rot);
+  // win % by map
+  const pm = V.perMap, hi = m => V.sel === "All maps" || V.sel === m;
+  mk("mc-maps", {type:"bar", data:{labels:pm.map(x=>mapName(x.m)), datasets:[
+      {label:"T win %", data:pm.map(x=>x.tw), backgroundColor:pm.map(x=>hi(x.m) ? acc : acc+"55"), borderRadius:4},
+      {label:"CT win %", data:pm.map(x=>x.cw), backgroundColor:pm.map(x=>hi(x.m) ? muted : muted+"55"), borderRadius:4}]},
+    options:base("x", {onClick:(e, els) => { if (els.length){ S.maps.map = pm[els[0].index].m; render(); } },
+      plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>{ const x = pm[c.dataIndex]; return `${c.dataset.label}: ${fmt(c.parsed.y,"pct")} (${(c.datasetIndex ? x.cn : x.tn).toLocaleString()} rounds)`; }}}},
+      scales:{y:pctAxis({suggestedMin:0, suggestedMax:100}), x:catAxis}})});
+  // opening-death cost
+  const sides = ["CT", "T", "All"], oc = V.oc, g = (sd, b) => (oc.find(r => r[0] === sd && r[1] === b) || [])[3] ?? null;
+  const ocn = (sd, b) => (oc.find(r => r[0] === sd && r[1] === b) || [])[2] ?? 0;
+  mk("mc-open", {type:"bar", data:{labels:sides.map(x => x === "All" ? "Both sides" : x + " side"), datasets:[
+      {label:"Traded within 5 s", data:sides.map(x=>g(x, "traded within 5 s")), backgroundColor:pctColor(72), borderRadius:4},
+      {label:"Not traded", data:sides.map(x=>g(x, "not traded")), backgroundColor:pctColor(28), borderRadius:4}]},
+    options:base("x", {plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmt(c.parsed.y,"pct")} round win (${ocn(sides[c.dataIndex], c.datasetIndex ? "not traded" : "traded within 5 s").toLocaleString()} rounds)`}}},
+      scales:{y:pctAxis({suggestedMin:0, suggestedMax:60}), x:catAxis}})});
+  // Elo gap
+  const ot = V.ot;
+  mk("mc-elo", {data:{labels:ot.map(r=>pretty(r[0])), datasets:[
+      {type:"bar", label:"Won", data:ot.map(r=>r[2]), backgroundColor:ot.map(r=>good(r[2], r[3], 15)), borderRadius:4, order:2},
+      {type:"line", label:"FACEIT expected", data:ot.map(r=>r[3]), borderColor:ink, borderDash:[5,4], pointRadius:2.5, pointBackgroundColor:ink, borderWidth:1.5, order:1}]},
+    options:base("x", {plugins:{legend:{labels:{color:ink, boxWidth:12}}, tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmt(c.parsed.y,"pct")}${c.datasetIndex ? "" : ` (${ot[c.dataIndex][1]} matches)`}`}}},
+      scales:{y:pctAxis({suggestedMin:0, suggestedMax:100}), x:{grid:{display:false}, ticks:{color:ink, maxRotation:40, minRotation:0}}}})});
 }
 
 // ------------------------------------------------------------------ enemy spots
@@ -1309,6 +1383,7 @@ function drawCharts(){
   const ink = css("--ink"), muted = css("--muted"), line = css("--line"), acc = css("--accent");
   Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
   Chart.defaults.color = muted; Chart.defaults.font.size = 12;
+  try { drawMapCharts(); } catch (e) { console.error(e); }
   const r2 = document.getElementById("radar2");
   if (r2){
     const a = S.cmp.a, b = S.cmp.b, w = (hasWin(a,S.win)&&hasWin(b,S.win)) ? S.win : "All";
@@ -1617,7 +1692,7 @@ const loadData = async () => {
 };
 (embedded ? Promise.resolve(JSON.parse(embedded.textContent)) : loadData()).then(d => {
   D = d;
-  const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres", adj:st.adj==="raw"?"raw":"elo"}, st.board?{board:{...S.board, ...st.board}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{}, st.ts?{ts:{...S.ts, ...st.ts}}:{}, st.c5?{c5:{...S.c5, ...st.c5}}:{});
+  const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres", adj:st.adj==="raw"?"raw":"elo"}, st.board?{board:{...S.board, ...st.board, metric:"r:0"}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{}, st.ts?{ts:{...S.ts, ...st.ts}}:{}, st.c5?{c5:{...S.c5, ...st.c5}}:{});
   if (S.board.mode !== undefined){                                  // v4.16 saved state -> v4.17 (ratings board = a metric)
     if (S.board.mode !== "stats") S.board.metric = ["elo","matches"].includes(S.board.rsort) ? S.board.rsort : `r:${S.board.rsort || 0}`;
     delete S.board.mode; delete S.board.rsort;
