@@ -89,6 +89,8 @@ h3{font-size:15px;font-weight:600}
 .gx2{grid-template-columns:repeat(2,minmax(0,1fr))}.gx3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:1060px){ .gx3{grid-template-columns:1fr} }
 @media (max-width:860px){ .gx2{grid-template-columns:1fr} }
+.lbcard{overflow-x:clip}
+.lbt thead th{position:sticky;top:var(--lbtop,56px);z-index:4;background:var(--surface);box-shadow:inset 0 -1px 0 var(--line-strong)}
 .mtab{margin-top:6px}.mtab td,.mtab th{font-size:12.5px}
 .section{display:grid;gap:16px;margin-top:20px}
 .span{grid-column:1/-1}
@@ -995,7 +997,7 @@ function viewBoardSpecial(){
     ${isR ? `<div class="ctl"><span class="eyebrow">Matches</span>${seg("b-win", D.meta.windows, S.win)}</div>` : ""}
   </div>
   ${isR && S.win !== "All" ? `<div class="banner" style="margin-top:10px">Ratings over “${esc(S.win)}” exist only for players with at least ${S.win.split(" ")[1]} matches (${rows.length} players).</div>` : ""}
-  <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table class="rb"><thead><tr><th>#</th><th>Player</th>${isR ? `<th class="r on">${esc(cats[j])}</th><th class="r rcw">Range</th>${RC.map(c => `<th class="r rcw">${esc(c[1].replace(/ Rating$/,""))}<small class="rw">${Math.round(c[3]*1000)/10}%${c[4] < 0 ? " · lower is better" : ""}</small></th>`).join("")}` : `<th class="r${B.metric==="elo"?" on":""}">Elo</th><th class="r${B.metric==="matches"?" on":""}">Matches</th>`}</tr></thead><tbody>
+  <div class="card lbcard" style="margin-top:14px;padding:6px 10px"><table class="rb lbt"><thead><tr><th>#</th><th>Player</th>${isR ? `<th class="r on">${esc(cats[j])}</th><th class="r rcw">Range</th>${RC.map(c => `<th class="r rcw">${esc(c[1].replace(/ Rating$/,""))}<small class="rw">${Math.round(c[3]*1000)/10}%${c[4] < 0 ? " · lower is better" : ""}</small></th>`).join("")}` : `<th class="r${B.metric==="elo"?" on":""}">Elo</th><th class="r${B.metric==="matches"?" on":""}">Matches</th>`}</tr></thead><tbody>
   ${rows.map((r,k) => `<tr><td class="num">${k+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}${isR ? `<div class="rcn">${RC.map((c,k) => `<span>${esc(c[1].replace(/ Rating$/,""))} <b class="num">${c[2]==="rating" ? (r.cv[k] ?? "–") : fmt(r.cv[k], c[2])}</b></span>`).join("")}</div>` : ""}</td>${isR ? `<td class="r on">${sc(r.v)}</td><td class="r num note rcw">${r.band ? esc(r.band) : "–"}</td>${RC.map((c,k) => `<td class="r num rcw">${cfmt(r.cv[k], c[2])}</td>`).join("")}` : `<td class="r num">${r.P.last_elo!=null?Math.round(r.P.last_elo):"–"}</td><td class="r num">${r.P.matches}</td>`}</tr>`).join("") || `<tr><td colspan="${isR ? 4 + RC.length : 4}" class="note">Nobody qualifies for this window.</td></tr>`}
   </tbody></table></div>`;
 }
@@ -1024,7 +1026,7 @@ function viewBoard(){
   </div>
   ${allW ? `<div class="banner" style="margin-top:10px">${esc(meta.label)} has no weapon split: showing all weapons.</div>` : ""}
   ${S.win !== "All" ? `<div class="banner" style="margin-top:10px">Only players with at least ${S.win.split(" ")[1]} matches appear under “${esc(S.win)}”.</div>` : ""}
-  <div class="card tscroll" style="margin-top:14px;padding:6px 10px"><table><thead><tr><th>#</th><th>Player</th><th class="r">Matches<span class="nw-only"> / Sample</span></th><th class="r">Value<span class="nw-only"> / At their Elo</span></th><th class="r w-only">At their Elo</th><th class="pcol">Elo-adjusted percentile</th><th class="r w-only">Sample</th></tr></thead><tbody>
+  <div class="card lbcard" style="margin-top:14px;padding:6px 10px"><table class="lbt"><thead><tr><th>#</th><th>Player</th><th class="r">Matches<span class="nw-only"> / Sample</span></th><th class="r">Value<span class="nw-only"> / At their Elo</span></th><th class="r w-only">At their Elo</th><th class="pcol">Elo-adjusted percentile</th><th class="r w-only">Sample</th></tr></thead><tbody>
   ${rows.map((r,j)=>`<tr><td class="num">${j+1}</td><td><button class="link" data-p="${r.p}">${esc(r.P.name)}</button>${r.P.core?` <span class="pill core" style="padding:0 6px">C5</span>`:""}${r.P.pro?` <span class="pill pro" style="padding:0 6px">Pro</span>`:""}</td><td class="r num">${r.P.matches}<span class="sub2 nw-only">${Math.round(r.den).toLocaleString()}</span></td><td class="r num"><b>${fmt(r.v, meta.fmt)}</b><span class="sub2 nw-only">${fmt(r.exp, meta.fmt)}</span></td><td class="r num note w-only">${fmt(r.exp, meta.fmt)}</td><td>${r.rk&&r.pct!==null?`<div class="pbar"><i style="width:${Math.max(2,r.pct)}%;background:${pctColor(r.pct)}"></i></div><div class="pct num note" style="font-size:11px">${ord(Math.round(r.pct))}</div>`:`<span class="note">not ranked</span>`}</td><td class="r num note w-only">${Math.round(r.den).toLocaleString()}</td></tr>`).join("") || `<tr><td colspan="7" class="note">Nobody qualifies for this combination.</td></tr>`}
   </tbody></table></div>`;
 }
@@ -1554,6 +1556,8 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-29T21:32:13Z", "v4.21", "Frozen Leaderboard Header", [
+    "Leaderboards: the column names now stay pinned under the filter bar as you scroll down the table, like frozen panes in a spreadsheet."]],
   ["2026-09-29T21:24:22Z", "v4.20", "Always Show the Leader, and This Page", [
     "Core 5 and Compare now always highlight the best player on every ranked stat and rating: a solid outline when they lead by 5+ points, a dashed outline when the lead is narrower.",
     "Core 5 cards show narrow leads next to the counters (for example “5 +3 narrow”).",
@@ -1688,6 +1692,13 @@ function viewFaq(){
   </div>`;
 }
 
+function setStickyTop(){                                       // v4.21: frozen Leaderboard header sits under the sticky bars
+  const ab = document.querySelector(".appbar"), f = document.querySelector("#app .filters"); if (!ab) return;
+  let top = ab.getBoundingClientRect().height;
+  if (f && getComputedStyle(f).position === "sticky") top = (parseFloat(getComputedStyle(f).top) || top) + f.getBoundingClientRect().height;
+  document.documentElement.style.setProperty("--lbtop", Math.round(top) + "px");
+}
+addEventListener("resize", () => { if (S.view === "board") setStickyTop(); });
 function render(){
   const app = $("#app");
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", (b.dataset.view === S.view || (S.view==="player" && b.dataset.view==="home")) ? "page" : "false"));
@@ -1703,6 +1714,7 @@ function render(){
   else { S.view = "home"; html = viewHome(); }
   html += `<p class="foot">Built from ${D.meta.matches} FACEIT matches · ${D.players.length} regulars (3+ matches) · data ${esc(D.meta.built_utc)} · pipeline v${esc(D.meta.version)}. Percentiles are Elo-adjusted and shrunk toward 50 for small samples.</p>`;
   app.innerHTML = html;
+  if (S.view === "board") setStickyTop();
   bind();
   drawCharts();
   saveState();
