@@ -362,6 +362,19 @@ a.pill.fc:hover{border-color:var(--accent)}
 "use strict";
 let D = null;                        // data.json
 const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, c5:{all:false}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"r:0", sort:"pct", ranked:true}, adj:"elo", ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
+// v4.25: page selections (everything in S except view + p). Clicking onto a page resets them to these defaults;
+// Back/Forward (and reload) bring back what that history entry had, via history.state.
+const SEL_DEF = JSON.stringify(Object.fromEntries(Object.entries(S).filter(([k]) => k !== "view" && k !== "p")));
+const selSnap = () => JSON.parse(JSON.stringify(Object.fromEntries(Object.entries(S).filter(([k]) => k !== "view" && k !== "p"))));
+function selRestore(sel){
+  Object.keys(S).forEach(k => { if (k !== "view" && k !== "p") delete S[k]; });
+  const d = JSON.parse(SEL_DEF);
+  if (sel && typeof sel === "object") for (const k of Object.keys(sel)) d[k] = (d[k] && typeof d[k] === "object" && !Array.isArray(d[k]) && sel[k] && typeof sel[k] === "object") ? {...d[k], ...sel[k]} : sel[k];
+  Object.assign(S, d);
+  if (!["pres","kills","deaths","hot"].includes(S.heatMode)) S.heatMode = "pres";
+  if (D && midx(S.ts.metric) < 0) S.ts.metric = "adr"; if (![5,10].includes(S.ts.k)) S.ts.k = 5;
+}
+try { history.scrollRestoration = "manual"; } catch(e) {}
 const $ = (s, el=document) => el.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store = { get(k){try{return JSON.parse(localStorage.getItem("tickrate."+k))}catch(e){return null}}, set(k,v){try{localStorage.setItem("tickrate."+k, JSON.stringify(v))}catch(e){}} };
@@ -460,9 +473,12 @@ const faceitUrl = name => "https://www.faceit.com/en/players/" + encodeURICompon
 
 // ------------------------------------------------------------------ routing
 function go(view, p){
+  saveState();                                             // keep this page's selections for Back
+  selRestore(null);                                        // clicking onto a page = default selections
   S.view = view; if (p !== undefined) S.p = p;
   const tok = view === "player" ? `p${S.p}` : view;
-  if (location.hash !== "#" + tok) history.replaceState(null, "", "#" + tok);
+  if (location.hash !== "#" + tok) history.pushState({sel: selSnap(), y: 0}, "", "#" + tok);
+  else history.replaceState({sel: selSnap(), y: 0}, "");
   render();
   window.scrollTo({top:0});
 }
@@ -1677,6 +1693,10 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-29T23:36:48Z", "v4.25", "Fresh Filters on Every Page", [
+    "Clicking onto a page (the menu, a player name, a link) now opens it with its default filters and selections, instead of carrying over the ones you picked elsewhere.",
+    "The browser's Back and Forward buttons bring a page back exactly as you left it: filters, tab, chosen players and scroll position. Reloading a page keeps them too.",
+    "Filters are no longer remembered between visits, so opening the site fresh always starts from the defaults."]],
   ["2026-09-29T23:24:34Z", "v4.24", "Tickrate Is Now Ticklab", [
     "New name and new address: the site now lives at ticklab.gg.",
     "Old dftmckeon.github.io/tickrate links redirect here automatically. Because the address changed, your browser treats it as a new site, so any remembered filters or theme choice reset once."]],
@@ -1858,8 +1878,8 @@ function render(){
   drawCharts();
   saveState();
 }
-function saveState(){ store.set("state", {adj:S.adj, win:S.win, side:S.side, wf:S.wf, tab:S.tab, c5:S.c5, board:S.board, spots:S.spots, maps:S.maps, heatMode:S.heatMode, ts:S.ts}); }
-function rerenderTab(){ const tb = $("#tabbody"); if (!tb) return render(); killCharts(); tb.innerHTML = tabBody(S.p); bindTab(); drawCharts(); }
+function saveState(){ try { history.replaceState({sel: selSnap(), y: window.scrollY}, ""); } catch(e) {} }
+function rerenderTab(){ const tb = $("#tabbody"); if (!tb) return render(); killCharts(); tb.innerHTML = tabBody(S.p); bindTab(); drawCharts(); saveState(); }
 function bind(){
   const fm = $("#f-map"); if (fm) fm.addEventListener("change", () => { S.map = fm.value; render(); });
   document.querySelectorAll("[data-setmap]").forEach(b => b.addEventListener("click", () => { S.map = b.dataset.setmap; render(); }));
@@ -1875,7 +1895,7 @@ function bind(){
   onSeg("s-level", v => { S.spots.level = v; render(); });
   const q2 = $("#q2"); if (q2) wireSearch(q2, $("#sugg2"));
   const hm = $("#home-more"); if (hm) hm.addEventListener("click", () => { const y = scrollY; S.homeAll = !S.homeAll; render(); scrollTo(0, y); });
-  document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { S.tab = "overview"; S.map = "All maps"; go("player", +b.dataset.p); }));
+  document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => go("player", +b.dataset.p)));
   onSeg("f-win", v => { S.win = v; render(); });
   onSeg("f-side", v => { S.side = v; render(); });
   onSeg("f-wf", v => { S.wf = v; render(); });
@@ -1911,14 +1931,16 @@ function bindTab(){
   onSeg("ph-mode", v => { S.pheat.mode = {"Where They Stand":"stand", "Where They Get Kills":"kills", "Where They Die":"deaths", "Hotspots":"hot"}[v]; rerenderTab(); });
   onSeg("ph-level", v => { S.pheat.level = v; rerenderTab(); });
   document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => go(b.dataset.go)));
-  document.querySelectorAll("#tabbody [data-p]").forEach(b => b.addEventListener("click", () => { S.tab = "overview"; go("player", +b.dataset.p); }));
+  document.querySelectorAll("#tabbody [data-p]").forEach(b => b.addEventListener("click", () => go("player", +b.dataset.p)));
   document.querySelectorAll("[data-def]").forEach(b => b.addEventListener("click", () => { const k = b.dataset.def; S.open[k] = !S.open[k]; const y = window.scrollY; if ($("#tabbody") && $("#tabbody").contains(b)) { killCharts(); $("#tabbody").innerHTML = tabBody(S.p); bindTab(); drawCharts(); } else render(); window.scrollTo({top:y}); }));
 }
 
 document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => go(b.dataset.view)));
 document.addEventListener("keydown", e => { if (e.key === "/" && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $("#q").focus(); } });
 $("#brand").addEventListener("click", e => { e.preventDefault(); go("home"); });
-window.addEventListener("hashchange", () => { if (!D) return; fromHash(); render(); });
+window.addEventListener("popstate", e => { if (!D) return; const st = e.state || {}; selRestore(st.sel); fromHash(); render(); requestAnimationFrame(() => window.scrollTo({top: st.y || 0})); });
+window.addEventListener("pagehide", saveState);
+let sy; window.addEventListener("scroll", () => { clearTimeout(sy); sy = setTimeout(saveState, 200); }, {passive:true});
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (D){ drawHeat(); drawPlayerHeat(); sprayLab(); } }, 150); });
 if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => D && render());
 new MutationObserver(() => D && drawCharts()).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
@@ -1943,16 +1965,14 @@ const loadData = async () => {
 };
 (embedded ? Promise.resolve(JSON.parse(embedded.textContent)) : loadData()).then(d => {
   D = d;
-  const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres", adj:st.adj==="raw"?"raw":"elo"}, st.board?{board:{...S.board, ...st.board, metric:"r:0"}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{}, st.ts?{ts:{...S.ts, ...st.ts}}:{}, st.c5?{c5:{...S.c5, ...st.c5}}:{});
-  if (S.board.mode !== undefined){                                  // v4.16 saved state -> v4.17 (ratings board = a metric)
-    if (S.board.mode !== "stats") S.board.metric = ["elo","matches"].includes(S.board.rsort) ? S.board.rsort : `r:${S.board.rsort || 0}`;
-    delete S.board.mode; delete S.board.rsort;
-  }
-  if (["kpct","dpct"].includes(S.heatMode)) S.heatMode = "hot";
-  if (midx(S.ts.metric) < 0) S.ts.metric = "adr"; if (![5,10].includes(S.ts.k)) S.ts.k = 5;
+  try { localStorage.removeItem("tickrate.state"); } catch(e) {}      // v4.25: selections no longer persist across visits
+  const hs = history.state || {};
+  selRestore(hs.sel);
   wireSearch($("#q"), $("#sugg"));
   fromHash();
   render();
+  history.replaceState({sel: selSnap(), y: hs.y || 0}, "");
+  if (hs.y) requestAnimationFrame(() => window.scrollTo({top: hs.y}));
 }).catch(err => { $("#app").innerHTML = `<div class="loading">Couldn't load the lobby data (data.json): ${esc(err.message)}. Reload the page to try again.</div>`; });
 })();
 </script>
