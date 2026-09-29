@@ -85,6 +85,28 @@ h3{font-size:15px;font-weight:600}
 .grid>*,.tiles>*,.section>*{min-width:0}
 .g2{grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+.tsctl{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-top:10px}
+.tsrow{display:flex;gap:8px;align-items:center;margin-bottom:6px}.tsrow select{flex:1 1 auto;min-width:0;max-width:420px}
+.tsdot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:0 0 auto;margin-right:2px;vertical-align:middle}
+.tsx{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--surface-3);cursor:pointer;font-size:16px;line-height:1;color:var(--muted)}.tsx:hover{color:var(--neg);border-color:var(--neg)}
+.tsadd{align-self:flex-start;border:1px dashed var(--line-strong);background:none;border-radius:var(--r-sm);padding:5px 12px;cursor:pointer;color:var(--accent);font-weight:600;font-size:13px}.tsadd:hover{border-color:var(--accent)}
+.tscorr{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.tscr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:6px 0;border-bottom:1px solid var(--line)}.tscr>.note{grid-column:1/-1}
+.morebtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 18px;cursor:pointer;font-weight:600;color:var(--accent);box-shadow:var(--shadow)}.morebtn:hover{border-color:var(--accent)}
+.cmpsel{flex-direction:row;align-items:flex-end;gap:8px}
+.swapbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface-3);color:var(--ink-2);cursor:pointer;display:grid;place-items:center;flex:0 0 auto;margin-bottom:0;transition:transform .15s,border-color .12s,color .12s}.swapbtn:hover{border-color:var(--accent);color:var(--accent);transform:rotate(180deg)}
+.cmpc{display:grid;gap:12px;align-content:start}.cmpc.ca{border-top:3px solid var(--accent)}.cmpc.cb{border-top:3px solid var(--neg)}
+.cmpct{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.cmpn{font-size:28px;margin:2px 0 6px;overflow-wrap:anywhere}
+.cmpk{display:flex;gap:12px;align-items:center}.cmpe{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.cmpa{display:flex;gap:8px;flex-wrap:wrap}.cmpa .pill{font-size:13px;padding:4px 12px}.pill.arch1{background:var(--accent-soft);color:var(--accent);font-weight:600}.pill.arch2{background:var(--surface-3);color:var(--ink-2)}
+.cmpl{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cmpl>div{background:var(--surface-3);border-radius:var(--r-sm);padding:10px 12px;display:flex;flex-direction:column;gap:2px}.cmpl b{font-size:28px;line-height:1.1}.cmpl small{color:var(--muted);font-size:12px}
+.cmplinks{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:0}
+.meetg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}@media (max-width:560px){.meetg{grid-template-columns:1fr}}.meetb{background:var(--surface-3);border-radius:var(--r-sm);padding:12px}
+.meets{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin:6px 0 2px}.meets b{font-size:30px;line-height:1}.ma{color:var(--accent);font-weight:600}.mb{color:var(--neg);font-weight:600}
+.kbar{display:flex;height:10px;border-radius:999px;overflow:hidden;margin-top:10px;background:var(--track)}.kbar .ka{background:var(--accent)}.kbar .kb{background:var(--neg)}.kleg{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted);margin-top:4px}
+.tgw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.tgw>div{display:flex;flex-direction:column}.tgw b{font-size:18px}
+.mlist{margin-top:6px}.mrowm{display:grid;grid-template-columns:44px minmax(0,1fr) auto minmax(0,1.4fr) auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.mrowm:last-child{border-bottom:0}
+.res.w{color:var(--pos)}.res.l{color:var(--neg)}.rt b{font-weight:500}.rt b.hi{font-weight:700;color:var(--ink)}
+@container (max-width:460px){ .mrowm{grid-template-columns:40px minmax(0,1fr) auto;} .mrowm .res,.mrowm .rt{grid-column:2/-1} }
 .upd{display:grid;gap:12px}.updh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.updh h3{margin:0;flex:1 1 auto}.updc ul{margin-top:8px}
 .gx2{grid-template-columns:repeat(2,minmax(0,1fr))}.gx3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:1060px){ .gx3{grid-template-columns:1fr} }
@@ -151,6 +173,7 @@ td.num,td .num{font-size:13px}
 .ring svg{width:74px;height:74px;transform:rotate(-90deg)}
 .ring .rv{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-size:22px;letter-spacing:-.02em}
 .arch{display:grid;gap:6px}
+.overall .arch{width:330px;max-width:100%}            /* v4.23: fixed width so the header doesn't reflow with the Matches window */
 .eloblk{display:grid;gap:2px;padding:8px 16px 8px 0;margin-right:4px;border-right:1px solid var(--line)}
 .eloblk .ev{font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.05;color:var(--ink)}
 .eloblk .es{font-size:12.5px;color:var(--muted)}
@@ -549,8 +572,9 @@ function viewHome(){
   </div>
   <div class="section">
     <div><h2>All Regulars</h2><p class="lead">Sorted by matches in the database. The badge is the Overall 1-100 rating.</p></div>
-    <div class="chips">${topN.map(({p,i}) => { const r = D.ratings[i] && D.ratings[i].All; const ov = r && r.r[0]!==null ? r.r[0] : null;
+    <div class="chips">${(S.homeAll ? topN : topN.slice(0, 25)).map(({p,i}) => { const r = D.ratings[i] && D.ratings[i].All; const ov = r && r.r[0]!==null ? r.r[0] : null;
       return `<button class="chip" type="button" data-p="${i}"><span style="min-width:0"><b>${esc(p.name)}</b><small><span class="num">Elo ${p.last_elo ? Math.round(p.last_elo) : "–"}</span> · ${p.matches} matches${p.core?" · Core-5":""}${p.pro?` · Pro${p.team?" ("+esc(p.team)+")":""}`:""}</small></span><span class="score" style="${ov===null?"":`background:${pctTint(ov,.2)};box-shadow:inset 0 0 0 1px ${pctTint(ov,.45)}`}">${ov ?? "–"}</span></button>`; }).join("")}</div>
+    ${topN.length > 25 ? `<div style="display:flex;justify-content:center;margin-top:14px"><button type="button" class="morebtn" id="home-more">${S.homeAll ? "Show Fewer Players" : `View More Players (${topN.length - 25} more)`}</button></div>` : ""}
   </div>`;
 }
 
@@ -799,8 +823,16 @@ function eloCard(p){
 }
 // v4.11: any stat match by match. Per-match value = num / den from that match's facts; the rolling line and the
 // averages sum numerators and denominators over the matches (never a mean of per-match ratios).
-function tsSeries(p){
-  const i = Math.max(0, midx(S.ts.metric)), m = D.meta.metrics[i];
+const TS_MAX = 4;
+const tsKeys = () => { if (!Array.isArray(S.ts.metrics) || !S.ts.metrics.length) S.ts.metrics = [S.ts.metric || "adr"];
+  S.ts.metrics = S.ts.metrics.filter(k => midx(k) >= 0).slice(0, TS_MAX); if (!S.ts.metrics.length) S.ts.metrics = ["adr"]; return S.ts.metrics; };
+const tsColor = j => [css("--accent"), css("--pos"), css("--neg"), css("--ink")][j % 4];
+function pearson(xs, ys){ const n = xs.length; if (n < 5) return null; const mx = xs.reduce((a,b)=>a+b,0)/n, my = ys.reduce((a,b)=>a+b,0)/n;
+  let sxy = 0, sxx = 0, syy = 0; for (let i = 0; i < n; i++){ const dx = xs[i]-mx, dy = ys[i]-my; sxy += dx*dy; sxx += dx*dx; syy += dy*dy; }
+  return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx*syy) : null; }
+const rWord = r => { const a = Math.abs(r); return a < .1 ? "no real link" : a < .3 ? `weak ${r > 0 ? "positive" : "negative"}` : a < .5 ? `moderate ${r > 0 ? "positive" : "negative"}` : `strong ${r > 0 ? "positive" : "negative"}`; };
+function tsSeries(p, key){
+  const i = Math.max(0, midx(key || tsKeys()[0])), m = D.meta.metrics[i];
   let wf = S.wf, allW = false; if (!m.weapon && wf !== "All"){ wf = "All"; allW = true; }
   const wi = D.meta.wfilters.indexOf(wf);
   const E = D.elo[p] || [], F = (D.fx && D.fx.rows[p]) || [], C = D.fx ? D.fx.cols : [];
@@ -828,17 +860,33 @@ function tsSeries(p){
 }
 function tsCard(p){
   if (!D.fx) return "";
-  const t = tsSeries(p), m = t.m, mets = D.meta.metrics;
+  const keys = tsKeys(), multi = keys.length > 1;
+  const t = tsSeries(p, keys[0]), m = t.m, mets = D.meta.metrics;
+  const opt = cur => STAT_GROUPS.map(([lab,g])=>`<optgroup label="${lab}">${D.meta.groups[g].map(k=>`<option value="${k}" ${k===cur?"selected":""}${k!==cur && keys.includes(k)?" disabled":""}>${esc(mets[midx(k)].label)}</option>`).join("")}</optgroup>`).join("");
+  const rowsHtml = keys.map((k, j) => `<div class="tsrow"><span class="tsdot" style="background:${tsColor(j)}"></span><select class="ts-metric" data-j="${j}" aria-label="Stat ${j+1}">${opt(k)}</select>${keys.length > 1 ? `<button type="button" class="tsx" data-j="${j}" aria-label="Remove ${esc(mets[midx(k)].label)}" title="Remove this stat">×</button>` : ""}</div>`).join("");
+  // pairwise correlation of the per-match values (matches where both stats have data)
+  let corr = "";
+  if (multi){
+    const S2 = keys.map(k => tsSeries(p, k)), pairs = [];
+    for (let x = 0; x < keys.length; x++) for (let y = x + 1; y < keys.length; y++){
+      const a = [], b = []; S2[x].pts.forEach((pt, q) => { const v2 = S2[y].pts[q] && S2[y].pts[q].v; if (pt.v !== null && v2 !== null && v2 !== undefined){ a.push(pt.v); b.push(v2); } });
+      const r = pearson(a, b); pairs.push([x, y, r, a.length]); }
+    corr = `<div class="tscorr"><div class="eyebrow">How the stats move together (match by match)</div>${pairs.map(([x,y,r,n]) => `<div class="tscr"><span><span class="tsdot" style="background:${tsColor(x)}"></span>${esc(S2[x].m.label)} <span class="note">vs</span> <span class="tsdot" style="background:${tsColor(y)}"></span>${esc(S2[y].m.label)}</span><b class="num">${r === null ? "–" : (r >= 0 ? "+" : "") + r.toFixed(2)}</b><span class="note">${r === null ? `too few matches (${n})` : `${rWord(r)} · ${n} matches`}</span></div>`).join("")}<p class="note" style="margin-top:4px">Correlation (r) runs from −1 to +1: +1 = they rise and fall together, 0 = unrelated, −1 = one rises as the other falls. With lower-is-better stats, a negative r can still mean both are “good” together.</p></div>`;
+  }
   const scope = [t.onMap ? mapName(S.map) : (S.win === "All" ? "all matches" : S.win.toLowerCase()), S.side === "All" ? "both sides" : S.side + " side", t.wf === "All" ? "all weapons" : t.wf].join(" · ");
   const dirTxt = m.dir > 0 ? "Higher is better." : m.dir < 0 ? "Lower is better." : "";
-  return `<div class="card"><h3>Stat Over Time</h3><p class="lead note">Pick any stat to see it match by match (dots), as a rolling average over the player's last ${S.ts.k} matches with data (line), against the player's own average for the matches shown (dashed) and the average across all players (dotted). Follows the filters above: ${esc(scope)}.</p>
-    <div class="filters" style="position:static;margin:10px 0 0;padding:0;border:0;background:none;box-shadow:none">
-      <div class="ctl"><label for="ts-metric" class="eyebrow">Stat</label><select id="ts-metric">${STAT_GROUPS.map(([lab,g])=>`<optgroup label="${lab}">${D.meta.groups[g].map(k=>`<option value="${k}" ${k===m.key?"selected":""}>${esc(mets[midx(k)].label)}</option>`).join("")}</optgroup>`).join("")}</select></div>
+  const lead = multi
+    ? `Each stat as a rolling average over the player's last ${S.ts.k} matches with data (lines) with its match-by-match values (faint dots). ${S.ts.z ? "Standardized: every stat is shown in standard deviations from the player's own average, so they share one scale." : "Each stat keeps its own units on its own axis."} Follows the filters above: ${esc(scope)}.`
+    : `Pick any stat to see it match by match (dots), as a rolling average over the player's last ${S.ts.k} matches with data (line), against the player's own average for the matches shown (dashed) and the average across all players (dotted). Add a second stat with “+ Metric” to look for relationships. Follows the filters above: ${esc(scope)}.`;
+  return `<div class="card"><h3>Stat Over Time</h3><p class="lead note">${lead}</p>
+    <div class="tsctl">
+      <div class="ctl" style="flex:1 1 320px"><span class="eyebrow">Stats</span>${rowsHtml}${keys.length < TS_MAX ? `<button type="button" class="tsadd" id="ts-add">+ Metric</button>` : ""}</div>
       <div class="ctl"><span class="eyebrow">Rolling Average</span>${seg("ts-k", ["5 Matches","10 Matches"], S.ts.k + " Matches")}</div>
+      ${multi ? `<div class="ctl"><span class="eyebrow">Scale</span>${seg("ts-z", ["Own Units","Standardized"], S.ts.z ? "Standardized" : "Own Units")}</div>` : ""}
     </div>
-    ${t.allW ? `<div class="banner" style="margin-top:10px">${esc(m.label)} has no weapon split, so this chart uses all weapons.</div>` : ""}
-    <div class="chartbox" style="height:300px;margin-top:10px"><canvas id="tschart" aria-label="${esc(m.label)} over time"></canvas></div>
-    <p class="note" style="margin-top:6px">${esc(m.def)} ${dirTxt} ${t.withData} of ${t.pts.length} matches have data. Player's average for the matches shown: <b>${fmt(t.avg, m.fmt)}</b>${t.lobby !== null ? ` · average across all players ${fmt(t.lobby, m.fmt)}` : ""}. Single matches are noisy; read the line, not the dots.</p></div>`;
+    ${keys.some(k => { const mm = mets[midx(k)]; return !mm.weapon && S.wf !== "All"; }) ? `<div class="banner" style="margin-top:10px">Stats without a weapon split use all weapons.</div>` : ""}
+    <div class="chartbox" style="height:${multi ? 340 : 300}px;margin-top:10px"><canvas id="tschart" aria-label="Stats over time"></canvas></div>
+    ${multi ? corr : `<p class="note" style="margin-top:6px">${esc(m.def)} ${dirTxt} ${t.withData} of ${t.pts.length} matches have data. Player's average for the matches shown: <b>${fmt(t.avg, m.fmt)}</b>${t.lobby !== null ? ` · average across all players ${fmt(t.lobby, m.fmt)}` : ""}. Single matches are noisy; read the line, not the dots.</p>`}</div>`;
 }
 function famCard(p){
   const F = D.ins.map_fam, r = F.rows[p] || [];
@@ -869,47 +917,69 @@ function viewCompare(){
   const opts = {win:w, map:"All maps"};
   const sorted = P.map((x,i)=>({x,i})).sort((u,v)=>u.x.name.localeCompare(v.x.name, undefined, {sensitivity:"base"}));
   const pick = (id, cur) => `<select id="${id}">${sorted.map(({x,i})=>`<option value="${i}" ${i===cur?"selected":""}>${esc(x.name)} (Elo ${x.last_elo ? Math.round(x.last_elo) : "–"})</option>`).join("")}</select>`;
-  const head = (i, X) => { const r = (D.ratings[i]||{})[w] || (D.ratings[i]||{}).All, ar = (D.arch[i]||{})[w] || (D.arch[i]||{}).All;
-    return `<div class="card"><div class="eyebrow">${i===a?"Player A":"Player B"}</div><h2 style="font-size:30px">${esc(X.name)}</h2>
-      <div class="pmeta">${X.core?`<span class="pill core">Core-5</span>`:""}${X.pro?`<span class="pill pro">Pro${X.team?" · "+esc(X.team):""}</span>`:""}<span class="pill num">${X.matches} matches</span><span class="pill num">Elo ${X.last_elo?Math.round(X.last_elo):"–"}</span><span class="pill num">Overall ${r&&r.r[0]!==null?r.r[0]:"–"}</span></div>
-      ${ar?`<p class="note" style="margin-top:8px">${esc(ar[0])} · ${esc(ar[1])}</p>`:""}<p style="margin-top:6px;display:flex;gap:14px;flex-wrap:wrap;align-items:center"><button class="link" data-p="${i}">Open player page</button><a class="link" href="${faceitUrl(X.name)}" target="_blank" rel="noopener noreferrer">FACEIT Profile ↗</a></p></div>`; };
+  // v4.23 header cards: Overall ring + Elo up front, archetypes as pills, stats / ratings led with narrow leads
+  const rA = (D.ratings[a]||{})[w] || (D.ratings[a]||{}).All, rB = (D.ratings[b]||{})[w] || (D.ratings[b]||{}).All;
+  const rled = {[a]:0, [b]:0}, rnar = {[a]:0, [b]:0};
+  D.meta.rating_cats.forEach((c, j) => { const x = rA ? rA.r[j] : null, y = rB ? rB.r[j] : null; if (x === null || y === null || x === undefined || y === undefined) return;
+    const top = x >= y ? a : b; (Math.abs(x - y) >= 5 ? rled : rnar)[top]++; });
+  const eloD = i => { const E = D.elo[i] || [], L = E.slice(-10); if (L.length < 2) return null; const f = L[0][2], l = L[L.length-1][3] ?? L[L.length-1][2]; return f != null && l != null ? l - f : null; };
+  const head = (i, X) => { const r = (D.ratings[i]||{})[w] || (D.ratings[i]||{}).All, ar = (D.arch[i]||{})[w] || (D.arch[i]||{}).All, ov = r && r.r[0] !== null ? r.r[0] : null, d = eloD(i);
+    return `<div class="card cmpc${i===a?" ca":" cb"}"><div class="cmpct"><div style="min-width:0"><div class="eyebrow">${i===a?"Player A":"Player B"}</div><h2 class="cmpn">${esc(X.name)}</h2>
+        <div class="pmeta">${X.core?`<span class="pill core">Core-5</span>`:""}${X.pro?`<span class="pill pro">Pro${X.team?" · "+esc(X.team):""}</span>`:""}<span class="num note">${X.matches} matches</span></div></div>
+      <div class="cmpk">${ring(ov)}<div><div class="eyebrow">FACEIT Elo</div><div class="cmpe num">${X.last_elo?Math.round(X.last_elo):"–"}</div>${d!==null?`<div class="note num" style="color:${d>=0?"var(--pos)":"var(--neg)"}">${d>=0?"+":""}${Math.round(d)} last 10</div>`:""}</div></div></div>
+      ${ar?`<div class="cmpa"><span class="pill arch1" title="${esc(D.meta.archetypes[ar[0]]||"")}">${esc(ar[0])} · ${ar[2]}</span><span class="pill arch2" title="${esc(D.meta.archetypes[ar[1]]||"")}">${esc(ar[1])} · ${ar[3]}</span></div>`:""}
+      <div class="cmpl"><div><span class="eyebrow">Stats led</span><b class="num">__SL${i===a?"A":"B"}__</b><small>+__SN${i===a?"A":"B"}__ narrow</small></div><div><span class="eyebrow">Ratings led</span><b class="num">${rled[i]}</b><small>+${rnar[i]} narrow</small></div></div>
+      <p class="cmplinks"><button class="link" data-p="${i}">Open player page</button><a class="link" href="${faceitUrl(X.name)}" target="_blank" rel="noopener noreferrer">FACEIT Profile ↗</a></p></div>`; };
   const h = D.h2h[`${a}|${b}`], t = D.mates2[`${a}|${b}`];
   const groups = [["Headline","headline"],["Aim & Mechanics","aim"],["Spray Control","sprayctl"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
-  let winsA = 0, winsB = 0;
+  let winsA = 0, winsB = 0, narA = 0, narB = 0;
   const line = key => {
     const x = metric(a, key, opts), y = metric(b, key, opts), m = x.meta;
     const px = cmpPct(x), py = cmpPct(y);
     let top = null, clear = false;                                   // v4.20: the better player is always marked
-    if (px !== null && py !== null){ top = px >= py ? a : b; clear = Math.abs(px - py) >= 5; if (clear){ if (top === a) winsA++; else winsB++; } }
+    if (px !== null && py !== null){ top = px >= py ? a : b; clear = Math.abs(px - py) >= 5; if (clear){ if (top === a) winsA++; else winsB++; } else { if (top === a) narA++; else narB++; } }
     else if (px !== null || py !== null) top = px !== null ? a : b;
     const cellv = (i, z, pz) => { if (z.empty) return `<div class="c5c"><div class="v">–</div></div>`; const cv = cmpVal(z);
       return `<div class="c5c${i===top?(clear?" lead":" lead2"):""}" title="${esc(P[i].name)}: ${esc(m.label)} ${fmt(z.value, m.fmt)} raw${z.exp!=null?` · at their Elo ${fmt(z.exp, m.fmt)}`:""}${pz!==null?` · ${ord(Math.round(pz))} percentile (${adjLabel()})`:""}"><div class="v">${fmt(cv.v, m.fmt)}</div>${pz!==null?`<div class="pbar"><i style="width:${Math.max(2,pz)}%;background:${pctColor(pz)}"></i></div>`:`<div class="note nr">not ranked</div>`}${cv.sub?`<div class="note sub">${cv.sub}</div>`:""}</div>`; };
     return `<div class="cmp"><div class="lab">${esc(m.label)}${m.dir===-1?` <span class="note">(lower is better)</span>`:""}</div>${cellv(a, x, px)}${cellv(b, y, py)}</div>`;
   };
+  const EA = D.elo[a] || [], EB = new Map((D.elo[b] || []).map(r => [r[0] + "|" + r[1], r]));
+  const meets = EA.map(r => { const s2 = EB.get(r[0] + "|" + r[1]); if (!s2) return null;
+    const same = r[6] === s2[6] && r[7] === s2[7] && r[6] !== r[7], opp = r[6] === s2[7] && r[7] === s2[6] && r[6] !== r[7];
+    return same || opp ? {r, s2, team: same} : null; }).filter(Boolean);
+  const oppM = meets.filter(x => !x.team), teamM = meets.filter(x => x.team);
+  const oW = oppM.filter(x => x.r[5] === "W").length, oL = oppM.length - oW;
+  const wpOf = E => { const n = E.filter(r => r[5] === "W" || r[5] === "L").length; return n ? 100 * E.filter(r => r[5] === "W").length / n : null; };
+  const tw = t ? 100 * t[1] / t[0] : null, wA = wpOf(EA), wB = wpOf(D.elo[b] || []);
+  const kA = h ? h[0] : 0, kB = h ? h[1] : 0, kT = kA + kB;
+  const meetHtml = `<div class="card meet"><h3>When They Meet</h3><p class="lead note">Every match in the database with both players.</p>
+    <div class="meetg">
+      <div class="meetb"><div class="eyebrow">As opponents</div>${oppM.length ? `<div class="meets"><span class="ma">${esc(A.name)}</span><b class="num">${oW}</b><span class="note">–</span><b class="num">${oL}</b><span class="mb">${esc(B.name)}</span></div><div class="note">match wins in ${oppM.length} meeting${oppM.length===1?"":"s"}</div>` : `<div class="note" style="margin-top:6px">Never on opposite teams${h ? "" : ""}</div>`}
+        ${kT ? `<div class="kbar" title="${esc(A.name)} killed ${esc(B.name)} ${kA} times; ${esc(B.name)} killed ${esc(A.name)} ${kB} times"><i class="ka" style="width:${100*kA/kT}%"></i><i class="kb" style="width:${100*kB/kT}%"></i></div><div class="kleg num"><span>${kA} kills on ${esc(B.name)}</span><span>${kB} kills on ${esc(A.name)}</span></div>` : ""}</div>
+      <div class="meetb"><div class="eyebrow">As teammates</div>${t ? `<div class="meets"><b class="num" style="color:${tw>=50?"var(--pos)":"var(--neg)"}">${Math.round(tw)}%</b><span class="note">won together</span></div><div class="note">${t[1]}-${t[0]-t[1]} in ${t[0]} match${t[0]===1?"":"es"}</div>
+        <div class="tgw"><div><span class="note">${esc(A.name)} usually</span><b class="num">${wA!==null?Math.round(wA)+"%":"–"}</b></div><div><span class="note">${esc(B.name)} usually</span><b class="num">${wB!==null?Math.round(wB)+"%":"–"}</b></div></div>` : `<div class="note" style="margin-top:6px">Never on the same team</div>`}</div>
+    </div>
+    ${meets.length ? `<div class="eyebrow" style="margin-top:14px">Recent meetings</div><div class="mlist">${meets.slice(-6).reverse().map(x => { const ra = x.r[4], rb = x.s2[4];
+      return `<div class="mrowm"><span class="note num">${esc(x.r[0].slice(5,10))}</span><span>${esc(mapName("de_"+x.r[1]))}</span><span class="pill ${x.team?"":"core"}">${x.team?"Together":"Against"}</span><span class="res ${x.r[5]==="W"?"w":"l"}">${x.team ? (x.r[5]==="W"?"Won":"Lost") : (x.r[5]==="W"?esc(A.name)+" won":esc(B.name)+" won")} <span class="num note">${x.r[6]}-${x.r[7]}</span></span><span class="num rt"><b class="${ra!=null&&rb!=null&&ra>=rb?"hi":""}">${ra!=null?ra.toFixed(2):"–"}</b> <span class="note">vs</span> <b class="${ra!=null&&rb!=null&&rb>ra?"hi":""}">${rb!=null?rb.toFixed(2):"–"}</b></span></div>`; }).join("")}</div><p class="note" style="margin-top:4px">Ratings: ${esc(A.name)} vs ${esc(B.name)} in that match.</p>` : ""}
+  </div>`;
   const body = groups.map(([lab,g]) => `<div class="card"><h3>${esc(titleCase(lab))}</h3><div class="cmp" style="border-bottom:2px solid var(--line)"><div class="eyebrow">Stat</div><div class="eyebrow" style="text-align:right">${esc(A.name)}</div><div class="eyebrow" style="text-align:right">${esc(B.name)}</div></div>${D.meta.groups[g].map(line).join("")}</div>`).join("");
   return `<section class="pagehead"><div class="eyebrow">Compare</div><h1>Head to Head</h1><p class="lead">Two regulars side by side. The better player on each ranked stat is highlighted: solid when 5+ percentile points ahead, dashed when closer. ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (the raw value is shown underneath), and bars are Elo-adjusted percentiles."}</p></section>
   <div class="filters">
-    <div class="ctl"><label class="eyebrow" for="c-a">Player A</label>${pick("c-a", a)}</div>
-    <div class="ctl"><label class="eyebrow" for="c-b">Player B</label>${pick("c-b", b)}</div>
+    <div class="ctl cmpsel"><div class="ctl"><label class="eyebrow" for="c-a">Player A</label>${pick("c-a", a)}</div>
+      <button class="swapbtn" id="c-swap" type="button" title="Swap A and B" aria-label="Swap A and B"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg></button>
+      <div class="ctl"><label class="eyebrow" for="c-b">Player B</label>${pick("c-b", b)}</div></div>
     <div class="ctl"><span class="eyebrow">Matches</span>${seg("c-win", D.meta.windows, w, o => o==="All" || (hasWin(a,o)&&hasWin(b,o)) ? null : "Both players need that many matches")}</div>
     <div class="ctl"><span class="eyebrow">Side</span>${seg("c-side", D.meta.sides, S.side)}</div>
     <div class="ctl"><span class="eyebrow">Weapon</span>${seg("c-wf", D.meta.wfilters, S.wf)}</div>
     <div class="ctl"><span class="eyebrow">Stats</span>${seg("c-adj", ADJ_OPTS, adjLabel())}</div>
-    <button class="link" id="c-swap" type="button">Swap A and B</button>
   </div>
   <div class="cmphead section">${head(a, A)}${head(b, B)}</div>
+  <p class="note" style="margin-top:6px">Stats led: ranked stats where the player is 5+ percentile points ahead (${adjLabel()}); narrow = ahead by less. Ratings led: the same for the 12 ratings.</p>
   <div class="grid g2 section">
     <div class="card"><h3>1-100 Ratings</h3><div class="chartbox" style="height:300px;margin-top:6px"><canvas id="radar2" aria-label="Ratings of both players"></canvas></div></div>
-    <div class="card"><h3>When They Meet</h3>
-      <p class="lead note">From every match in the database with both players.</p>
-      <div class="tb" style="margin-top:10px">
-        <div class="tbi" style="grid-template-columns:1fr auto"><div><div class="eyebrow">As opponents</div><div>${h ? `${esc(A.name)} killed ${esc(B.name)} <b class="num">${h[0]}</b> times; ${esc(B.name)} killed ${esc(A.name)} <b class="num">${h[1]}</b> times` : "Never on opposite teams"}</div></div><div class="note num">${h?h[2]+" match"+(h[2]===1?"":"es"):""}</div></div>
-        <div class="tbi" style="grid-template-columns:1fr auto"><div><div class="eyebrow">As teammates</div><div>${t ? `<b class="num">${t[0]}</b> matches together, <b class="num">${t[1]}</b> won (${Math.round(100*t[1]/t[0])}%)` : "Never on the same team"}</div></div></div>
-      </div>
-      <p style="margin-top:14px">Stats led (${adjLabel()}, 5+ percentile points): <b>${esc(A.name)} ${"__WA__"}</b> · <b>${esc(B.name)} ${"__WB__"}</b></p>
-    </div>
+    ${meetHtml}
   </div>
-  <div class="grid g2 section">${body}</div>`.replace("__WA__", winsA).replace("__WB__", winsB);
+  <div class="grid g2 section">${body}</div>`.replace("__SLA__", winsA).replace("__SLB__", winsB).replace("__SNA__", narA).replace("__SNB__", narB);
 }
 
 const STAT_GROUPS = [["Headline","headline"],["Aim & Mechanics","aim"],["Spray Control","sprayctl"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
@@ -984,6 +1054,8 @@ function boardPick(B){
 const bnum = v => v === "" || v === null || v === undefined || isNaN(+v) ? null : +v;
 function boardKeep(P){
   const B = S.board, mn = bnum(B.minM), e0 = bnum(B.eloMin), e1 = bnum(B.eloMax), e = P.last_elo;
+  if (B.tag === "Core-5" && !P.core) return false;                                 // v4.23 tag filter
+  if (B.tag === "Pro" && !P.pro) return false;
   if (mn !== null && P.matches < mn) return false;
   if ((e0 !== null || e1 !== null) && (e === null || e === undefined)) return false;
   if (e0 !== null && e < e0) return false;
@@ -992,13 +1064,14 @@ function boardKeep(P){
 }
 function boardPopCtl(){
   const B = S.board, v = x => bnum(x) === null ? "" : bnum(x);
-  const on = bnum(B.minM) !== null || bnum(B.eloMin) !== null || bnum(B.eloMax) !== null;
-  return `<div class="ctl"><label class="eyebrow" for="b-minm">Min. matches</label><input id="b-minm" class="nin" type="number" min="0" step="1" inputmode="numeric" placeholder="Any" value="${v(B.minM)}"></div>
+  const on = bnum(B.minM) !== null || bnum(B.eloMin) !== null || bnum(B.eloMax) !== null || (B.tag && B.tag !== "All players");
+  return `<div class="ctl"><span class="eyebrow">Players</span>${seg("b-tag", ["All players","Core-5","Pro"], B.tag || "All players")}</div>
+    <div class="ctl"><label class="eyebrow" for="b-minm">Min. matches</label><input id="b-minm" class="nin" type="number" min="0" step="1" inputmode="numeric" placeholder="Any" value="${v(B.minM)}"></div>
     <div class="ctl"><span class="eyebrow">FACEIT Elo</span><div class="ninr"><input id="b-elo0" class="nin" type="number" min="0" step="50" inputmode="numeric" placeholder="From" aria-label="Elo from" value="${v(B.eloMin)}"><span class="note">–</span><input id="b-elo1" class="nin" type="number" min="0" step="50" inputmode="numeric" placeholder="To" aria-label="Elo to" value="${v(B.eloMax)}"></div></div>
     ${on ? `<button class="link" id="b-popreset" type="button" style="align-self:center">Clear player filters</button>` : ""}`;
 }
-const boardPopNote = (shown, total) => (bnum(S.board.minM) !== null || bnum(S.board.eloMin) !== null || bnum(S.board.eloMax) !== null)
-  ? `<div class="banner" style="margin-top:10px">Showing ${shown} of ${total} players (${[bnum(S.board.minM) !== null ? `${bnum(S.board.minM)}+ matches` : "", bnum(S.board.eloMin) !== null || bnum(S.board.eloMax) !== null ? `Elo ${bnum(S.board.eloMin) ?? "any"}–${bnum(S.board.eloMax) ?? "any"}` : ""].filter(Boolean).join(", ")}). Ranks count only the players shown; percentiles still compare with everyone.</div>` : "";
+const boardPopNote = (shown, total) => (bnum(S.board.minM) !== null || bnum(S.board.eloMin) !== null || bnum(S.board.eloMax) !== null || (S.board.tag && S.board.tag !== "All players"))
+  ? `<div class="banner" style="margin-top:10px">Showing ${shown} of ${total} players (${[S.board.tag && S.board.tag !== "All players" ? `${S.board.tag} only` : "", bnum(S.board.minM) !== null ? `${bnum(S.board.minM)}+ matches` : "", bnum(S.board.eloMin) !== null || bnum(S.board.eloMax) !== null ? `Elo ${bnum(S.board.eloMin) ?? "any"}–${bnum(S.board.eloMax) ?? "any"}` : ""].filter(Boolean).join(", ")}). Ranks count only the players shown; percentiles still compare with everyone.</div>` : "";
 function viewBoardSpecial(){
   const B = S.board, isR = B.metric.startsWith("r:"), j = isR ? +B.metric.slice(2) : null, cats = D.meta.rating_cats;
   const label = (BOARD_SPECIAL().find(([k]) => k === B.metric) || [null, ""])[1];
@@ -1174,13 +1247,13 @@ function viewSpots(){
   const n = rows.length ? rows[0][9] : 0;
   const mxO = Math.max(1, ...occ.map(r=>r[5])), mxT = Math.max(1, ...thr.map(r=>r[7]));
   const list = (arr, j, mx, f, sub) => arr.map((r,k)=>`<div class="hbar"><div><b class="num" style="color:var(--muted)">${k+1}</b> ${esc(placeName(r[4]))}</div><div class="t"><i style="width:${100*r[j]/mx}%"></i></div><div class="num r">${f(r[j])}</div></div><div class="note" style="margin:-5px 0 5px">${sub(r)}</div>`).join("") || `<div class="note">No data for this combination.</div>`;
-  const enemy = sp.side === "T" ? "Terrorists" : "Counter-Terrorists";
-  return `<section class="pagehead"><div class="eyebrow">Heatmaps</div><h1>Where They Stand and Where the Kills Come From</h1><p class="lead">Pick the side you are playing against and a moment in the round. Prefire list: callouts most often occupied. Clear order: callouts that produce the most kills within 7.5 s of that moment.</p></section>
+  const enemy = (sp.scope === "Core-5" ? "Core-5 " : sp.scope === "Pro" ? "pro " : "") + (sp.side === "T" ? "Terrorists" : "Counter-Terrorists");
+  return `<section class="pagehead"><div class="eyebrow">Heatmaps</div><h1>Where They Stand and Where the Kills Come From</h1><p class="lead">Pick a side, whose positions to show (opponents of the Core-5, everyone, the Core-5 themselves or the Tier-1 pros) and a moment in the round. Prefire list: callouts most often occupied. Clear order: callouts that produce the most kills within 7.5 s of that moment.</p></section>
   <div class="filters" style="top:calc(env(safe-area-inset-top,0px) + 56px)">
     <div class="ctl"><label class="eyebrow" for="s-map">Map</label><select id="s-map">${maps.map(m=>`<option value="${m}" ${m===sp.map?"selected":""}>${esc(mapName(m))}</option>`).join("")}</select></div>
-    <div class="ctl"><span class="eyebrow">Enemy side</span>${seg("s-side", ["T","CT"], sp.side)}</div>
+    <div class="ctl"><span class="eyebrow">Side</span>${seg("s-side", ["T","CT"], sp.side)}</div>
     <div class="ctl"><span class="eyebrow">Seconds into the round</span>${seg("s-snap", snaps.map(String), String(sp.snap))}</div>
-    <div class="ctl"><span class="eyebrow">Players</span>${seg("s-scope", ["Opponents of Core-5","All players"], sp.scope)}</div>
+    <div class="ctl"><span class="eyebrow">Players</span>${seg("s-scope", ["Opponents of Core-5","All players","Core-5","Pro"], sp.scope)}</div>
   </div>
   <div class="card section">
     <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:end">
@@ -1484,7 +1557,26 @@ function drawCharts(){
           y:{title:{display:true, text:"Hit rate", color:muted}, grid:{color:line}, ticks:{color:muted, callback:(v)=>v+"%"}, suggestedMin:0}}}}));
   }
   const tc = document.getElementById("tschart");
-  if (tc){
+  if (tc && tsKeys().length > 1){                                  // v4.23: several stats
+    const keys = tsKeys(), SS = keys.map(k => tsSeries(S.p, k)), E = SS[0].E, z = !!S.ts.z;
+    const lab = SS[0].pts.map(x => E[x.j][0].slice(5,10));
+    const stat = sr => { const v = sr.pts.map(x => x.v).filter(v => v !== null); const mu = v.reduce((a,b)=>a+b,0) / Math.max(1, v.length);
+      const sd = Math.sqrt(v.reduce((a,b)=>a+(b-mu)**2,0) / Math.max(1, v.length - 1)) || 1; return {mu, sd}; };
+    const ds = [], scales = {x:{ticks:{maxTicksLimit:10, color:muted}, grid:{color:line}}};
+    SS.forEach((sr, j) => { const col = tsColor(j), st = stat(sr), tr = v => v === null || v === undefined ? null : (z ? (v - st.mu) / st.sd : v), ax = z ? "y" : `y${j}`;
+      ds.push({type:"line", label:sr.m.label, data:sr.roll.map(tr), yAxisID:ax, borderColor:col, backgroundColor:col, pointRadius:0, borderWidth:2.5, tension:.25, spanGaps:true, order:1, _m:sr.m, _raw:sr.roll});
+      ds.push({type:"line", label:sr.m.label + " (match)", data:sr.pts.map(x => tr(x.v)), yAxisID:ax, showLine:false, borderColor:col + "55", backgroundColor:col + "55", pointRadius:2, pointHoverRadius:4, order:3, _m:sr.m, _raw:sr.pts.map(x=>x.v)});
+      if (!z) scales[ax] = {position: j % 2 ? "right" : "left", title:{display:true, text:sr.m.label, color:col}, grid:{color:line, drawOnChartArea:j === 0}, ticks:{color:col, callback:(v)=>fmt(v, sr.m.fmt), maxTicksLimit:6}};
+    });
+    if (z) scales.y = {title:{display:true, text:"Standard deviations from the player's average", color:muted}, grid:{color:line}, ticks:{color:muted}};
+    charts.push(new Chart(tc, {data:{labels:lab, datasets:ds},
+      options:{maintainAspectRatio:false, animation:false, interaction:{mode:"index", intersect:false},
+        plugins:{legend:{labels:{color:ink, boxWidth:12, filter:(it) => !/\(match\)$/.test(it.text)}},
+          tooltip:{filter:(c)=>c.parsed.y !== null && c.parsed.y !== undefined && c.dataset.order === 1, callbacks:{title:(it)=>{ const r = E[SS[0].pts[it[0].dataIndex].j]; return `${r[0].slice(0,10)} · ${mapName("de_"+r[1])} · ${r[5]==="W"?"Win":r[5]==="L"?"Loss":""} ${r[6]??""}-${r[7]??""}`; },
+            label:(c)=>{ const raw = c.dataset._raw[c.dataIndex]; return `${c.dataset.label} (rolling): ${fmt(raw, c.dataset._m.fmt)}${z ? ` (${c.parsed.y >= 0 ? "+" : ""}${c.parsed.y.toFixed(2)} SD)` : ""}`; }}}},
+        scales}}));
+  }
+  else if (tc){
     const t = tsSeries(S.p), E = t.E, m = t.m;
     const lab = t.pts.map(x => E[x.j][0].slice(5,10));
     const flat = v => t.pts.map(() => v);
@@ -1585,6 +1677,15 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-29T22:51:15Z", "v4.23", "Multi-Stat Charts, Compare Refresh, More Filters", [
+    "Form & Elo: Stat Over Time can plot up to four stats at once. “+ Metric” adds a stat, × removes one. Each keeps its own axis, or switch Scale to Standardized to put them on one scale, and a panel shows how strongly each pair moves together (correlation).",
+    "Compare: bigger header cards with the Overall ring and FACEIT Elo (with the last-10 change) up front, archetypes as pills, and Stats led / Ratings led with narrow leads.",
+    "Compare: When They Meet now shows the head-to-head match record, a kill-duel bar, how often they win together against how often each usually wins, and their six most recent meetings with both players' ratings.",
+    "Compare: the swap control is now a small round button between the two player pickers.",
+    "Leaderboards: new Players toggle to show only the Core-5 or only pros (works with the matches and Elo filters).",
+    "Heatmaps: the Players toggle adds Core-5 and Pro, to see where they stand, get kills and die.",
+    "Home: the player list shows the first 25, with a View More Players button for the rest.",
+    "Player pages: the header keeps the same layout whichever Matches window is picked (it used to shift with the archetype names)."]],
   ["2026-09-29T21:40:33Z", "v4.22a", "Wording", [
     "The site now calls the match data the “database” everywhere (it said “store” in a few places)."]],
   ["2026-09-29T21:38:20Z", "v4.22", "Leaderboard Filters, Heatmaps Tab", [
@@ -1770,6 +1871,7 @@ function bind(){
   onSeg("s-mode", v => { S.heatMode = {"Where They Stand":"pres", "Where Kills Come From":"kills", "Where They Die":"deaths", "Hotspots":"hot"}[v]; render(); });
   onSeg("s-level", v => { S.spots.level = v; render(); });
   const q2 = $("#q2"); if (q2) wireSearch(q2, $("#sugg2"));
+  const hm = $("#home-more"); if (hm) hm.addEventListener("click", () => { const y = scrollY; S.homeAll = !S.homeAll; render(); scrollTo(0, y); });
   document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { S.tab = "overview"; S.map = "All maps"; go("player", +b.dataset.p); }));
   onSeg("f-win", v => { S.win = v; render(); });
   onSeg("f-side", v => { S.side = v; render(); });
@@ -1781,7 +1883,8 @@ function bind(){
   for (const [id, k] of [["b-minm","minM"],["b-elo0","eloMin"],["b-elo1","eloMax"]]){ const el = $("#"+id); if (!el) continue;
     const apply = () => { const v = bnum(el.value); if (v === bnum(S.board[k])) return; S.board[k] = v; const had = document.activeElement === el, y = scrollY; render(); scrollTo(0, y); if (had){ const n = $("#"+id); if (n) n.focus(); } };
     el.addEventListener("change", apply); el.addEventListener("keydown", e => { if (e.key === "Enter") apply(); }); }
-  const bpr = $("#b-popreset"); if (bpr) bpr.addEventListener("click", () => { S.board.minM = S.board.eloMin = S.board.eloMax = null; render(); });
+  const bpr = $("#b-popreset"); if (bpr) bpr.addEventListener("click", () => { S.board.minM = S.board.eloMin = S.board.eloMax = null; S.board.tag = "All players"; render(); });
+  onSeg("b-tag", v => { S.board.tag = v; render(); });
   onSeg("b-win", v => { S.win = v; render(); }); onSeg("b-side", v => { S.side = v; render(); }); onSeg("b-wf", v => { S.wf = v; render(); });
   onSeg("b-sort", v => { S.board.sort = v === "Elo-adjusted" ? "pct" : "raw"; render(); });
   onSeg("b-ranked", v => { S.board.ranked = v === "Ranked only"; render(); });
@@ -1792,7 +1895,10 @@ function bind(){
   onSeg("s-side", v => { S.spots.side = v; render(); }); onSeg("s-snap", v => { S.spots.snap = +v; render(); }); onSeg("s-scope", v => { S.spots.scope = v; render(); });
 }
 function bindTab(){
-  const tm = $("#ts-metric"); if (tm) tm.addEventListener("change", () => { S.ts.metric = tm.value; saveState(); rerenderTab(); });
+  document.querySelectorAll("select.ts-metric").forEach(el => el.addEventListener("change", () => { const k = tsKeys(); k[+el.dataset.j] = el.value; S.ts.metric = k[0]; saveState(); rerenderTab(); }));
+  document.querySelectorAll("button.tsx").forEach(el => el.addEventListener("click", () => { const k = tsKeys(); k.splice(+el.dataset.j, 1); S.ts.metric = k[0]; saveState(); rerenderTab(); }));
+  const tadd = $("#ts-add"); if (tadd) tadd.addEventListener("click", () => { const k = tsKeys(); const pool = ["kpr","hs_pct","duel_wr","sight_to_shot","xhair_err","first_shot_hit","traded_5s","kast","rating"]; k.push(pool.find(x => !k.includes(x) && midx(x) >= 0) || "adr"); saveState(); rerenderTab(); });
+  onSeg("ts-z", v => { S.ts.z = v === "Standardized"; saveState(); rerenderTab(); });
   onSeg("ts-k", v => { S.ts.k = parseInt(v, 10); saveState(); rerenderTab(); });
   onSeg("sp-w", v => { S.spw = v; slStop(); S.spk = null; rerenderTab(); });
   const spk = $("#sp-k"); if (spk) spk.addEventListener("input", () => { slStop(); S.spk = +spk.value; sprayLab(); });
