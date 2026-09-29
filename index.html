@@ -1486,7 +1486,24 @@ if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEven
 new MutationObserver(() => D && drawCharts()).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
 
 const embedded = document.getElementById("tickrate-data");
-(embedded ? Promise.resolve(JSON.parse(embedded.textContent)) : fetch("data.json", {cache: "no-cache"}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })).then(d => {
+// data.json.gz first (about 1/7 the size; decompressed in the browser), else the plain data.json
+const loadData = async () => {
+  try {
+    const r = await fetch("data.json.gz", {cache: "no-cache"});
+    if (!r.ok) throw new Error(r.status);
+    const b = new Uint8Array(await r.arrayBuffer());
+    if (b[0] === 0x1f && b[1] === 0x8b) {                  // gzip bytes: decompress here
+      if (!window.DecompressionStream) throw new Error("no DecompressionStream");
+      return JSON.parse(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip"))).text());
+    }
+    return JSON.parse(new TextDecoder().decode(b));        // server already decoded it
+  } catch (e) {
+    const r = await fetch("data.json", {cache: "no-cache"});
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+};
+(embedded ? Promise.resolve(JSON.parse(embedded.textContent)) : loadData()).then(d => {
   D = d;
   const st = store.get("state"); if (st) Object.assign(S, {win:st.win||"All", side:st.side||"All", wf:st.wf||"All", tab:st.tab||"overview", heatMode:st.heatMode||"pres"}, st.board?{board:{...S.board, ...st.board}}:{}, st.spots?{spots:{...S.spots, ...st.spots}}:{}, st.maps?{maps:{...S.maps, ...st.maps}}:{}, st.ts?{ts:{...S.ts, ...st.ts}}:{}, st.c5?{c5:{...S.c5, ...st.c5}}:{});
   if (midx(S.ts.metric) < 0) S.ts.metric = "adr"; if (![5,10].includes(S.ts.k)) S.ts.k = 5;
