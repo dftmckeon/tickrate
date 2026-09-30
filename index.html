@@ -328,6 +328,95 @@ a.pill.fc:hover{border-color:var(--accent)}
 }
 @media (max-width:400px){ .card{padding:16px 12px} }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+/* v4.26 Simulate 1v1 (A = accent, B = orange, same as Compare) */
+.simbtn{display:inline-flex;justify-self:start;align-self:start;width:auto;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--ink-2);border-radius:999px;padding:4px 12px 4px 10px;cursor:pointer;font-weight:500;font-size:12.5px;margin-top:10px;transition:border-color .15s,color .15s,background .15s}
+.simbtn svg{width:12px;height:12px;color:var(--accent);transition:transform .15s}.simbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}.simbtn:hover svg{transform:translateX(2px)}
+.sna{color:var(--accent)}.snb{color:var(--neg)}b.sna,b.snb{font-weight:700}
+.morebtn.simsm{padding:6px 14px;font-size:13px;min-height:32px}
+.simgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px}
+@media (max-width:900px){.simgrid{grid-template-columns:minmax(0,1fr)}}
+.simscore{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:center;margin-bottom:12px}
+.simpl{display:grid;gap:6px;min-width:0}.simpl.s1{text-align:right;justify-items:end}
+.simnm{display:flex;gap:8px;align-items:baseline;min-width:0;flex-wrap:wrap}.simpl.s1 .simnm{justify-content:flex-end}
+.simnm b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.simpl.s0 .simnm b{color:var(--accent)}.simpl.s1 .simnm b{color:var(--neg)}
+.simpips{display:flex;gap:4px}.simpips i{width:16px;height:6px;border-radius:3px;background:var(--track)}
+.simpl.s0 .simpips i.on{background:var(--accent)}.simpl.s1 .simpips i.on{background:var(--neg)}
+.simhpw{display:flex;align-items:center;gap:6px;width:100%;max-width:260px}.simpl.s1 .simhpw{flex-direction:row-reverse}.simhpw>.num{font-weight:700;font-size:13px;min-width:26px;text-align:center}.simhpw>.note{font-size:11px}
+.simhp{position:relative;flex:1;height:10px;border-radius:999px;background:var(--track);overflow:hidden}
+.simhp i{position:absolute;top:0;bottom:0;width:100%;transition:width .35s ease;background:var(--accent)}.simpl.s0 .simhp i{left:0}.simpl.s1 .simhp i{right:0;background:var(--neg)}
+.simhp i.low{opacity:.6}
+.simmid{text-align:center}.simsc{font-size:30px;font-weight:700;line-height:1.1;display:flex;gap:8px;justify-content:center}
+.simwrap{position:relative}.simwin[hidden]{display:none}
+.simdash{color:var(--muted);font-weight:400}
+.simarena{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line)}
+.simcov{fill:var(--surface-3);stroke:var(--line-strong);stroke-width:1}
+.simp{transition:transform .55s cubic-bezier(.3,.7,.3,1)}
+.simp text{font:600 12px var(--sans);fill:var(--ink-2)}
+.simp .simdot{stroke:var(--surface);stroke-width:2}.simp.s0 .simdot{fill:var(--accent)}.simp.s1 .simdot{fill:var(--neg)}
+.simp .simring{fill:none;stroke-width:2;opacity:.35}.simp.s0 .simring{stroke:var(--accent)}.simp.s1 .simring{stroke:var(--neg)}
+.simp .simx{stroke:var(--ink);stroke-width:2.5;stroke-linecap:round;opacity:0;transition:opacity .2s}
+.simp.dead .simdot,.simp.dead .simring{opacity:.25}.simp.dead .simx{opacity:1}.simp.dead text{opacity:.5}
+.simtrace.miss{stroke-dasharray:5 5;opacity:.8}.simtrace{stroke-width:2.5;stroke-linecap:round;animation:simfade .45s ease-out forwards}.simtrace.s0{stroke:var(--accent)}.simtrace.s1{stroke:var(--neg)}
+.simhit{fill:none;stroke:var(--ink);stroke-width:2;animation:simring .6s ease-out forwards}
+.simsmoke{fill:var(--mid);opacity:.75;animation:simcloud .9s ease-out forwards}
+.simflash{fill:#FFF6C8;stroke:#E8C547;stroke-width:1.5;animation:simcloud .9s ease-out forwards}
+.simfire{fill:#F29E4C;opacity:.7;animation:simcloud .9s ease-out forwards}
+.simpop{font:700 14px var(--sans);fill:var(--ink);animation:simrise .9s ease-out forwards}
+@keyframes simfade{from{opacity:1}to{opacity:0}}
+@keyframes simring{from{opacity:.9;transform-box:fill-box;transform-origin:center;transform:scale(.4)}to{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(1.4)}}
+@keyframes simcloud{0%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.3)}30%{opacity:.85}100%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(1.15)}}
+@keyframes simrise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-18px)}}
+.simwin{position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--surface) 78%,transparent);border-radius:12px;backdrop-filter:blur(2px)}
+.simwinc{text-align:center;display:grid;gap:6px;justify-items:center;padding:16px}
+.simwn{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.1}.simwinc.s0 .simwn{color:var(--accent)}.simwinc.s1 .simwn{color:var(--neg)}
+.morebtn.simreplay{margin-top:8px;background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}.morebtn.simreplay:hover{background:var(--accent-hover)}
+.simfeed{display:flex;flex-direction:column}
+.simlog{margin-top:10px;height:330px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px;scroll-behavior:smooth}
+@media (max-width:900px){.simlog{height:260px}}
+.simsys{align-self:center;background:var(--surface-3);color:var(--muted);border-radius:999px;padding:4px 14px;font-size:12.5px;text-align:center}
+.simmsg{max-width:86%;padding:8px 12px;border-radius:14px;font-size:13.5px;line-height:1.4;animation:simin .25s ease-out}
+.simmsg .eyebrow{font-size:10px;margin-bottom:1px}
+.simmsg.s0{align-self:flex-start;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-bottom-left-radius:4px}
+.simmsg.s1{align-self:flex-end;background:var(--neg-soft);border:1px solid color-mix(in srgb,var(--neg) 35%,transparent);border-bottom-right-radius:4px;text-align:right}
+.simdots{display:inline-flex;gap:4px;padding:4px 2px}.simdots i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:simdot 1s infinite}
+.simdots i:nth-child(2){animation-delay:.15s}.simdots i:nth-child(3){animation-delay:.3s}
+@keyframes simdot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+@keyframes simin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.simend{align-self:center;font-weight:700;font-size:13.5px;text-align:center;padding:6px 14px;border-radius:999px;margin-top:2px}
+.simend.s0{color:var(--accent);background:var(--accent-soft)}.simend.s1{color:var(--neg);background:var(--neg-soft)}.simend.final{font-size:15px}
+.simtape>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.simtape>summary::-webkit-details-marker{display:none}
+.simsum{display:flex;gap:8px;align-items:baseline;font-size:13px;margin-left:auto}.simsum .note{font-size:11.5px}
+.simchev{color:var(--muted);transition:transform .2s}.simtape[open] .simchev{transform:rotate(180deg)}.simtape>summary:hover .simchev{color:var(--accent)}
+.simtape[open]>summary{margin-bottom:6px}
+.simodds{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 14px}@media (max-width:640px){.simodds{grid-template-columns:1fr}}
+.simbar{display:flex;height:10px;border-radius:999px;overflow:hidden;margin-top:6px;background:var(--track)}.simbar .ea{background:var(--accent)}.simbar .eb{background:var(--neg)}
+.simtr{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(56px,.6fr) minmax(70px,1fr) minmax(56px,.6fr);gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.simtr .v{text-align:right}.simtr .v:last-child{text-align:left}.simtr.simth{border-bottom:2px solid var(--line)}
+.simtr .lab .note{font-size:11.5px}
+.simedge{position:relative;height:8px;border-radius:999px;background:var(--track)}.simedge::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line-strong)}
+.simedge i{position:absolute;top:0;bottom:0;border-radius:999px}.simedge i.ea{background:var(--accent)}.simedge i.eb{background:var(--neg)}
+/* grenades (revision 3) */
+.simnade{stroke:var(--surface);stroke-width:1.5}.simnade.s0{fill:var(--accent)}.simnade.s1{fill:var(--neg)}
+.simsmk circle{fill:#B9B4C0;opacity:0;animation:simsmkin .6s ease-out forwards}
+:root[data-theme="dark"] .simsmk circle{fill:#6E6778}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .simsmk circle{fill:#6E6778}}
+.simsmk{transition:opacity .45s}.simsmk.out,.simfireg.out,.simdecoy.out{opacity:0}
+@keyframes simsmkin{0%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.2)}100%{opacity:.82;transform-box:fill-box;transform-origin:center;transform:scale(1)}}
+.simflashb{fill:#FFFBE6;stroke:#F2D35B;stroke-width:2;animation:simflashb .6s ease-out forwards}
+@keyframes simflashb{0%{opacity:1;transform-box:fill-box;transform-origin:center;transform:scale(.4)}40%{opacity:.95}100%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(5)}}
+.simp.blind .simdot{fill:#FFFFFF!important;filter:drop-shadow(0 0 6px #FFF6C8)}.simp.blind .simring{stroke:#F2D35B!important;opacity:.9}
+.simfireg{transition:opacity .45s}.simfirebase{fill:#F29E4C;opacity:.35}
+.simflame{fill:#FF7A1A;animation:simflick .38s ease-in-out infinite alternate}
+.simflame:nth-child(odd){fill:#FFC93C}
+@keyframes simflick{from{opacity:.55;transform-box:fill-box;transform-origin:center bottom;transform:scale(.8) translateY(1px)}to{opacity:1;transform-box:fill-box;transform-origin:center bottom;transform:scale(1.25) translateY(-2px)}}
+.simhecore{fill:#FF9F43;animation:simhecore .5s ease-out forwards}.simhering{fill:none;stroke:#FF7A1A;stroke-width:3;animation:simhering .7s ease-out forwards}
+@keyframes simhecore{0%{opacity:1;transform-box:fill-box;transform-origin:center;transform:scale(.3)}100%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(3.2)}}
+@keyframes simhering{0%{opacity:.9;transform-box:fill-box;transform-origin:center;transform:scale(.5)}100%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(5)}}
+.simarena.shake{animation:simshake .3s linear}
+@keyframes simshake{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,-1px)}80%{transform:translate(2px,1px)}}
+.simdecoy{transition:opacity .45s}.simdecoydot{fill:var(--ink-2)}.simdecoyring{fill:none;stroke:var(--ink-2);stroke-width:1.5;animation:simdecoy .9s ease-out infinite}
+@keyframes simdecoy{0%{opacity:.8;transform-box:fill-box;transform-origin:center;transform:scale(.6)}100%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(4)}}
+@media (prefers-reduced-motion: reduce){.simp,.simhp i{transition:none}.simmsg,.simdots i,.simtrace,.simhit,.simsmoke,.simflash,.simfire,.simpop,.simsmk circle,.simflashb,.simhecore,.simhering{animation-duration:.01s}.simflame,.simdecoyring{animation:none}.simarena.shake{animation:none}}
 </style>
 
 <header class="appbar">
@@ -484,7 +573,9 @@ function go(view, p){
 }
 function fromHash(){
   const h = location.hash.replace("#","");
-  if (/^p\d+$/.test(h) && D.players[+h.slice(1)]) { S.view = "player"; S.p = +h.slice(1); }
+  const sm = /^sim(\d+)-(\d+)$/.exec(h);
+  if (sm && D.players[+sm[1]] && D.players[+sm[2]] && sm[1] !== sm[2]) { S.view = "sim"; S.cmp = {a:+sm[1], b:+sm[2]}; }
+  else if (/^p\d+$/.test(h) && D.players[+h.slice(1)]) { S.view = "player"; S.p = +h.slice(1); }
   else if (["home","board","maps","spots","compare","core5","faq","updates"].includes(h)) S.view = h;
   else if (/^(overview|aim|spray|team|deaths|social|form)$/.test(h)) { S.view = "player"; S.tab = h; }
 }
@@ -979,7 +1070,7 @@ function viewCompare(){
       return `<div class="mrowm"><span class="note num">${esc(x.r[0].slice(5,10))}</span><span>${esc(mapName("de_"+x.r[1]))}</span><span class="pill ${x.team?"":"core"}">${x.team?"Together":"Against"}</span><span class="res ${x.r[5]==="W"?"w":"l"}">${x.team ? (x.r[5]==="W"?"Won":"Lost") : (x.r[5]==="W"?esc(A.name)+" won":esc(B.name)+" won")} <span class="num note">${x.r[6]}-${x.r[7]}</span></span><span class="num rt"><b class="${ra!=null&&rb!=null&&ra>=rb?"hi":""}">${ra!=null?ra.toFixed(2):"–"}</b> <span class="note">vs</span> <b class="${ra!=null&&rb!=null&&rb>ra?"hi":""}">${rb!=null?rb.toFixed(2):"–"}</b></span></div>`; }).join("")}</div><p class="note" style="margin-top:4px">Ratings: ${esc(A.name)} vs ${esc(B.name)} in that match.</p>` : ""}
   </div>`;
   const body = groups.map(([lab,g]) => `<div class="card"><h3>${esc(titleCase(lab))}</h3><div class="cmp" style="border-bottom:2px solid var(--line)"><div class="eyebrow">Stat</div><div class="eyebrow" style="text-align:right">${esc(A.name)}</div><div class="eyebrow" style="text-align:right">${esc(B.name)}</div></div>${D.meta.groups[g].map(line).join("")}</div>`).join("");
-  return `<section class="pagehead"><div class="eyebrow">Compare</div><h1>Head to Head</h1><p class="lead">Two regulars side by side. The better player on each ranked stat is highlighted: solid when 5+ percentile points ahead, dashed when closer. ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (the raw value is shown underneath), and bars are Elo-adjusted percentiles."}</p></section>
+  return `<section class="pagehead"><div class="eyebrow">Compare</div><h1>Head to Head</h1><p class="lead">Two regulars side by side. The better player on each ranked stat is highlighted: solid when 5+ percentile points ahead, dashed when closer. ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (the raw value is shown underneath), and bars are Elo-adjusted percentiles."}</p><button type="button" class="simbtn" id="c-sim"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z" fill="currentColor"/></svg>Simulate 1v1</button></section>
   <div class="filters">
     <div class="ctl cmpsel"><div class="ctl"><label class="eyebrow" for="c-a">Player A</label>${pick("c-a", a)}</div>
       <button class="swapbtn" id="c-swap" type="button" title="Swap A and B" aria-label="Swap A and B"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg></button>
@@ -996,6 +1087,417 @@ function viewCompare(){
     ${meetHtml}
   </div>
   <div class="grid g2 section">${body}</div>`.replace("__SLA__", winsA).replace("__SLB__", winsB).replace("__SNA__", narA).replace("__SNB__", narB);
+}
+
+// v4.26 Simulate 1v1: event library (116 events: 41 Openers, 41 Mid-Round, 34 Closers; 16 grenade events added in revision 3). Inserted verbatim into web/index.html by patch_v426_web.py.
+// Tokens: {F} = player the event favors, {O} = the other player (Openers + Mid-Round); {W} = round winner, {L} = loser (Closers);
+// {d} = damage dealt (Mid-Round), {h} = winner's HP left (Closers).
+// Trait = which 1-100 rating makes a player more likely to "own" the event (see SIM_TRAIT); "sneak" = no rating tilt.
+// Openers and Mid-Round events never kill anyone; Mid-Round damage is clamped so the victim keeps at least 1 HP.
+const SIM_EV = {
+  open: [   // 41 Openers: positioning and info, no damage
+    ["{F} sneaks around the boxes to flank {O}.", "sneak"],
+    ["{F} shift-walks through mid, and {O} never hears a thing.", "sneak"],
+    ["{F} jiggle-peeks the long angle and baits out a shot from {O}.", "aim"],
+    ["{F} hears {O}'s footsteps on the catwalk and pre-aims the exit.", "aim"],
+    ["{F} throws a perfect pop-flash, and {O} has to turn away.", "util"],
+    ["{F} smokes off the choke point, forcing {O} to take the long way around.", "util"],
+    ["{F} drops a molotov on {O}'s hiding spot and flushes them out.", "util"],
+    ["{F} holds an off-angle that {O} walks right past.", "sneak"],
+    ["{F} counter-strafes into position with pixel-perfect crosshair placement.", "aim"],
+    ["{F} wide-swings early and forces {O} to scramble back behind cover.", "entry"],
+    ["{F} fakes a push with a loud reload, and {O} takes the bait.", "sneak"],
+    ["{F} spots {O}'s shadow under the doorframe.", "aim"],
+    ["{F} throws a decoy, and {O} spends three seconds aiming at nothing.", "util"],
+    ["{F} hops onto the crate for an angle {O} never expected.", "entry"],
+    ["{F} peeks with the AWP, and {O} ducks back just in time.", "awp"],
+    ["{F} takes control of mid while {O} plays it slow.", "entry"],
+    ["{F} fires a speculative wallbang that forces {O} to reposition.", "aim"],
+    ["{F} reads the sound cues and knows exactly where {O} is headed.", "clutch"],
+    ["{F} cuts off the rotation with a lineup smoke from spawn.", "util"],
+    ["{F} drops silently off the ledge behind {O}.", "sneak"],
+    ["{O} runs with the knife out too early and gets spotted by {F}.", "sneak"],
+    ["{O} jumps onto a box, and {F} hears exactly where they landed.", "sneak"],
+    ["{F} stays calm and clears corners one by one while {O} rushes.", "clutch"],
+    ["{F} shoulder-peeks for info and draws out {O}'s position.", "aim"],
+    ["{O} walks into {F}'s flash and has to back off.", "util"],
+    ["{F} sets up behind the crossfire angle, AWP already scoped.", "awp"],
+    ["{F} reloads behind cover so they're full for the fight.", "clutch"],
+    ["{F} clears the tight corner with a textbook slice-the-pie.", "aim"],
+    ["{O} whiffs a flick at {F}'s shoulder.", "aim"],
+    ["{F} buys time with a smoke on the site entrance.", "util"],
+    ["{O} gets stuck on a railing, and {F} takes note.", "luck"],
+    ["{F} runs the knife out to rotate faster and gets there first.", "knife"],
+    ["{F} steps out of the smoke edge with a surprise peek.", "entry"],
+    ["{F} tosses an HE into the corner, and {O} backs off to dodge it.", "util"],
+    ["{F} rolls the dice with a fast peek, and {O} flinches.", "luck"],
+    ["{F} throws a one-way smoke and watches {O} walk into view.", "util"],
+    ["{F} lands a lineup molotov that denies {O}'s favourite corner.", "util"],
+    ["{F} bounces a flash off the wall, and {O} has to look away.", "util"],
+    ["{F} pops a decoy on the far side, and {O} rotates the wrong way.", "util"],
+    ["{F} lobs an HE over the wall to check whether {O} is there.", "util"],
+    ["{F} smokes the long angle and crosses without {O} seeing a thing.", "util"]
+  ],
+  mid: [    // 41 Mid-Round: bigger swings, damage or a clear advantage, still nobody dies
+    ["{F} tags {O} with a no-scope for {d}!", "awp", [35, 75]],
+    ["{F} lands an HE right at {O}'s feet for {d}.", "util", [25, 55]],
+    ["{F} burns {O} out of the corner with a molotov for {d}.", "util", [15, 40]],
+    ["{F} blinds {O} with a perfect flash and chips them for {d}.", "util", [20, 45]],
+    ["{F} wallbangs {O} through the door for {d}.", "aim", [25, 60]],
+    ["{F} sprays through the smoke and lands {d} damage on {O}.", "spray", [20, 55]],
+    ["{O} tries a jump-peek and eats a tap from {F} for {d}.", "aim", [25, 50]],
+    ["{F} catches {O} in the open with a body shot for {d}.", "aim", [25, 45]],
+    ["{F} dodges {O}'s AWP shot by a pixel.", "luck", null],
+    ["{F} tags {O} for {d}, but {O} slips back behind cover.", "aim", [20, 45]],
+    ["{O} gets caught reloading, and {F} punishes for {d}.", "clutch", [30, 60]],
+    ["{F} dinks {O}'s helmet for {d}!", "aim", [55, 90]],
+    ["{F} taps {O} through the thin smoke for {d}.", "aim", [20, 40]],
+    ["{F} counter-strafes and wins the exchange, hitting {O} for {d}.", "aim", [30, 55]],
+    ["{F} flicks onto {O} and connects for {d}.", "aim", [25, 50]],
+    ["{O} runs through {F}'s molotov and loses {d} HP.", "util", [10, 30]],
+    ["{F} jiggles {O} into wasting an AWP shot, then swings for {d}.", "clutch", [25, 50]],
+    ["{F} pulls out a Deagle and hits {O} in the body for {d}.", "pistol", [30, 55]],
+    ["{F} clips {O}'s arm with a quick-scope for {d}.", "awp", [30, 60]],
+    ["{F} hears {O} reloading and swings for {d}.", "clutch", [25, 50]],
+    ["{F} sprays across the doorway, clipping {O} for {d}.", "spray", [20, 45]],
+    ["{O} dry-peeks straight into {F}'s crosshair and takes {d}.", "aim", [30, 60]],
+    ["{F} runs a clean fake and repositions behind {O}.", "sneak", null],
+    ["{F} flashes {O} and slips around onto their flank.", "util", null],
+    ["{F} jump-spots {O} and grabs a lucky tap for {d}.", "luck", [15, 35]],
+    ["{O} whiffs a full spray at {F}, who escapes without a scratch.", "luck", null],
+    ["{F} goes for a risky jump shot, and it connects on {O} for {d}!", "luck", [25, 50]],
+    ["{O} re-peeks the same angle, and {F} punishes for {d}.", "clutch", [30, 55]],
+    ["{F} bounces an HE off the wall onto {O} for {d}.", "util", [20, 45]],
+    ["{F} wins the micro-duel, landing {d} before {O} disengages.", "aim", [25, 55]],
+    ["{F} sneaks in a knife slash on {O} for {d}!", "knife", [25, 40]],
+    ["{F} lands a long-range pistol tap on {O} for {d}.", "pistol", [20, 40]],
+    ["{F} strafes perfectly between shots, and every one of {O}'s bullets misses.", "aim", null],
+    ["{F} hits {O}'s shoulder through a gap in the smoke for {d}.", "aim", [20, 40]],
+    ["{F} chains flash, smoke and molotov on {O} for {d} damage.", "util", [20, 45]],
+    ["{F}'s HE catches {O} mid-rotation for {d}.", "util", [30, 60]],
+    ["{F} throws a pop-flash and swings on a blind {O} for {d}.", "util", [30, 60]],
+    ["{O} tries to wait out {F}'s molotov and burns for {d}.", "util", [10, 30]],
+    ["{F} puts out {O}'s molotov with a smoke and pushes through.", "util", null],
+    ["{F} stacks two HEs on {O}'s position for {d}!", "util", [45, 80]],
+    ["{F} throws a decoy, then swings on {O} from the other side for {d}.", "util", [20, 45]]
+  ],
+  close: [  // 34 Closers: the winner kills the loser
+    ["{W} fights back with a crisp one-tap to kill {L}.", "aim"],
+    ["{W} no-scopes {L} to end the round!", "awp"],
+    ["{W} lands a clean AWP flick on {L}.", "awp"],
+    ["{W} sprays {L} down through the smoke.", "spray"],
+    ["{W} wallbangs {L} through the crate.", "aim"],
+    ["{W} finishes {L} with a perfectly timed HE.", "util"],
+    ["{W} knifes {L} from behind!", "knife"],
+    ["{W} swings wide and taps {L} before they can react.", "entry"],
+    ["{W} holds the off-angle and heads {L} as they peek.", "sneak"],
+    ["{L} runs out of the smoke straight into {W}'s crosshair.", "luck"],
+    ["{W} wins the spray-down against {L} and walks away with {h} HP.", "spray"],
+    ["{W} jiggle-peeks {L} into missing, then drops them.", "aim"],
+    ["{W} catches {L} reloading and finishes the job.", "clutch"],
+    ["{W} burns {L} out with a molotov and taps them as they run.", "util"],
+    ["{W} flashes over the wall and kills {L} while they're blind.", "util"],
+    ["{W} Deagle one-taps {L}!", "pistol"],
+    ["{W} keeps their nerve and dinks {L} through the doorframe.", "clutch"],
+    ["{W} jump-shots {L} for a highlight-reel finish.", "luck"],
+    ["{W} out-waits {L}, who peeks first and pays for it.", "clutch"],
+    ["{W} lands a quick-scope on {L} to close it out.", "awp"],
+    ["{W} taps {L} with a long-range pistol shot.", "pistol"],
+    ["{W} counter-strafes into a two-tap on {L}.", "aim"],
+    ["{L} gets stuck on a railing, and {W} makes them pay.", "luck"],
+    ["{W} pre-fires the corner, and {L} walks right into it.", "aim"],
+    ["{W} sprays through the thin wall and kills {L}.", "spray"],
+    ["{W} tracks {L}'s jiggle and lands the headshot.", "aim"],
+    ["{W} flanks {L} and puts them down from behind.", "sneak"],
+    ["{W} kills {L} with the last bullet in the magazine.", "clutch"],
+    ["{W} guesses the timing and pre-fires {L} through the smoke.", "luck"],
+    ["{W} pulls out the Zeus and zaps {L}!", "knife"],
+    ["{W} lands a double HE that finishes {L}!", "util"],
+    ["{W} smokes off the angle, walks around it and catches {L} from the side.", "util"],
+    ["{W} tosses a decoy, and {L} peeks straight into {W}'s crosshair.", "util"],
+    ["{W} blinds {L} with a flash from behind cover and taps them.", "util"]
+  ]
+};
+// ------------------------------------------------------------------ simulate 1v1 (v4.26)
+// Trait -> 1-100 rating index (D.meta.rating_cats): Aiming 1, Clutching 2, Entrying 3, AWPing 4, Utility 5, Knifing 8, Pistols 9, Luck 10.
+const SIM_TRAIT = {aim:1, spray:1, clutch:2, entry:3, awp:4, util:5, knife:8, pistol:9, luck:10, sneak:null};
+// Round-odds factors. Percentile factors use raw percentiles (not Elo-adjusted) on All matches / All sides / All weapons.
+// w = logit shift for a full 100-point percentile gap (or rating gap). Duel Success Rate enters separately via log5.
+// The Aiming rating already contains duel win %, HS%, first-shot and crosshair ingredients, so its weight is kept moderate.
+const SIM_F = [
+  {k:"r:1",            lab:"Aiming Rating",           w:0.40},
+  {k:"r:2",            lab:"Clutching Rating",        w:0.25},
+  {k:"sight_to_shot",  lab:"Sight-to-Shot",           w:0.20},
+  {k:"first_shot_hit", lab:"First-Shot Accuracy",     w:0.18},
+  {k:"hs_pct",         lab:"HS%",                     w:0.15},
+  {k:"xhair_err",      lab:"Crosshair Placement",     w:0.15},
+  {k:"cs_rate",        lab:"Counter-Strafe Rate",     w:0.10},
+  {k:"ttk",            lab:"Time-to-Kill",            w:0.06}
+];
+const SIM_DUEL_PRIOR = 40, SIM_H2H_PRIOR = 5, SIM_H2H_W = 0.5, SIM_PMIN = 0.10, SIM_PMAX = 0.90;
+let SIMTOK = 0, SIMSPEED = 1, SIMSKIP = false;
+const simLogit = p => Math.log(p / (1 - p)), simSig = x => 1 / (1 + Math.exp(-x));
+const simBo7 = p => { const q = 1 - p, C = [1, 4, 10, 20]; let s = 0; for (let k = 0; k < 4; k++) s += C[k] * p ** 4 * q ** k; return s; };
+function simOdds(a, b){
+  const o = {win:"All", side:"All", wf:"All", map:"All maps"}, rows = [];
+  const rat = i => (((D.ratings[i]||{}).All||{}).r) || [];
+  // 1) Duel Success Rate, shrunk toward 50% by sample, combined with log5
+  const dw = i => { const x = metric(i, "duel_wr", o); if (x.empty || x.value === null) return {v:null, s:50, n:0};
+    return {v:x.value, s:(x.value * x.den + 50 * SIM_DUEL_PRIOR) / (x.den + SIM_DUEL_PRIOR), n:x.den}; };
+  const da = dw(a), db = dw(b), pa = da.s / 100, pb = db.s / 100;
+  const l5 = pa * (1 - pb) / (pa * (1 - pb) + pb * (1 - pa));
+  let L = simLogit(l5);
+  rows.push({lab:"Duel Success Rate", va:da.v !== null ? da.v.toFixed(1) + "%" : "–", vb:db.v !== null ? db.v.toFixed(1) + "%" : "–", e:simLogit(l5), note:"log5 of both duel win rates (shrunk to 50% for small samples)"});
+  // 2) ratings + raw percentiles
+  for (const f of SIM_F){
+    let xa, xb, va, vb;
+    if (f.k.startsWith("r:")){ const j = +f.k.slice(2); xa = rat(a)[j] ?? null; xb = rat(b)[j] ?? null; va = xa ?? "–"; vb = xb ?? "–"; }
+    else { const m = D.meta.metrics[midx(f.k)]; if (!m) continue;
+      const pc = x => (!x.empty && x.raw !== null && x.raw !== undefined && x.den >= m.min) ? x.raw : null;
+      const ma = metric(a, f.k, o), mb = metric(b, f.k, o); xa = pc(ma); xb = pc(mb);
+      va = ma.empty ? "–" : fmt(ma.value, m.fmt); vb = mb.empty ? "–" : fmt(mb.value, m.fmt); }
+    const e = f.w * (((xa ?? 50) - (xb ?? 50)) / 100);
+    L += e; rows.push({lab:f.lab, va, vb, e, pa:xa, pb:xb, note:f.k.startsWith("r:") ? "1-100 rating" : "raw percentile among regulars" + (xa === null || xb === null ? " (small sample counts as 50th)" : "")});
+  }
+  // 3) head-to-head kills when they have met, shrunk toward even
+  const h = D.h2h[`${a}|${b}`], hr = D.h2h[`${b}|${a}`];
+  const kA = h ? h[0] : hr ? hr[1] : 0, kB = h ? h[1] : hr ? hr[0] : 0;
+  if (kA + kB > 0){ const e = SIM_H2H_W * simLogit((kA + SIM_H2H_PRIOR) / (kA + kB + 2 * SIM_H2H_PRIOR)); L += e;
+    rows.push({lab:"Head-to-Head Kills", va:String(kA), vb:String(kB), e, note:"kills on each other when they met, shrunk toward even"}); }
+  const p = Math.min(SIM_PMAX, Math.max(SIM_PMIN, simSig(L)));
+  return {p, match:simBo7(p), rows};
+}
+// Grenade type for an event (drives the animation): combo | decoy | molotov | he | flash | smoke; "env" = a smoke that is already
+// there (non-utility event that mentions smoke); null = no grenade.
+function simNade(text, trait){
+  const t = text.toLowerCase();
+  if (trait === "util"){
+    if (/flash, smoke and molotov/.test(t)) return "combo";
+    if (/decoy/.test(t)) return "decoy";
+    if (/puts out|extinguish/.test(t)) return "smoke";
+    if (/molotov|molly|burn/.test(t)) return "molotov";
+    if (/\bhes?\b/.test(t)) return "he";
+    if (/flash|blind/.test(t)) return "flash";
+    if (/smoke/.test(t)) return "smoke";
+    return null;
+  }
+  return /smoke/.test(t) ? "env" : null;
+}
+function simFill(t, names, rolesIdx, d, h){
+  // rolesIdx: {F, O} or {W, L} -> player slot 0 (A) / 1 (B)
+  return esc(t).replace(/\{(F|O|W|L|d|h)\}/g, (m, k) => k === "d" ? `<b class="num">${d}</b>` : k === "h" ? `<b class="num">${h}</b>`
+    : `<b class="sn${rolesIdx[k] === 0 ? "a" : "b"}">${esc(names[rolesIdx[k]])}</b>`);
+}
+function simPick(cat, used, favRat, ok){
+  const pool = SIM_EV[cat];
+  let c = pool.map((e, k) => ({e, k})).filter(x => !used.has(cat + x.k) && (!ok || ok(x.e)));
+  if (!c.length){ [...used].filter(u => u.startsWith(cat)).forEach(u => used.delete(u)); c = pool.map((e, k) => ({e, k})).filter(x => !ok || ok(x.e)); }
+  const wt = x => { const t = SIM_TRAIT[x.e[1]]; return t === null || t === undefined ? 0.6 : 0.2 + 1.2 * ((favRat[t] ?? 50) / 100) ** 2; };
+  let tot = c.reduce((s, x) => s + wt(x), 0), r = Math.random() * tot;
+  for (const x of c){ r -= wt(x); if (r <= 0){ used.add(cat + x.k); return x.e; } }
+  used.add(cat + c[c.length - 1].k); return c[c.length - 1].e;
+}
+// One round: the winner is drawn first from the round odds, then 2-4 events tell the story.
+// Opener favors the eventual winner 55% of the time, Mid-Round events 60%, the Closer is always the winner's kill.
+function simRound(p, rats, used){
+  const W = Math.random() < p ? 0 : 1, Lz = 1 - W, n = [2, 3, 3, 4][Math.floor(Math.random() * 4)], hp = [100, 100], ev = [];
+  let fav = Math.random() < 0.55 ? W : Lz, e = simPick("open", used, rats[fav]);
+  ev.push({cat:"open", fav, e, roles:{F:fav, O:1 - fav}, d:0, hp:[...hp]});
+  for (let k = 0; k < n - 2; k++){
+    fav = Math.random() < 0.60 ? W : Lz; const o = 1 - fav;
+    e = simPick("mid", used, rats[fav], x => !x[2] || hp[o] - 1 >= x[2][0]);
+    let d = 0; if (e[2]) { d = e[2][0] + Math.floor(Math.random() * (e[2][1] - e[2][0] + 1)); d = Math.min(d, hp[o] - 1); hp[o] -= d; }
+    ev.push({cat:"mid", fav, e, roles:{F:fav, O:o}, d, hp:[...hp]});
+  }
+  e = simPick("close", used, rats[W]); const hW = hp[W]; hp[Lz] = 0;
+  ev.push({cat:"close", fav:W, e, roles:{W, L:Lz}, d:0, h:hW, hp:[...hp]});
+  return {W, ev};
+}
+function simGo(view, a, b){
+  saveState(); selRestore(null); S.view = view; S.cmp = {a, b};
+  const tok = view === "sim" ? `sim${a}-${b}` : view;
+  history.pushState({sel: selSnap(), y: 0}, "", "#" + tok);
+  render(); window.scrollTo({top:0});
+}
+function viewSim(){
+  const P = D.players;
+  let a = S.cmp.a, b = S.cmp.b;
+  if (a === null || !P[a]) a = 0; if (b === null || !P[b] || b === a) b = a === 0 ? 1 : 0;
+  S.cmp = {a, b};
+  const A = P[a], B = P[b], od = simOdds(a, b);
+  const sorted = P.map((x,i)=>({x,i})).sort((u,v)=>u.x.name.localeCompare(v.x.name, undefined, {sensitivity:"base"}));
+  const pick = (id, cur) => `<select id="${id}">${sorted.map(({x,i})=>`<option value="${i}" ${i===cur?"selected":""}>${esc(x.name)} (Elo ${x.last_elo ? Math.round(x.last_elo) : "–"})</option>`).join("")}</select>`;
+  const pips = s => `<span class="simpips" id="sim-pips-${s}">${[0,1,2,3].map(() => `<i></i>`).join("")}</span>`;
+  const pl = (s, X) => `<div class="simpl s${s}"><div class="simnm"><b>${esc(X.name)}</b><span class="note num">Elo ${X.last_elo ? Math.round(X.last_elo) : "–"}</span></div>${pips(s)}<div class="simhpw" aria-label="${esc(X.name)} health"><div class="simhp"><i id="sim-hp-${s}"></i></div><span class="num" id="sim-hpt-${s}">100</span><span class="note">HP</span></div></div>`;
+  const covers = [[150,40,46,46],[300,190,40,56],[430,70,56,34],[250,90,22,70],[380,150,26,26],[120,180,60,24],[520,190,40,40]];
+  const arena = `<svg class="simarena" viewBox="0 0 640 280" role="img" aria-label="Abstract 1v1 arena">
+      <defs><pattern id="simgrid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="var(--line)" stroke-width="1"/></pattern></defs>
+      <rect x="0" y="0" width="640" height="280" rx="12" fill="var(--surface-2)"/><rect x="0" y="0" width="640" height="280" rx="12" fill="url(#simgrid)"/>
+      ${covers.map(([x,y,w,h]) => `<rect class="simcov" x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/>`).join("")}
+      <g id="sim-fx"></g>
+      ${[0,1].map(s => `<g class="simp s${s}" id="sim-p-${s}" style="transform:translate(${s ? 560 : 80}px,140px)"><circle class="simring" r="17"/><circle class="simdot" r="11"/><path class="simx" d="M-7-7L7 7M7-7L-7 7"/><text y="-24" text-anchor="middle">${esc((s ? B : A).name)}</text></g>`).join("")}
+    </svg>`;
+  const tape = od.rows.map(r => { const fa = r.e > 0.005, fb = r.e < -0.005, wdt = Math.min(50, Math.abs(r.e) / 0.6 * 50);
+    return `<div class="simtr"><div class="lab">${esc(r.lab)}<div class="note">${esc(r.note)}</div></div><div class="v num${fa?" sna":""}">${esc(String(r.va))}</div>
+      <div class="simedge" title="${fa ? esc(A.name) : fb ? esc(B.name) : "Neither"} favored (${(r.e >= 0 ? "+" : "") + r.e.toFixed(2)} log-odds)"><i class="${r.e >= 0 ? "ea" : "eb"}" style="${r.e >= 0 ? "left:50%" : `left:${50 - wdt}%`};width:${wdt}%"></i></div>
+      <div class="v num${fb?" snb":""}">${esc(String(r.vb))}</div></div>`; }).join("");
+  const pr = Math.round(od.p * 100), pm = Math.round(od.match * 100);
+  return `<section class="pagehead"><div class="eyebrow">Compare · Simulate 1v1</div><h1><span class="sna">${esc(A.name)}</span> vs <span class="snb">${esc(B.name)}</span></h1>
+    <p class="lead">A just-for-fun best of 7 (first to 4 rounds). Each round's winner is drawn at random from odds built from the stats that matter in a 1v1: duel win rate, aim and clutch ratings, reaction speed, accuracy and any head-to-head history. The play-by-play is flavour: it leans toward what each player is good at.</p></section>
+  <div class="filters">
+    <div class="ctl cmpsel"><div class="ctl"><label class="eyebrow" for="sim-a">Player A</label>${pick("sim-a", a)}</div>
+      <button class="swapbtn" id="sim-swap" type="button" title="Swap A and B" aria-label="Swap A and B"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg></button>
+      <div class="ctl"><label class="eyebrow" for="sim-b">Player B</label>${pick("sim-b", b)}</div></div>
+    <div class="ctl"><span class="eyebrow">Speed</span>${seg("sim-speed", ["1x","2x","4x"], SIMSPEED + "x")}</div>
+    <div class="ctl"><span class="eyebrow">&nbsp;</span><div style="display:flex;gap:8px"><button type="button" class="morebtn simsm" id="sim-skip">Skip to Result</button><button type="button" class="morebtn simsm" id="sim-back">Back to Compare</button></div></div>
+  </div>
+  <div class="simgrid section">
+    <div class="card simstage"><div class="simscore">${pl(0, A)}<div class="simmid"><div class="eyebrow">Best of 7</div><div class="simsc num"><span class="sna" id="sim-sa">0</span><span class="simdash">–</span><span class="snb" id="sim-sb">0</span></div><div class="note" id="sim-rd">Round 1</div></div>${pl(1, B)}</div>
+      <div class="simwrap">${arena}<div class="simwin" id="sim-win" hidden></div></div></div>
+    <div class="card simfeed"><h3>Play-by-Play</h3><div class="simlog" id="sim-log" aria-live="polite"></div></div>
+  </div>
+  <details class="card section simtape" id="sim-tape"><summary><h3>Tale of the Tape</h3><span class="simsum num"><span class="sna">${esc(A.name)} ${pm}%</span><span class="note">match odds</span><span class="snb">${100 - pm}% ${esc(B.name)}</span></span><svg class="simchev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+    <div class="simodds"><div><span class="eyebrow">Round win chance</span><div class="simbar"><i class="ea" style="width:${pr}%"></i><i class="eb" style="width:${100 - pr}%"></i></div><div class="kleg num"><span class="sna">${esc(A.name)} ${pr}%</span><span class="snb">${100 - pr}% ${esc(B.name)}</span></div></div>
+      <div><span class="eyebrow">Match win chance (best of 7)</span><div class="simbar"><i class="ea" style="width:${pm}%"></i><i class="eb" style="width:${100 - pm}%"></i></div><div class="kleg num"><span class="sna">${esc(A.name)} ${pm}%</span><span class="snb">${100 - pm}% ${esc(B.name)}</span></div></div></div>
+    <div class="simtr simth"><div class="eyebrow">Factor</div><div class="eyebrow v">${esc(A.name)}</div><div class="eyebrow" style="text-align:center">Edge</div><div class="eyebrow v">${esc(B.name)}</div></div>${tape}
+    <p class="note" style="margin-top:8px">Stats: all matches, both sides, all weapons, raw (not Elo-adjusted). The factors add up on the log-odds scale; round odds are capped at 10-90% so upsets can always happen.</p></details>`;
+}
+async function simStart(){
+  const tok = ++SIMTOK; SIMSKIP = false;
+  const a = S.cmp.a, b = S.cmp.b, P = D.players, names = [P[a].name, P[b].name];
+  const od = simOdds(a, b), rats = [(((D.ratings[a]||{}).All||{}).r) || [], (((D.ratings[b]||{}).All||{}).r) || []];
+  const $l = $("#sim-log"), fx = $("#sim-fx"), win = $("#sim-win"); if (!$l) return;
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const wait = ms => new Promise(r => setTimeout(() => r(tok === SIMTOK && document.body.contains($l)), SIMSKIP ? 1 : ms / SIMSPEED));
+  const pos = [[80,140],[560,140]], used = new Set(), sc = [0, 0];
+  const place = (s, x, y) => { pos[s] = [x, y]; const g = $("#sim-p-" + s); if (g) g.style.transform = `translate(${x}px,${y}px)`; };
+  const setHp = (s, v) => { const i = $("#sim-hp-" + s), t = $("#sim-hpt-" + s); if (i) { i.style.width = v + "%"; i.classList.toggle("low", v <= 30); } if (t) t.textContent = v; };
+  const say = (cls, html) => { const d = document.createElement("div"); d.className = cls; d.innerHTML = html; $l.appendChild(d); $l.scrollTo ? $l.scrollTo({top:$l.scrollHeight, behavior: reduce || SIMSKIP ? "auto" : "smooth"}) : ($l.scrollTop = $l.scrollHeight); return d; };
+  const svg = (tag, attrs, life) => { const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) n.setAttribute(k, attrs[k]); fx.appendChild(n); if (life) setTimeout(() => n.remove(), life / SIMSPEED); return n; };
+  const jitter = (s, towards) => { const [ox, oy] = pos[1 - s]; let x = 60 + Math.random() * 520, y = 40 + Math.random() * 200;
+    if (towards){ x = ox + (Math.random() < .5 ? -1 : 1) * (90 + Math.random() * 90); y = oy + (Math.random() - .5) * 160; }
+    place(s, Math.max(40, Math.min(600, x)), Math.max(40, Math.min(250, y))); };
+  const burst = (s, trait) => { const [x, y] = pos[s], cls = trait === "util" ? ["simsmoke","simflash","simfire"][Math.floor(Math.random() * 3)] : "simhit";
+    svg("circle", {cx:x, cy:y, r:trait === "util" ? 34 : 20, class:cls}, 900); };
+  const tracer = (f, o, noLine) => { const [x1, y1] = pos[f], [x2, y2] = pos[o]; if (!noLine) svg("line", {x1, y1, x2, y2, class:"simtrace s" + f}, 450); svg("circle", {cx:x2, cy:y2, r:20, class:"simhit"}, 600); };
+  const miss = (f, o) => { const [x1, y1] = pos[f], [x2, y2] = pos[o], k = Math.random() < .5 ? 1 : -1; svg("line", {x1, y1, x2:x2 + k * 26, y2:y2 - k * 22, class:"simtrace miss s" + f}, 450); };
+  const later = (fn, ms) => { if (SIMSKIP) fn(); else setTimeout(() => { if (tok === SIMTOK) fn(); }, ms / SIMSPEED); };
+  const pop = (s, txt) => { const [x, y] = pos[s]; const t = svg("text", {x, y:y - 34, class:"simpop", "text-anchor":"middle"}, 900); t.textContent = txt; };
+  // ---- grenades: arc throw + per-type effects (all timings scale with Speed; Skip / reduced motion = no flight)
+  const arenaEl = $(".simarena");
+  const clampP = (x, y) => [Math.max(30, Math.min(610, x)), Math.max(30, Math.min(250, y))];
+  const near = (s, r) => { const [x, y] = pos[s], q = Math.random() * 6.283; return clampP(x + Math.cos(q) * r, y + Math.sin(q) * r); };
+  const between = () => clampP((pos[0][0] + pos[1][0]) / 2 + (Math.random() - .5) * 30, (pos[0][1] + pos[1][1]) / 2 + (Math.random() - .5) * 40);
+  const away = (s) => { const [x, y] = pos[s]; return clampP(x < 320 ? 470 + Math.random() * 120 : 50 + Math.random() * 120, 40 + Math.random() * 200); };
+  const mk = (tag, attrs, parent) => { const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) n.setAttribute(k, attrs[k]); (parent || fx).appendChild(n); return n; };
+  const fade = (n, life) => { if (!life) return; setTimeout(() => { n.classList.add("out"); setTimeout(() => n.remove(), 450); }, life / SIMSPEED); };
+  const toss = (from, to, cb) => {
+    if (SIMSKIP || reduce || !window.requestAnimationFrame){ cb(); return; }
+    const [x1, y1] = pos[from], [x2, y2] = to, n = mk("circle", {r:4.5, class:"simnade s" + from, cx:x1, cy:y1}), T = 420 / SIMSPEED, t0 = performance.now(), lift = 30 + Math.hypot(x2 - x1, y2 - y1) * .3;
+    let done = false; const finish = () => { if (done) return; done = true; n.remove(); if (tok === SIMTOK) cb(); };
+    setTimeout(finish, T + 40);                                   // lands on time even if the tab is hidden (rAF paused)
+    const step = now => { if (done) return; const k = Math.min(1, (now - t0) / T);
+      n.setAttribute("cx", x1 + (x2 - x1) * k); n.setAttribute("cy", y1 + (y2 - y1) * k - lift * 4 * k * (1 - k));
+      if (k < 1) requestAnimationFrame(step); else finish(); };
+    requestAnimationFrame(step);
+  };
+  const smokeAt = ([x, y], life) => { if (fx.querySelectorAll(".simsmk").length >= 3) return; const g = mk("g", {class:"simsmk"});
+    for (let k = 0; k < 6; k++) mk("circle", {cx:x + (Math.random() - .5) * 34, cy:y + (Math.random() - .5) * 26, r:16 + Math.random() * 10, style:`animation-delay:${(k * 60 / SIMSPEED).toFixed(0)}ms`}, g);
+    fade(g, life); };
+  const flashAt = ([x, y], victim) => { mk("circle", {cx:x, cy:y, r:12, class:"simflashb"}); setTimeout(() => fx.querySelectorAll(".simflashb").forEach(n => n.remove()), 700 / SIMSPEED);
+    const vg = $("#sim-p-" + victim); if (vg){ vg.classList.add("blind"); setTimeout(() => vg.classList.remove("blind"), 1300 / SIMSPEED); } };
+  const fireAt = ([x, y], life) => { const g = mk("g", {class:"simfireg"}); mk("ellipse", {cx:x, cy:y + 4, rx:34, ry:16, class:"simfirebase"}, g);
+    for (let k = 0; k < 8; k++) mk("circle", {cx:x + (Math.random() - .5) * 56, cy:y + 4 + (Math.random() - .5) * 20, r:4 + Math.random() * 5, class:"simflame", style:`animation-delay:${Math.round(Math.random() * 300)}ms`}, g);
+    fade(g, life || 2200); };
+  const heAt = ([x, y]) => { const g = mk("g", {class:"simheg"}); mk("circle", {cx:x, cy:y, r:10, class:"simhecore"}, g); mk("circle", {cx:x, cy:y, r:12, class:"simhering"}, g);
+    setTimeout(() => g.remove(), 800 / SIMSPEED); if (arenaEl && !SIMSKIP && !reduce){ arenaEl.classList.remove("shake"); void arenaEl.getBoundingClientRect(); arenaEl.classList.add("shake"); setTimeout(() => arenaEl.classList.remove("shake"), 320); } };
+  const decoyAt = ([x, y]) => { const g = mk("g", {class:"simdecoy"}); mk("circle", {cx:x, cy:y, r:3.5, class:"simdecoydot"}, g);
+    for (let k = 0; k < 3; k++) mk("circle", {cx:x, cy:y, r:6, class:"simdecoyring", style:`animation-delay:${Math.round(k * 280 / SIMSPEED)}ms`}, g); fade(g, 1800); };
+  const hurt = (s, d, hpAfter, ticks) => { if (!d) return; if (ticks > 1){ let left = d, cur = hpAfter + d;
+      for (let k = 0; k < ticks; k++){ const part = k === ticks - 1 ? left : Math.round(d / ticks); left -= part; cur -= part; const v = cur;
+        later(() => { pop(s, "−" + part); setHp(s, v); }, k * 260); } }
+    else { pop(s, "−" + d); setHp(s, hpAfter); } };
+  const kill = (s) => { setHp(s, 0); $("#sim-p-" + s).classList.add("dead"); };
+  // play one grenade event; done() runs after the grenade has landed (shots / kills that follow)
+  const nadeEv = (ev, g) => {
+    const f = ev.fav, o = 1 - f, d = ev.d, cat = ev.cat;
+    const step = () => { const [x, y] = pos[f]; place(f, ...clampP(x + (Math.random() - .5) * 60, y + (Math.random() - .5) * 50)); };
+    if (g === "combo"){
+      step();
+      later(() => toss(f, near(o, 26), () => flashAt(near(o, 26), o)), 250);
+      later(() => toss(f, between(), () => smokeAt(between(), 0)), 550);
+      later(() => { const land = near(o, 14); toss(f, land, () => { fireAt(land); hurt(o, d, ev.hp[o], 3); }); }, 850);
+      return;
+    }
+    if (cat !== "close") step();
+    const land = g === "smoke" ? between() : g === "decoy" ? away(f) : near(o, g === "flash" ? 34 : 14);
+    if (g === "smoke" && /puts out/.test(ev.e[0])) fireAt(near(o, 14), 900);   // the molotov it puts out
+    later(() => toss(f, land, () => {
+      if (g === "smoke") smokeAt(land, 0);
+      else if (g === "flash") flashAt(land, o);
+      else if (g === "molotov") fireAt(land);
+      else if (g === "he") heAt(land);
+      else if (g === "decoy") decoyAt(land);
+      later(() => {
+        if (cat === "open"){
+          if (g === "smoke") jitter(f, true);                              // crosses behind the smoke
+          else if (g === "decoy") { const [x, y] = land; place(o, ...clampP((pos[o][0] + x) / 2, (pos[o][1] + y) / 2)); }   // fooled toward the noise
+          else { const [x, y] = pos[o], [lx, ly] = land, dx = x - lx || 1, dy = y - ly, n = Math.hypot(dx, dy) || 1; place(o, ...clampP(x + dx / n * 90, y + dy / n * 60)); }   // backs off
+        } else if (cat === "mid"){
+          if (g === "he") hurt(o, d, ev.hp[o], 1);
+          else if (g === "molotov") hurt(o, d, ev.hp[o], 3);
+          else if (d){ jitter(f, true); later(() => { tracer(f, o); hurt(o, d, ev.hp[o], 1); }, 250); }   // flash / decoy -> swing and shoot
+          else if (g === "smoke" || g === "flash") jitter(f, true);
+        } else {
+          if (g === "he") kill(o);
+          else { if (g === "molotov") { const [x, y] = pos[o]; place(o, ...clampP(x + (x < 320 ? 60 : -60), y + (Math.random() - .5) * 60)); }
+            jitter(f, true); later(() => { tracer(f, o); kill(o); }, 300); }
+        }
+      }, 120);
+    }), 250);
+  };
+  const pipsSet = () => [0, 1].forEach(s => document.querySelectorAll(`#sim-pips-${s} i`).forEach((i, k) => i.classList.toggle("on", k < sc[s])));
+  const catLab = {open:"Opener", mid:"Mid-Round", close:"Closer"};
+  win.hidden = true; win.innerHTML = ""; $("#sim-sa").textContent = "0"; $("#sim-sb").textContent = "0"; pipsSet();
+  for (let rd = 1; sc[0] < 4 && sc[1] < 4; rd++){
+    $l.innerHTML = ""; fx.innerHTML = ""; [0, 1].forEach(s => { $("#sim-p-" + s).classList.remove("dead"); setHp(s, 100); });
+    place(0, 80, 140); place(1, 560, 140); $("#sim-rd").textContent = `Round ${rd}`;
+    say("simsys", `Round ${rd} · <b class="sna">${esc(names[0])}</b> ${sc[0]}–${sc[1]} <b class="snb">${esc(names[1])}</b>`);
+    if (!await wait(900)) return;
+    const R = simRound(od.p, rats, used);
+    for (const ev of R.ev){
+      const f = ev.fav, t = say(`simmsg s${f} typing`, `<span class="simdots"><i></i><i></i><i></i></span>`);
+      if (!await wait(550)) return;
+      t.classList.remove("typing");
+      t.innerHTML = `<div class="eyebrow">${catLab[ev.cat]}</div><div>${simFill(ev.e[0], names, ev.roles, ev.d, ev.h)}</div>`;
+      $l.scrollTop = $l.scrollHeight;
+      const tr = ev.e[1], g = simNade(ev.e[0], tr);
+      if (g === "env") smokeAt(between(), 0);                                // a smoke that is already on the map
+      if (g && g !== "env") nadeEv(ev, g);
+      else if (ev.cat === "open"){ jitter(f, true); if (tr === "util") later(() => burst(1 - f, "util"), 600); }
+      else if (ev.cat === "mid"){ jitter(f, true); later(() => { if (tr === "util") { burst(1 - f, "util"); if (ev.d) tracer(f, 1 - f, true); } else if (ev.d) tracer(f, 1 - f); else if (tr !== "sneak") miss(1 - f, f);
+        if (ev.d) { pop(1 - f, "−" + ev.d); setHp(1 - f, ev.hp[1 - f]); } }, 600); }
+      else { if (tr === "knife" || tr === "sneak") { const [ox, oy] = pos[1 - f]; place(f, ox + (ox > 320 ? -34 : 34), oy); } else jitter(f, true);
+        later(() => { if (tr === "util") burst(1 - f, "util"); tracer(f, 1 - f); setHp(1 - f, 0); $("#sim-p-" + (1 - f)).classList.add("dead"); }, 600); }
+      if (!await wait(ev.cat === "close" ? 1300 : 1500)) return;
+    }
+    sc[R.W]++; $("#sim-sa").textContent = sc[0]; $("#sim-sb").textContent = sc[1]; pipsSet();
+    say(`simend s${R.W}`, `${esc(names[R.W])} takes Round ${rd} · ${sc[0]}–${sc[1]}`);
+    if (!await wait(1700)) return;
+  }
+  const Wn = sc[0] === 4 ? 0 : 1;
+  say(`simend s${Wn} final`, `${esc(names[Wn])} wins the match ${Math.max(...sc)}–${Math.min(...sc)}`);
+  win.innerHTML = `<div class="simwinc s${Wn}"><div class="eyebrow">Victory</div><div class="simwn">${esc(names[Wn])} Wins</div><div class="note">${sc[0]}–${sc[1]} · ${esc(names[Wn])} had a ${Math.round((Wn ? 1 - od.match : od.match) * 100)}% chance before the match</div><button type="button" class="morebtn simreplay" id="sim-replay">Replay Match</button></div>`;
+  win.hidden = false; $("#sim-replay").addEventListener("click", () => simStart());
+}
+function bindSim(){
+  const sa = $("#sim-a"), sb = $("#sim-b"); if (!sa) return;
+  sa.addEventListener("change", () => { let a = +sa.value, b = S.cmp.b; if (b === a) b = S.cmp.a; simGo("sim", a, b); });
+  sb.addEventListener("change", () => { let b = +sb.value, a = S.cmp.a; if (a === b) a = S.cmp.b; simGo("sim", a, b); });
+  $("#sim-swap").addEventListener("click", () => simGo("sim", S.cmp.b, S.cmp.a));
+  $("#sim-back").addEventListener("click", () => simGo("compare", S.cmp.a, S.cmp.b));
+  $("#sim-skip").addEventListener("click", () => { SIMSKIP = true; });
+  onSeg("sim-speed", v => { SIMSPEED = parseInt(v, 10) || 1; document.querySelectorAll("#sim-speed button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === v)); });
 }
 
 const STAT_GROUPS = [["Headline","headline"],["Aim & Mechanics","aim"],["Spray Control","sprayctl"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
@@ -1693,6 +2195,11 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-30T01:28:37Z", "v4.26", "Simulate 1v1", [
+    "Compare has a new Simulate 1v1 button: pick two players and watch them play a best of 7 (first to 4 rounds) in an animated arena, with a live play-by-play feed.",
+    "Each round's winner is drawn at random from odds built from 1v1 stats: duel win rate, the Aiming and Clutching ratings, sight-to-shot speed, first-shot accuracy, HS%, crosshair placement, counter-strafing, time-to-kill and any head-to-head kills between them.",
+    "Grenades are animated: thrown in an arc, then smokes bloom and linger, flashes white out the target, molotovs burn and tick damage, HEs explode and shake the arena, and decoys pulse with fake footsteps. The play-by-play has 116 events, including grenade plays.",
+    "Tale of the Tape (tap to expand) shows every factor, which player it favors and by how much, plus the round and match win chances. Replay Match runs it again; Speed and Skip to Result control the pace."]],
   ["2026-09-29T23:36:48Z", "v4.25", "Fresh Filters on Every Page", [
     "Clicking onto a page (the menu, a player name, a link) now opens it with its default filters and selections, instead of carrying over the ones you picked elsewhere.",
     "The browser's Back and Forward buttons bring a page back exactly as you left it: filters, tab, chosen players and scroll position. Reloading a page keeps them too.",
@@ -1860,10 +2367,11 @@ function setStickyTop(){                                       // v4.21: frozen 
 addEventListener("resize", () => { if (S.view === "board") setStickyTop(); });
 function render(){
   const app = $("#app");
-  document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", (b.dataset.view === S.view || (S.view==="player" && b.dataset.view==="home")) ? "page" : "false"));
+  document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", (b.dataset.view === S.view || (S.view==="player" && b.dataset.view==="home") || (S.view==="sim" && b.dataset.view==="compare")) ? "page" : "false"));
   let html = "";
   if (S.view === "player" && S.p !== null) html = viewPlayer();
   else if (S.view === "compare") html = viewCompare();
+  else if (S.view === "sim") html = viewSim();
   else if (S.view === "core5") html = viewCore5();
   else if (S.view === "board") html = viewBoard();
   else if (S.view === "maps") html = viewMaps();
@@ -1872,9 +2380,11 @@ function render(){
   else if (S.view === "updates") html = viewUpdates();
   else { S.view = "home"; html = viewHome(); }
   html += `<p class="foot">Built from ${D.meta.matches} FACEIT matches · ${D.players.length} regulars (3+ matches) · data ${esc(D.meta.built_utc)} · pipeline v${esc(D.meta.version)}. Percentiles are Elo-adjusted and shrunk toward 50 for small samples.</p>`;
+  SIMTOK++;                                                // stops a running 1v1 simulation
   app.innerHTML = html;
   if (S.view === "board") setStickyTop();
   bind();
+  if (S.view === "sim") { bindSim(); simStart(); }
   drawCharts();
   saveState();
 }
@@ -1887,6 +2397,7 @@ function bind(){
   if (ca) ca.addEventListener("change", () => { S.cmp.a = +ca.value; if (S.cmp.b === S.cmp.a) S.cmp.b = null; render(); });
   if (cb) cb.addEventListener("change", () => { S.cmp.b = +cb.value; if (S.cmp.b === S.cmp.a) S.cmp.a = null; render(); });
   const sw = $("#c-swap"); if (sw) sw.addEventListener("click", () => { [S.cmp.a, S.cmp.b] = [S.cmp.b, S.cmp.a]; render(); });
+  const csim = $("#c-sim"); if (csim) csim.addEventListener("click", () => simGo("sim", S.cmp.a, S.cmp.b));
   onSeg("c-win", v => { S.win = v; render(); }); onSeg("c-side", v => { S.side = v; render(); }); onSeg("c-wf", v => { S.wf = v; render(); });
   onSeg("k-win", v => { S.win = v; render(); }); onSeg("k-side", v => { S.side = v; render(); }); onSeg("k-wf", v => { S.wf = v; render(); });
   onSeg("k-all", v => { S.c5.all = v === "All stats"; render(); });
