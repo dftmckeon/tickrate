@@ -354,7 +354,7 @@ a.pill.fc:hover{border-color:var(--accent)}
 .simdash{color:var(--muted);font-weight:400}
 .simarena{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line)}
 .simcov{fill:var(--surface-3);stroke:var(--line-strong);stroke-width:1}
-.simp{transition:transform .6s cubic-bezier(.3,.7,.3,1)}
+.simp{transition:transform .55s cubic-bezier(.3,.7,.3,1)}
 .simp text{font:600 12px var(--sans);fill:var(--ink-2)}
 .simp .simdot{stroke:var(--surface);stroke-width:2}.simp.s0 .simdot{fill:var(--accent)}.simp.s1 .simdot{fill:var(--neg)}
 .simp .simring{fill:none;stroke-width:2;opacity:.35}.simp.s0 .simring{stroke:var(--accent)}.simp.s1 .simring{stroke:var(--neg)}
@@ -448,7 +448,7 @@ a.pill.fc:hover{border-color:var(--accent)}
   </div>
 </header>
 
-<main class="wrap" id="app"><div class="loading">Loading lobby data…</div></main>
+<main class="wrap" id="app"><div class="loading">Loading the database…</div></main>
 
 <script>
 (() => {
@@ -805,7 +805,7 @@ function spRow(p){ const X = D.spray; if (!X || !X.rows) return null; const r = 
   const o = {}; X.cols.forEach((k,i) => o[k] = r.c[i]); return {o, r}; }
 function sprayTab(p){
   const g = D.meta.groups, X = D.spray || {};
-  const cards = `${metricCard(p, "Spray control", g.sprayctl || [], "Bullets fired at a visible enemy with an automatic weapon (Rifle = AK-47, M4A4, M4A1-S). Follows the filters above. Hits vs expected compares each bullet with the lobby rate for the same weapon, bullet number, distance and movement.")}
+  const cards = `${metricCard(p, "Spray control", g.sprayctl || [], "Bullets fired at a visible enemy with an automatic weapon (Rifle = AK-47, M4A4, M4A1-S). Follows the filters above. Hits vs expected compares each bullet with the average rate for the same weapon, bullet number, distance and movement.")}
     ${metricCard(p, "Sprays and kill time", g.spray, "Ranked only under the AWP or Rifle filter: on All weapons, AWP one-shots mix with rifle sprays.")}`;
   const R = spRow(p);
   if (!R) return `<div class="section">${cards}<div class="card"><p class="note">No spray data for this player yet.</p></div></div>`;
@@ -823,7 +823,7 @@ function sprayTab(p){
       <tr><td style="font-family:var(--sans)">Spray hits vs expected, bullets 4+ (pts)</td><td class="r"><b>${sg(o.hoe_b4p === null ? null : o.hoe_b4p * 100, 1)}</b></td><td class="r note">0.0</td><td class="r note">${rk(o.hoe_b4p_rank, o.hoe_b4p_of)}</td></tr>
     </tbody></table></div>
     <p class="note" style="margin-top:8px">${esc(vtxt)} Ranks: vertical = closest to 100%. Horizontal control is noisy for one player (few sprays reach the side-to-side part of the pattern). Based on ${(o.ctrl_n||0).toLocaleString()} bullets.</p></div>`;
-  const curve = `<div class="card"><h3>Hit Rate by Bullet</h3><p class="lead note">All matches, AK/M4. Share of bullets that hit, by position in the burst. "Expected" = the lobby rate for the same weapon, bullet, distance and movement, so the gap is skill, not situation.</p>
+  const curve = `<div class="card"><h3>Hit Rate by Bullet</h3><p class="lead note">All matches, AK/M4. Share of bullets that hit, by position in the burst. "Expected" = the average rate for the same weapon, bullet, distance and movement, so the gap is skill, not situation.</p>
     <div class="chartbox" style="height:260px;margin-top:6px"><canvas id="spcurve" aria-label="Hit rate by bullet number"></canvas></div>
     <p class="note" style="margin-top:6px">Bullet 16 = 16th and later. Points with fewer than 20 bullets are faint.</p></div>`;
   const W = ["AK-47","M4A4","M4A1-S"];
@@ -848,13 +848,13 @@ function sprayTab(p){
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Distance</th><th class="r">Bullets</th><th class="r">Hit rate</th><th class="r">Expected</th><th class="r">Gap</th></tr></thead><tbody>
     ${ds.map(x => { const gp = x[2] !== null && x[3] !== null ? (x[2]-x[3])*100 : null; return `<tr><td>${esc(DN[x[0]]||x[0])}</td><td class="r num">${x[1].toLocaleString()}</td><td class="r num">${fmt(x[2]*100,"pct")}</td><td class="r num note">${fmt(x[3]*100,"pct")}</td><td class="r num" style="color:${gp>0?"var(--pos)":gp<0?"var(--neg)":"inherit"}">${gp===null?"–":(gp>0?"+":"")+gp.toFixed(1)}</td></tr>`; }).join("") || `<tr><td colspan="5" class="note">No data</td></tr>`}
     </tbody></table></div>
-    <p class="note" style="margin-top:8px">Long-range bursts that became full sprays (6+ bullets): <b>${pp(o.long_spray_share)}</b> of ${o.long_groups||0} bursts at 1,500 u+. Full sprays there land far fewer bullets than bursts do (lobby table below).</p></div>`;
+    <p class="note" style="margin-top:8px">Long-range bursts that became full sprays (6+ bullets): <b>${pp(o.long_spray_share)}</b> of ${o.long_groups||0} bursts at 1,500 u+. Full sprays there land far fewer bullets than bursts do (all-player table below).</p></div>`;
   const TY = X.types || [], TN = {tap:"Tap (1)", burst:"Burst (2-5)", spray:"Spray (6+)"};
-  const types = `<div class="card"><h3>Tap, Burst or Spray? (Lobby)</h3><p class="lead note">AK/M4 bursts that started on target, all players. Damage per bullet fired and how often the target died. A burst that kills early stays short, so kill rates favour longer sprays; damage per bullet is the fairer read.</p>
+  const types = `<div class="card"><h3>Tap, Burst or Spray? (All Players)</h3><p class="lead note">AK/M4 bursts that started on target, all players. Damage per bullet fired and how often the target died. A burst that kills early stays short, so kill rates favour longer sprays; damage per bullet is the fairer read.</p>
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Type</th><th class="r">Bursts</th><th class="r">Damage per bullet</th><th class="r">Hit per bullet</th><th class="r">Target killed</th></tr></thead><tbody>
     ${dl.map(d => { const rs = ["tap","burst","spray"].map(t => TY.find(x => x[0]===d && x[1]===t)).filter(Boolean); return !rs.length ? "" : `<tr class="grp"><td colspan="5">${esc(DN[d]||d)}</td></tr>` + rs.map(x => `<tr><td>${TN[x[1]]}</td><td class="r num">${x[2].toLocaleString()}</td><td class="r num">${fmt(x[3],"f1")}</td><td class="r num">${fmt(x[5]===null?null:x[5]*100,"pct")}</td><td class="r num">${fmt(x[4]===null?null:x[4]*100,"pct")}</td></tr>`).join(""); }).join("")}
     </tbody></table></div>
-    ${(X.payoff||[]).length ? `<p class="note" style="margin-top:8px">Spray tightness and fights (lobby, decisive 1v1s): ${X.payoff.slice().sort((a,b)=>a[3]-b[3]).map(r => `${esc(r[0].replace(" (best third)","").replace(" (worst third)",""))} sprays (median drift ${fmt(r[3],"f2")} deg) won ${fmt(r[2]*100,"pct")}`).join(" · ")}.</p>` : ""}</div>`;
+    ${(X.payoff||[]).length ? `<p class="note" style="margin-top:8px">Spray tightness and fights (all players, decisive 1v1s): ${X.payoff.slice().sort((a,b)=>a[3]-b[3]).map(r => `${esc(r[0].replace(" (best third)","").replace(" (worst third)",""))} sprays (median drift ${fmt(r[3],"f2")} deg) won ${fmt(r[2]*100,"pct")}`).join(" · ")}.</p>` : ""}</div>`;
   return `<div class="section">${cards}<div class="grid g2">${ctrl}${curve}</div>${pat}<div class="grid g2">${dist}${types}</div></div>`;
 }
 function mapsCard(p){
@@ -1240,8 +1240,8 @@ const SIM_F = [
 ];
 const SIM_DUEL_PRIOR = 40, SIM_H2H_PRIOR = 5, SIM_H2H_W = 0.5, SIM_PMIN = 0.10, SIM_PMAX = 0.90;
 let SIMTOK = 0, SIMSPEED = 1, SIMSKIP = false, SIMNEXT = null;
-// v4.27: best of 5 (first to 3); base pace 10% slower than v4.26 (every timing / (Speed / SIM_PACE))
-const SIM_WIN = 3, SIM_PACE = 1.1, simRate = () => SIMSPEED / SIM_PACE;
+// v4.27: best of 5 (first to 3). v4.28: pace back to v4.26 (SIM_PACE 1; >1 = slower, every timing / (Speed / SIM_PACE))
+const SIM_WIN = 3, SIM_PACE = 1, simRate = () => SIMSPEED / SIM_PACE;
 const simLogit = p => Math.log(p / (1 - p)), simSig = x => 1 / (1 + Math.exp(-x));
 // P(first to n rounds) = sum_k C(n-1+k, k) p^n q^k, k = 0..n-1
 const simBoN = (p, n = SIM_WIN) => { const q = 1 - p; let s = 0, c = 1; for (let k = 0; k < n; k++){ if (k) c = c * (n - 1 + k) / k; s += c * p ** n * q ** k; } return s; };
@@ -2217,6 +2217,9 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-30T01:58:45Z", "v4.28", "Simulate 1v1 Pace and Wording Fixes", [
+    "Simulate 1v1 plays at its original speed again (the 10% slowdown from v4.27 is undone). Best of 5 and the Start Round button stay.",
+    "The loading screen now says “Loading the database”, and the Spray tab says “average” or “all players” instead of “lobby”."]],
   ["2026-09-30T01:45:15Z", "v4.27", "Simulate 1v1: Best of 5 and Next Round", [
     "Simulate 1v1 is now a best of 5 (first to 3 rounds). Match win chances in Tale of the Tape are updated to match.",
     "After each round a Start Round button appears over the arena, so you can read the play-by-play before moving on. Skip to Result still jumps straight to the end.",
@@ -2510,6 +2513,6 @@ const loadData = async () => {
   render();
   history.replaceState({sel: selSnap(), y: hs.y || 0}, "");
   if (hs.y) requestAnimationFrame(() => window.scrollTo({top: hs.y}));
-}).catch(err => { $("#app").innerHTML = `<div class="loading">Couldn't load the lobby data (data.json): ${esc(err.message)}. Reload the page to try again.</div>`; });
+}).catch(err => { $("#app").innerHTML = `<div class="loading">Couldn't load the database (data.json): ${esc(err.message)}. Reload the page to try again.</div>`; });
 })();
 </script>
