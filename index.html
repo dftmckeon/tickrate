@@ -346,11 +346,15 @@ a.pill.fc:hover{border-color:var(--accent)}
 .simhp i{position:absolute;top:0;bottom:0;width:100%;transition:width .35s ease;background:var(--accent)}.simpl.s0 .simhp i{left:0}.simpl.s1 .simhp i{right:0;background:var(--neg)}
 .simhp i.low{opacity:.6}
 .simmid{text-align:center}.simsc{font-size:30px;font-weight:700;line-height:1.1;display:flex;gap:8px;justify-content:center}
-.simwrap{position:relative}.simwin[hidden]{display:none}
+.simwrap{position:relative}.simnext[hidden]{display:none}
+.simnext{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:grid;justify-items:center;gap:4px;animation:simin .25s ease-out}
+.simnext .note{font-size:11.5px;background:color-mix(in srgb,var(--surface) 80%,transparent);padding:1px 8px;border-radius:999px}
+.morebtn.simnextb{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;font-size:13px;background:var(--surface);border-color:var(--accent);color:var(--accent);box-shadow:var(--shadow)}
+.morebtn.simnextb svg{width:11px;height:11px}.morebtn.simnextb:hover{background:var(--accent);color:var(--accent-ink)}.simwin[hidden]{display:none}
 .simdash{color:var(--muted);font-weight:400}
 .simarena{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line)}
 .simcov{fill:var(--surface-3);stroke:var(--line-strong);stroke-width:1}
-.simp{transition:transform .55s cubic-bezier(.3,.7,.3,1)}
+.simp{transition:transform .6s cubic-bezier(.3,.7,.3,1)}
 .simp text{font:600 12px var(--sans);fill:var(--ink-2)}
 .simp .simdot{stroke:var(--surface);stroke-width:2}.simp.s0 .simdot{fill:var(--accent)}.simp.s1 .simdot{fill:var(--neg)}
 .simp .simring{fill:none;stroke-width:2;opacity:.35}.simp.s0 .simring{stroke:var(--accent)}.simp.s1 .simring{stroke:var(--neg)}
@@ -1235,9 +1239,12 @@ const SIM_F = [
   {k:"ttk",            lab:"Time-to-Kill",            w:0.06}
 ];
 const SIM_DUEL_PRIOR = 40, SIM_H2H_PRIOR = 5, SIM_H2H_W = 0.5, SIM_PMIN = 0.10, SIM_PMAX = 0.90;
-let SIMTOK = 0, SIMSPEED = 1, SIMSKIP = false;
+let SIMTOK = 0, SIMSPEED = 1, SIMSKIP = false, SIMNEXT = null;
+// v4.27: best of 5 (first to 3); base pace 10% slower than v4.26 (every timing / (Speed / SIM_PACE))
+const SIM_WIN = 3, SIM_PACE = 1.1, simRate = () => SIMSPEED / SIM_PACE;
 const simLogit = p => Math.log(p / (1 - p)), simSig = x => 1 / (1 + Math.exp(-x));
-const simBo7 = p => { const q = 1 - p, C = [1, 4, 10, 20]; let s = 0; for (let k = 0; k < 4; k++) s += C[k] * p ** 4 * q ** k; return s; };
+// P(first to n rounds) = sum_k C(n-1+k, k) p^n q^k, k = 0..n-1
+const simBoN = (p, n = SIM_WIN) => { const q = 1 - p; let s = 0, c = 1; for (let k = 0; k < n; k++){ if (k) c = c * (n - 1 + k) / k; s += c * p ** n * q ** k; } return s; };
 function simOdds(a, b){
   const o = {win:"All", side:"All", wf:"All", map:"All maps"}, rows = [];
   const rat = i => (((D.ratings[i]||{}).All||{}).r) || [];
@@ -1265,7 +1272,7 @@ function simOdds(a, b){
   if (kA + kB > 0){ const e = SIM_H2H_W * simLogit((kA + SIM_H2H_PRIOR) / (kA + kB + 2 * SIM_H2H_PRIOR)); L += e;
     rows.push({lab:"Head-to-Head Kills", va:String(kA), vb:String(kB), e, note:"kills on each other when they met, shrunk toward even"}); }
   const p = Math.min(SIM_PMAX, Math.max(SIM_PMIN, simSig(L)));
-  return {p, match:simBo7(p), rows};
+  return {p, match:simBoN(p), rows};
 }
 // Grenade type for an event (drives the animation): combo | decoy | molotov | he | flash | smoke; "env" = a smoke that is already
 // there (non-utility event that mentions smoke); null = no grenade.
@@ -1327,7 +1334,7 @@ function viewSim(){
   const A = P[a], B = P[b], od = simOdds(a, b);
   const sorted = P.map((x,i)=>({x,i})).sort((u,v)=>u.x.name.localeCompare(v.x.name, undefined, {sensitivity:"base"}));
   const pick = (id, cur) => `<select id="${id}">${sorted.map(({x,i})=>`<option value="${i}" ${i===cur?"selected":""}>${esc(x.name)} (Elo ${x.last_elo ? Math.round(x.last_elo) : "–"})</option>`).join("")}</select>`;
-  const pips = s => `<span class="simpips" id="sim-pips-${s}">${[0,1,2,3].map(() => `<i></i>`).join("")}</span>`;
+  const pips = s => `<span class="simpips" id="sim-pips-${s}">${Array.from({length:SIM_WIN}, () => `<i></i>`).join("")}</span>`;
   const pl = (s, X) => `<div class="simpl s${s}"><div class="simnm"><b>${esc(X.name)}</b><span class="note num">Elo ${X.last_elo ? Math.round(X.last_elo) : "–"}</span></div>${pips(s)}<div class="simhpw" aria-label="${esc(X.name)} health"><div class="simhp"><i id="sim-hp-${s}"></i></div><span class="num" id="sim-hpt-${s}">100</span><span class="note">HP</span></div></div>`;
   const covers = [[150,40,46,46],[300,190,40,56],[430,70,56,34],[250,90,22,70],[380,150,26,26],[120,180,60,24],[520,190,40,40]];
   const arena = `<svg class="simarena" viewBox="0 0 640 280" role="img" aria-label="Abstract 1v1 arena">
@@ -1343,7 +1350,7 @@ function viewSim(){
       <div class="v num${fb?" snb":""}">${esc(String(r.vb))}</div></div>`; }).join("");
   const pr = Math.round(od.p * 100), pm = Math.round(od.match * 100);
   return `<section class="pagehead"><div class="eyebrow">Compare · Simulate 1v1</div><h1><span class="sna">${esc(A.name)}</span> vs <span class="snb">${esc(B.name)}</span></h1>
-    <p class="lead">A just-for-fun best of 7 (first to 4 rounds). Each round's winner is drawn at random from odds built from the stats that matter in a 1v1: duel win rate, aim and clutch ratings, reaction speed, accuracy and any head-to-head history. The play-by-play is flavour: it leans toward what each player is good at.</p></section>
+    <p class="lead">A just-for-fun best of 5 (first to 3 rounds). Each round's winner is drawn at random from odds built from the stats that matter in a 1v1: duel win rate, aim and clutch ratings, reaction speed, accuracy and any head-to-head history. The play-by-play is flavour: it leans toward what each player is good at.</p></section>
   <div class="filters">
     <div class="ctl cmpsel"><div class="ctl"><label class="eyebrow" for="sim-a">Player A</label>${pick("sim-a", a)}</div>
       <button class="swapbtn" id="sim-swap" type="button" title="Swap A and B" aria-label="Swap A and B"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg></button>
@@ -1352,13 +1359,13 @@ function viewSim(){
     <div class="ctl"><span class="eyebrow">&nbsp;</span><div style="display:flex;gap:8px"><button type="button" class="morebtn simsm" id="sim-skip">Skip to Result</button><button type="button" class="morebtn simsm" id="sim-back">Back to Compare</button></div></div>
   </div>
   <div class="simgrid section">
-    <div class="card simstage"><div class="simscore">${pl(0, A)}<div class="simmid"><div class="eyebrow">Best of 7</div><div class="simsc num"><span class="sna" id="sim-sa">0</span><span class="simdash">–</span><span class="snb" id="sim-sb">0</span></div><div class="note" id="sim-rd">Round 1</div></div>${pl(1, B)}</div>
-      <div class="simwrap">${arena}<div class="simwin" id="sim-win" hidden></div></div></div>
+    <div class="card simstage"><div class="simscore">${pl(0, A)}<div class="simmid"><div class="eyebrow">Best of 5</div><div class="simsc num"><span class="sna" id="sim-sa">0</span><span class="simdash">–</span><span class="snb" id="sim-sb">0</span></div><div class="note" id="sim-rd">Round 1</div></div>${pl(1, B)}</div>
+      <div class="simwrap">${arena}<div class="simwin" id="sim-win" hidden></div><div class="simnext" id="sim-next" hidden></div></div></div>
     <div class="card simfeed"><h3>Play-by-Play</h3><div class="simlog" id="sim-log" aria-live="polite"></div></div>
   </div>
   <details class="card section simtape" id="sim-tape"><summary><h3>Tale of the Tape</h3><span class="simsum num"><span class="sna">${esc(A.name)} ${pm}%</span><span class="note">match odds</span><span class="snb">${100 - pm}% ${esc(B.name)}</span></span><svg class="simchev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
     <div class="simodds"><div><span class="eyebrow">Round win chance</span><div class="simbar"><i class="ea" style="width:${pr}%"></i><i class="eb" style="width:${100 - pr}%"></i></div><div class="kleg num"><span class="sna">${esc(A.name)} ${pr}%</span><span class="snb">${100 - pr}% ${esc(B.name)}</span></div></div>
-      <div><span class="eyebrow">Match win chance (best of 7)</span><div class="simbar"><i class="ea" style="width:${pm}%"></i><i class="eb" style="width:${100 - pm}%"></i></div><div class="kleg num"><span class="sna">${esc(A.name)} ${pm}%</span><span class="snb">${100 - pm}% ${esc(B.name)}</span></div></div></div>
+      <div><span class="eyebrow">Match win chance (best of 5)</span><div class="simbar"><i class="ea" style="width:${pm}%"></i><i class="eb" style="width:${100 - pm}%"></i></div><div class="kleg num"><span class="sna">${esc(A.name)} ${pm}%</span><span class="snb">${100 - pm}% ${esc(B.name)}</span></div></div></div>
     <div class="simtr simth"><div class="eyebrow">Factor</div><div class="eyebrow v">${esc(A.name)}</div><div class="eyebrow" style="text-align:center">Edge</div><div class="eyebrow v">${esc(B.name)}</div></div>${tape}
     <p class="note" style="margin-top:8px">Stats: all matches, both sides, all weapons, raw (not Elo-adjusted). The factors add up on the log-odds scale; round odds are capped at 10-90% so upsets can always happen.</p></details>`;
 }
@@ -1368,12 +1375,12 @@ async function simStart(){
   const od = simOdds(a, b), rats = [(((D.ratings[a]||{}).All||{}).r) || [], (((D.ratings[b]||{}).All||{}).r) || []];
   const $l = $("#sim-log"), fx = $("#sim-fx"), win = $("#sim-win"); if (!$l) return;
   const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const wait = ms => new Promise(r => setTimeout(() => r(tok === SIMTOK && document.body.contains($l)), SIMSKIP ? 1 : ms / SIMSPEED));
+  const wait = ms => new Promise(r => setTimeout(() => r(tok === SIMTOK && document.body.contains($l)), SIMSKIP ? 1 : ms / simRate()));
   const pos = [[80,140],[560,140]], used = new Set(), sc = [0, 0];
   const place = (s, x, y) => { pos[s] = [x, y]; const g = $("#sim-p-" + s); if (g) g.style.transform = `translate(${x}px,${y}px)`; };
   const setHp = (s, v) => { const i = $("#sim-hp-" + s), t = $("#sim-hpt-" + s); if (i) { i.style.width = v + "%"; i.classList.toggle("low", v <= 30); } if (t) t.textContent = v; };
   const say = (cls, html) => { const d = document.createElement("div"); d.className = cls; d.innerHTML = html; $l.appendChild(d); $l.scrollTo ? $l.scrollTo({top:$l.scrollHeight, behavior: reduce || SIMSKIP ? "auto" : "smooth"}) : ($l.scrollTop = $l.scrollHeight); return d; };
-  const svg = (tag, attrs, life) => { const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) n.setAttribute(k, attrs[k]); fx.appendChild(n); if (life) setTimeout(() => n.remove(), life / SIMSPEED); return n; };
+  const svg = (tag, attrs, life) => { const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) n.setAttribute(k, attrs[k]); fx.appendChild(n); if (life) setTimeout(() => n.remove(), life / simRate()); return n; };
   const jitter = (s, towards) => { const [ox, oy] = pos[1 - s]; let x = 60 + Math.random() * 520, y = 40 + Math.random() * 200;
     if (towards){ x = ox + (Math.random() < .5 ? -1 : 1) * (90 + Math.random() * 90); y = oy + (Math.random() - .5) * 160; }
     place(s, Math.max(40, Math.min(600, x)), Math.max(40, Math.min(250, y))); };
@@ -1381,7 +1388,7 @@ async function simStart(){
     svg("circle", {cx:x, cy:y, r:trait === "util" ? 34 : 20, class:cls}, 900); };
   const tracer = (f, o, noLine) => { const [x1, y1] = pos[f], [x2, y2] = pos[o]; if (!noLine) svg("line", {x1, y1, x2, y2, class:"simtrace s" + f}, 450); svg("circle", {cx:x2, cy:y2, r:20, class:"simhit"}, 600); };
   const miss = (f, o) => { const [x1, y1] = pos[f], [x2, y2] = pos[o], k = Math.random() < .5 ? 1 : -1; svg("line", {x1, y1, x2:x2 + k * 26, y2:y2 - k * 22, class:"simtrace miss s" + f}, 450); };
-  const later = (fn, ms) => { if (SIMSKIP) fn(); else setTimeout(() => { if (tok === SIMTOK) fn(); }, ms / SIMSPEED); };
+  const later = (fn, ms) => { if (SIMSKIP) fn(); else setTimeout(() => { if (tok === SIMTOK) fn(); }, ms / simRate()); };
   const pop = (s, txt) => { const [x, y] = pos[s]; const t = svg("text", {x, y:y - 34, class:"simpop", "text-anchor":"middle"}, 900); t.textContent = txt; };
   // ---- grenades: arc throw + per-type effects (all timings scale with Speed; Skip / reduced motion = no flight)
   const arenaEl = $(".simarena");
@@ -1390,10 +1397,10 @@ async function simStart(){
   const between = () => clampP((pos[0][0] + pos[1][0]) / 2 + (Math.random() - .5) * 30, (pos[0][1] + pos[1][1]) / 2 + (Math.random() - .5) * 40);
   const away = (s) => { const [x, y] = pos[s]; return clampP(x < 320 ? 470 + Math.random() * 120 : 50 + Math.random() * 120, 40 + Math.random() * 200); };
   const mk = (tag, attrs, parent) => { const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) n.setAttribute(k, attrs[k]); (parent || fx).appendChild(n); return n; };
-  const fade = (n, life) => { if (!life) return; setTimeout(() => { n.classList.add("out"); setTimeout(() => n.remove(), 450); }, life / SIMSPEED); };
+  const fade = (n, life) => { if (!life) return; setTimeout(() => { n.classList.add("out"); setTimeout(() => n.remove(), 450); }, life / simRate()); };
   const toss = (from, to, cb) => {
     if (SIMSKIP || reduce || !window.requestAnimationFrame){ cb(); return; }
-    const [x1, y1] = pos[from], [x2, y2] = to, n = mk("circle", {r:4.5, class:"simnade s" + from, cx:x1, cy:y1}), T = 420 / SIMSPEED, t0 = performance.now(), lift = 30 + Math.hypot(x2 - x1, y2 - y1) * .3;
+    const [x1, y1] = pos[from], [x2, y2] = to, n = mk("circle", {r:4.5, class:"simnade s" + from, cx:x1, cy:y1}), T = 420 / simRate(), t0 = performance.now(), lift = 30 + Math.hypot(x2 - x1, y2 - y1) * .3;
     let done = false; const finish = () => { if (done) return; done = true; n.remove(); if (tok === SIMTOK) cb(); };
     setTimeout(finish, T + 40);                                   // lands on time even if the tab is hidden (rAF paused)
     const step = now => { if (done) return; const k = Math.min(1, (now - t0) / T);
@@ -1402,17 +1409,17 @@ async function simStart(){
     requestAnimationFrame(step);
   };
   const smokeAt = ([x, y], life) => { if (fx.querySelectorAll(".simsmk").length >= 3) return; const g = mk("g", {class:"simsmk"});
-    for (let k = 0; k < 6; k++) mk("circle", {cx:x + (Math.random() - .5) * 34, cy:y + (Math.random() - .5) * 26, r:16 + Math.random() * 10, style:`animation-delay:${(k * 60 / SIMSPEED).toFixed(0)}ms`}, g);
+    for (let k = 0; k < 6; k++) mk("circle", {cx:x + (Math.random() - .5) * 34, cy:y + (Math.random() - .5) * 26, r:16 + Math.random() * 10, style:`animation-delay:${(k * 60 / simRate()).toFixed(0)}ms`}, g);
     fade(g, life); };
-  const flashAt = ([x, y], victim) => { mk("circle", {cx:x, cy:y, r:12, class:"simflashb"}); setTimeout(() => fx.querySelectorAll(".simflashb").forEach(n => n.remove()), 700 / SIMSPEED);
-    const vg = $("#sim-p-" + victim); if (vg){ vg.classList.add("blind"); setTimeout(() => vg.classList.remove("blind"), 1300 / SIMSPEED); } };
+  const flashAt = ([x, y], victim) => { mk("circle", {cx:x, cy:y, r:12, class:"simflashb"}); setTimeout(() => fx.querySelectorAll(".simflashb").forEach(n => n.remove()), 700 / simRate());
+    const vg = $("#sim-p-" + victim); if (vg){ vg.classList.add("blind"); setTimeout(() => vg.classList.remove("blind"), 1300 / simRate()); } };
   const fireAt = ([x, y], life) => { const g = mk("g", {class:"simfireg"}); mk("ellipse", {cx:x, cy:y + 4, rx:34, ry:16, class:"simfirebase"}, g);
     for (let k = 0; k < 8; k++) mk("circle", {cx:x + (Math.random() - .5) * 56, cy:y + 4 + (Math.random() - .5) * 20, r:4 + Math.random() * 5, class:"simflame", style:`animation-delay:${Math.round(Math.random() * 300)}ms`}, g);
     fade(g, life || 2200); };
   const heAt = ([x, y]) => { const g = mk("g", {class:"simheg"}); mk("circle", {cx:x, cy:y, r:10, class:"simhecore"}, g); mk("circle", {cx:x, cy:y, r:12, class:"simhering"}, g);
-    setTimeout(() => g.remove(), 800 / SIMSPEED); if (arenaEl && !SIMSKIP && !reduce){ arenaEl.classList.remove("shake"); void arenaEl.getBoundingClientRect(); arenaEl.classList.add("shake"); setTimeout(() => arenaEl.classList.remove("shake"), 320); } };
+    setTimeout(() => g.remove(), 800 / simRate()); if (arenaEl && !SIMSKIP && !reduce){ arenaEl.classList.remove("shake"); void arenaEl.getBoundingClientRect(); arenaEl.classList.add("shake"); setTimeout(() => arenaEl.classList.remove("shake"), 320); } };
   const decoyAt = ([x, y]) => { const g = mk("g", {class:"simdecoy"}); mk("circle", {cx:x, cy:y, r:3.5, class:"simdecoydot"}, g);
-    for (let k = 0; k < 3; k++) mk("circle", {cx:x, cy:y, r:6, class:"simdecoyring", style:`animation-delay:${Math.round(k * 280 / SIMSPEED)}ms`}, g); fade(g, 1800); };
+    for (let k = 0; k < 3; k++) mk("circle", {cx:x, cy:y, r:6, class:"simdecoyring", style:`animation-delay:${Math.round(k * 280 / simRate())}ms`}, g); fade(g, 1800); };
   const hurt = (s, d, hpAfter, ticks) => { if (!d) return; if (ticks > 1){ let left = d, cur = hpAfter + d;
       for (let k = 0; k < ticks; k++){ const part = k === ticks - 1 ? left : Math.round(d / ticks); left -= part; cur -= part; const v = cur;
         later(() => { pop(s, "−" + part); setHp(s, v); }, k * 260); } }
@@ -1459,7 +1466,22 @@ async function simStart(){
   const pipsSet = () => [0, 1].forEach(s => document.querySelectorAll(`#sim-pips-${s} i`).forEach((i, k) => i.classList.toggle("on", k < sc[s])));
   const catLab = {open:"Opener", mid:"Mid-Round", close:"Closer"};
   win.hidden = true; win.innerHTML = ""; $("#sim-sa").textContent = "0"; $("#sim-sb").textContent = "0"; pipsSet();
-  for (let rd = 1; sc[0] < 4 && sc[1] < 4; rd++){
+  // between rounds: wait for the Next Round button (Skip to Result, Replay or leaving the page also release it)
+  const nextBtn = $("#sim-next");
+  const awaitNext = rd => new Promise(res => {
+    if (SIMSKIP || tok !== SIMTOK) return res(tok === SIMTOK);
+    const lead = sc[0] === sc[1] ? `Tied ${sc[0]}–${sc[1]}` : `${esc(names[sc[0] > sc[1] ? 0 : 1])} leads ${Math.max(...sc)}–${Math.min(...sc)}`;
+    nextBtn.innerHTML = `<button type="button" class="morebtn simnextb" id="sim-nextb">Start Round ${rd} <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z" fill="currentColor"/></svg></button><div class="note">${lead}</div>`;
+    nextBtn.hidden = false;
+    const done = v => { nextBtn.hidden = true; nextBtn.innerHTML = ""; SIMNEXT = null; res(v && tok === SIMTOK && document.body.contains($l)); };
+    SIMNEXT = done;
+    $("#sim-nextb").addEventListener("click", () => done(true));
+    try { $("#sim-nextb").focus({preventScroll:true}); } catch(e) {}
+  });
+  if (SIMNEXT) SIMNEXT(false);
+  nextBtn.hidden = true; nextBtn.innerHTML = "";
+  for (let rd = 1; sc[0] < SIM_WIN && sc[1] < SIM_WIN; rd++){
+    if (rd > 1 && !await awaitNext(rd)) return;
     $l.innerHTML = ""; fx.innerHTML = ""; [0, 1].forEach(s => { $("#sim-p-" + s).classList.remove("dead"); setHp(s, 100); });
     place(0, 80, 140); place(1, 560, 140); $("#sim-rd").textContent = `Round ${rd}`;
     say("simsys", `Round ${rd} · <b class="sna">${esc(names[0])}</b> ${sc[0]}–${sc[1]} <b class="snb">${esc(names[1])}</b>`);
@@ -1483,9 +1505,9 @@ async function simStart(){
     }
     sc[R.W]++; $("#sim-sa").textContent = sc[0]; $("#sim-sb").textContent = sc[1]; pipsSet();
     say(`simend s${R.W}`, `${esc(names[R.W])} takes Round ${rd} · ${sc[0]}–${sc[1]}`);
-    if (!await wait(1700)) return;
+    if (!await wait(sc[0] < SIM_WIN && sc[1] < SIM_WIN ? 700 : 1700)) return;
   }
-  const Wn = sc[0] === 4 ? 0 : 1;
+  const Wn = sc[0] === SIM_WIN ? 0 : 1;
   say(`simend s${Wn} final`, `${esc(names[Wn])} wins the match ${Math.max(...sc)}–${Math.min(...sc)}`);
   win.innerHTML = `<div class="simwinc s${Wn}"><div class="eyebrow">Victory</div><div class="simwn">${esc(names[Wn])} Wins</div><div class="note">${sc[0]}–${sc[1]} · ${esc(names[Wn])} had a ${Math.round((Wn ? 1 - od.match : od.match) * 100)}% chance before the match</div><button type="button" class="morebtn simreplay" id="sim-replay">Replay Match</button></div>`;
   win.hidden = false; $("#sim-replay").addEventListener("click", () => simStart());
@@ -1496,7 +1518,7 @@ function bindSim(){
   sb.addEventListener("change", () => { let b = +sb.value, a = S.cmp.a; if (a === b) a = S.cmp.b; simGo("sim", a, b); });
   $("#sim-swap").addEventListener("click", () => simGo("sim", S.cmp.b, S.cmp.a));
   $("#sim-back").addEventListener("click", () => simGo("compare", S.cmp.a, S.cmp.b));
-  $("#sim-skip").addEventListener("click", () => { SIMSKIP = true; });
+  $("#sim-skip").addEventListener("click", () => { SIMSKIP = true; if (SIMNEXT) SIMNEXT(true); });
   onSeg("sim-speed", v => { SIMSPEED = parseInt(v, 10) || 1; document.querySelectorAll("#sim-speed button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === v)); });
 }
 
@@ -2195,6 +2217,10 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-09-30T01:45:15Z", "v4.27", "Simulate 1v1: Best of 5 and Next Round", [
+    "Simulate 1v1 is now a best of 5 (first to 3 rounds). Match win chances in Tale of the Tape are updated to match.",
+    "After each round a Start Round button appears over the arena, so you can read the play-by-play before moving on. Skip to Result still jumps straight to the end.",
+    "The animation plays about 10% slower at every speed."]],
   ["2026-09-30T01:28:37Z", "v4.26", "Simulate 1v1", [
     "Compare has a new Simulate 1v1 button: pick two players and watch them play a best of 7 (first to 4 rounds) in an animated arena, with a live play-by-play feed.",
     "Each round's winner is drawn at random from odds built from 1v1 stats: duel win rate, the Aiming and Clutching ratings, sight-to-shot speed, first-shot accuracy, HS%, crosshair placement, counter-strafing, time-to-kill and any head-to-head kills between them.",
