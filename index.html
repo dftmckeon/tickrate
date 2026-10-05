@@ -1613,7 +1613,7 @@ const SIM_F = [
   {k:"hs_pct",         lab:"HS%",                     w:0.15},
   {k:"xhair_err",      lab:"Crosshair Placement",     w:0.15},
   {k:"cs_rate",        lab:"Counter-Strafe Rate",     w:0.10},
-  {k:"ttk",            lab:"Time-to-Kill",            w:0.06}
+  {k:"ttk",            lab:"Hit-to-Kill",             w:0.06}
 ];
 const SIM_DUEL_PRIOR = 40, SIM_H2H_PRIOR = 5, SIM_H2H_W = 0.5, SIM_PMIN = 0.10, SIM_PMAX = 0.90;
 let SIMTOK = 0, SIMSPEED = 1, SIMSKIP = false, SIMNEXT = null;
@@ -3096,7 +3096,7 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
-  ["2026-10-05T19:20:00Z", "v4.35", "Match Pages", [
+  ["2026-10-05T19:45:00Z", "v4.35", "Match Pages", [
     "New Match page for every match in the database. It shows the map, date and time, final score and half scores, the Match MVP and Match Shackles (highest and lowest Match Score in the lobby, the same score the weekly awards use) and the Match Leaders on rating, Round Swing %, ADR, KPR, KAST, opening kills and utility damage.",
     "Scoreboard: both teams with Rating, Elo won or lost, Round Swing %, K, A, D, ADR, K/D, KPR, HS% and multi-kill round %. It is sorted by rating; click any column to re-sort. Switch between All, T and CT rounds.",
     "Advanced Stats: Aim, Entrying, Trading, Support, Utility, Clutching, AWPing and Economy tabs, each with All / T / CT. The best player in the lobby on each stat is highlighted.",
@@ -3104,7 +3104,7 @@ const UPDATES = [
     "Duels: head-to-head matrix of every player against every opponent, by kills, opening kills or damage.",
     "Player pages: new Matches tab with the latest 30 matches (Show All for the rest). Each row shows the date and time, map, score, rating, Round Swing %, K, A, D, ADR, Elo change and Match Score; rating, Round Swing, ADR and Match Score are colour-coded against every match in the database. Click a match to open it.",
     "Home: Performance of the Week and Dishonorable Mention now link to the match they came from (their runners-up are dropped to keep the panels compact).",
-    "On the Match page Aim tab, Hit-to-Kill runs from the first hit of the killing burst to the kill (0 ms = one shot), so it can be shorter than Time-to-Damage, which starts when the enemy is first seen."]],
+    "Time-to-Kill is renamed Hit-to-Kill everywhere (player pages, Leaderboards, Compare, Stat Over Time, Simulate 1v1 and the Match page). It runs from the first hit of the killing burst to the kill (0 ms = one shot), so it can be shorter than Time-to-Damage, which starts when the enemy is first seen."]],
   ["2026-10-05T17:35:00Z", "v4.34", "Round Swing %", [
     "New stat: Round Swing % (RS%), the round win probability a player adds per round. A model of every round (players alive, equipment, bomb planted, time left, map) moves the team's chance of winning at every kill, death, plant, defuse and explosion, and credits the change to the players involved. Kill credit is shared with teammates who damaged the victim, and a traded death costs half. How it works: [[faq:rs|Round Swing FAQ]].",
     "Time left follows the bomb timer once the bomb is planted. A separate bombsite effect was tested and does not yet improve the predictions; it is re-tested and switched on automatically when the data supports it.",
@@ -3143,7 +3143,7 @@ const UPDATES = [
     "The animation plays about 10% slower at every speed."]],
   ["2026-09-30T01:28:37Z", "v4.26", "Simulate 1v1", [
     "Compare has a new Simulate 1v1 button: pick two players and watch them play a best of 7 (first to 4 rounds) in an animated arena, with a live play-by-play feed.",
-    "Each round's winner is drawn at random from odds built from 1v1 stats: duel win rate, the Aiming and Clutching ratings, sight-to-shot speed, first-shot accuracy, HS%, crosshair placement, counter-strafing, time-to-kill and any head-to-head kills between them.",
+    "Each round's winner is drawn at random from odds built from 1v1 stats: duel win rate, the Aiming and Clutching ratings, sight-to-shot speed, first-shot accuracy, HS%, crosshair placement, counter-strafing, hit-to-kill and any head-to-head kills between them.",
     "Grenades are animated: thrown in an arc, then smokes bloom and linger, flashes white out the target, molotovs burn and tick damage, HEs explode and shake the arena, and decoys pulse with fake footsteps. The play-by-play has 116 events, including grenade plays.",
     "Tale of the Tape (tap to expand) shows every factor, which player it favors and by how much, plus the round and match win chances. Replay Match runs it again; Speed and Skip to Result control the pace."]],
   ["2026-09-29T23:36:48Z", "v4.25", "Fresh Filters on Every Page", [
