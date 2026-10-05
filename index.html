@@ -421,6 +421,55 @@ a.pill.fc:hover{border-color:var(--accent)}
 .simdecoy{transition:opacity .45s}.simdecoydot{fill:var(--ink-2)}.simdecoyring{fill:none;stroke:var(--ink-2);stroke-width:1.5;animation:simdecoy .9s ease-out infinite}
 @keyframes simdecoy{0%{opacity:.8;transform-box:fill-box;transform-origin:center;transform:scale(.6)}100%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(4)}}
 @media (prefers-reduced-motion: reduce){.simp,.simhp i{transition:none}.simmsg,.simdots i,.simtrace,.simhit,.simsmoke,.simflash,.simfire,.simpop,.simsmk circle,.simflashb,.simhecore,.simhering{animation-duration:.01s}.simflame,.simdecoyring{animation:none}.simarena.shake{animation:none}}
+/* ------------------------------------------------------------------ v4.29 weekly awards, badges, week over week */
+.aw-potw{--aw-1:#F9DC7A;--aw-2:#C2860F}
+.aw-perf{--aw-1:#CDB0F2;--aw-2:#6E4F86}
+.aw-impr{--aw-1:#6EE7B7;--aw-2:#0F8F64}
+.aw-wash{--aw-1:#B3C0D3;--aw-2:#52607A}
+.aw-shack{--aw-1:#9AA0A9;--aw-2:#2B2F36}
+.aw-dish{--aw-1:#F3998E;--aw-2:#8E1B12}
+.bdg{--s:36px;position:relative;display:inline-grid;place-items:center;width:var(--s);height:var(--s);border-radius:50%;flex:none;color:#fff;cursor:default;
+  background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.6),rgba(255,255,255,0) 46%),linear-gradient(145deg,var(--aw-1),var(--aw-2));
+  box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in srgb,var(--aw-2) 60%,transparent),0 4px 10px rgba(0,0,0,.18);transition:transform .15s}
+.bdg svg{width:58%;height:58%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.bdg.lg{--s:44px}
+.bdg:hover,.bdg:focus-visible{transform:translateY(-2px) scale(1.06);outline:none}
+.bdg .ct{position:absolute;right:-9px;bottom:-6px;min-width:22px;height:18px;padding:0 5px;border-radius:999px;background:var(--ink);color:var(--surface);font:600 11px/18px var(--mono);text-align:center;box-shadow:0 0 0 2px var(--surface)}
+.bdg[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 11px);left:-8px;transform:translateY(4px);white-space:pre;text-align:left;background:var(--ink);color:var(--surface);
+  font:500 12px/1.45 var(--sans);padding:7px 11px;border-radius:9px;opacity:0;pointer-events:none;transition:opacity .12s,transform .12s;z-index:40;box-shadow:var(--shadow-pop)}
+.bdg[data-tip]::before{content:"";position:absolute;bottom:calc(100% + 5px);left:50%;margin-left:-6px;border:6px solid transparent;border-top-color:var(--ink);opacity:0;transition:opacity .12s;z-index:40}
+.bdg.tr[data-tip]::after{left:auto;right:-8px}
+.bdg[data-tip]:hover::after,.bdg[data-tip]:focus::after{opacity:1;transform:none}
+.bdg[data-tip]:hover::before,.bdg[data-tip]:focus::before{opacity:1}
+.badges{display:flex;flex-wrap:wrap;gap:12px 18px;margin-top:14px;align-items:center}
+.badges .eyebrow{margin-right:2px}
+.awhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 24px;flex-wrap:wrap}
+.awhead .ctl{display:grid;gap:4px;min-width:200px}
+.awgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:16px}
+.awc{position:relative;display:grid;gap:14px;align-content:start;overflow:hidden}
+.awc::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--aw-1),var(--aw-2))}
+.awt{display:flex;gap:14px;align-items:center}
+.awt h3{font-size:15px}.awt .note{font-size:12px;line-height:1.35;margin-top:1px}
+.awwho{display:grid;gap:2px}
+.awname{font-size:23px;font-weight:700;letter-spacing:-.02em;line-height:1.15;background:none;border:0;padding:0;color:var(--ink);text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+button.awname{cursor:pointer}button.awname:hover{color:var(--accent)}
+.awelo{font-size:12.5px;color:var(--muted)}.awelo b{color:var(--ink-2);font-weight:600}
+.awbig{display:flex;align-items:center;gap:12px}
+.awbig b{font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1;font-family:var(--mono)}
+.awbig span{font-size:12px;color:var(--muted);line-height:1.35}
+.awstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.awstats>div{min-width:0}.awstats .eyebrow{font-size:10px}
+.awstats b{display:block;font-family:var(--mono);font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.awstats small{display:block;font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+.awfoot{display:grid;gap:3px;font-size:12px;color:var(--muted)}
+.awfoot .mt{color:var(--ink-2);font-weight:600}
+.awnone{color:var(--muted);font-size:13px;padding:6px 0 10px}
+@container (max-width:310px){.awstats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.wowcap{margin-top:16px;font-size:12.5px;color:var(--muted)}.wowcap b{color:var(--ink-2);font-weight:600}
+.wow{display:inline-flex;align-items:baseline;gap:6px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:7px;max-width:100%;flex-wrap:wrap;justify-self:start;line-height:1.35}
+.wow.up{color:var(--pos);background:var(--pos-soft)}.wow.dn{color:var(--neg);background:var(--neg-soft)}.wow.flat{color:var(--muted);background:var(--surface-3)}
+.wow .ar{font-size:10px}.wow .fl{font-weight:500}
+.awtable td,.awtable th{white-space:nowrap}
 </style>
 
 <header class="appbar">
@@ -430,7 +479,7 @@ a.pill.fc:hover{border-color:var(--accent)}
       Ticklab
     </a>
     <nav class="nav" aria-label="Pages">
-      <button id="nav-home" data-view="home">Players</button>
+      <button id="nav-players" data-view="players">Players</button>
       <button id="nav-board" data-view="board">Leaderboards</button>
       <button id="nav-compare" data-view="compare">Compare</button>
       <button id="nav-core5" data-view="core5">Core 5</button>
@@ -454,7 +503,7 @@ a.pill.fc:hover{border-color:var(--accent)}
 (() => {
 "use strict";
 let D = null;                        // data.json
-const S = {view:"home", p:null, win:"All", side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, c5:{all:false}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"r:0", sort:"pct", ranked:true}, adj:"elo", ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
+const S = {view:"home", p:null, win:"All", winSet:false, awk:0, side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, c5:{all:false}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"r:0", sort:"pct", ranked:true}, adj:"elo", ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
 // v4.25: page selections (everything in S except view + p). Clicking onto a page resets them to these defaults;
 // Back/Forward (and reload) bring back what that history entry had, via history.state.
 const SEL_DEF = JSON.stringify(Object.fromEntries(Object.entries(S).filter(([k]) => k !== "view" && k !== "p")));
@@ -580,7 +629,7 @@ function fromHash(){
   const sm = /^sim(\d+)-(\d+)$/.exec(h);
   if (sm && D.players[+sm[1]] && D.players[+sm[2]] && sm[1] !== sm[2]) { S.view = "sim"; S.cmp = {a:+sm[1], b:+sm[2]}; }
   else if (/^p\d+$/.test(h) && D.players[+h.slice(1)]) { S.view = "player"; S.p = +h.slice(1); }
-  else if (["home","board","maps","spots","compare","core5","faq","updates"].includes(h)) S.view = h;
+  else if (["home","players","board","maps","spots","compare","core5","faq","updates"].includes(h)) S.view = h;
   else if (/^(overview|aim|spray|team|deaths|social|form)$/.test(h)) { S.view = "player"; S.tab = h; }
 }
 
@@ -639,10 +688,9 @@ function metricCard(p, title, keys, lead){
 }
 
 // ------------------------------------------------------------------ views
-function viewHome(){
+function viewPlayers(){
   const P = D.players, meta = D.meta;
   const topN = P.map((p,i)=>({p,i})).sort((a,b)=>b.p.matches-a.p.matches || a.p.name.localeCompare(b.p.name));
-  const ex = metric(0, "adr", {win:"All", side:"All", wf:"All"});
   return `
   <section class="hero">
     <div class="eyebrow">FACEIT CS2 pugs</div>
@@ -650,6 +698,103 @@ function viewHome(){
     <p class="lead">Every player with 3+ matches in the database has a page. Each stat is compared with the average across all players and with what players at the same Elo usually post.</p>
     <div class="bigsearch"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q2" type="search" placeholder="Search a nickname, e.g. ${esc(P[0].name)}" autocomplete="off" aria-label="Search players"><div class="sugg" id="sugg2" hidden></div></div>
   </section>
+  <div class="section">
+    <div><h2>All Regulars</h2><p class="lead">Sorted by matches in the database. The badge is the Overall 1-100 rating.</p></div>
+    <div class="chips">${(S.homeAll ? topN : topN.slice(0, 25)).map(({p,i}) => { const r = D.ratings[i] && D.ratings[i].All; const ov = r && r.r[0]!==null ? r.r[0] : null;
+      return `<button class="chip" type="button" data-p="${i}"><span style="min-width:0"><b>${esc(p.name)}</b><small><span class="num">Elo ${p.last_elo ? Math.round(p.last_elo) : "–"}</span> · ${p.matches} matches${p.core?" · Core-5":""}${p.pro?` · Pro${p.team?" ("+esc(p.team)+")":""}`:""}</small></span><span class="score" style="${ov===null?"":`background:${pctTint(ov,.2)};box-shadow:inset 0 0 0 1px ${pctTint(ov,.45)}`}">${ov ?? "–"}</span></button>`; }).join("")}</div>
+    ${topN.length > 25 ? `<div style="display:flex;justify-content:center;margin-top:14px"><button type="button" class="morebtn" id="home-more">${S.homeAll ? "Show Fewer Players" : `View More Players (${topN.length - 25} more)`}</button></div>` : ""}
+  </div>`;
+}
+
+// ------------------------------------------------------------------ v4.29 weekly awards
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const ymd = s => new Date(String(s).slice(0,10) + "T00:00:00Z");
+function wkLabel(s){ const a = ymd(s), b = new Date(a.getTime() + 6 * 864e5);
+  return a.getUTCMonth() === b.getUTCMonth() ? `${MON[a.getUTCMonth()]} ${a.getUTCDate()} – ${b.getUTCDate()}` : `${MON[a.getUTCMonth()]} ${a.getUTCDate()} – ${MON[b.getUTCMonth()]} ${b.getUTCDate()}`; }
+const dayLabel = s => { const a = ymd(s); return `${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][a.getUTCDay()]} ${MON[a.getUTCMonth()]} ${a.getUTCDate()}`; };
+const AWI = {
+  crown:`<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 8.6l4.3 3.5L12 5l4.7 7.1L21 8.6 19.4 17.6H4.6z"/><rect x="4.6" y="18.8" width="14.8" height="2.2" rx="1.1" fill="currentColor"/></svg>`,
+  star:`<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.6l2.85 5.8 6.4.93-4.63 4.5 1.1 6.37L12 17.2l-5.72 3 1.1-6.37-4.63-4.5 6.4-.93z"/></svg>`,
+  up:`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 17l5.5-5.5 4 4 7.5-7.5"/><path d="M14 8h6.5v6.5"/></svg>`,
+  down:`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7l5.5 5.5 4-4 7.5 7.5"/><path d="M14 16h6.5V9.5"/></svg>`,
+  cuffs:`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="7" cy="15" r="4.2" stroke-width="2.5"/><circle cx="17" cy="15" r="4.2" stroke-width="2.5"/><path d="M7 10.8V9a5 5 0 0 1 10 0v1.8" stroke-width="2.2" stroke-dasharray="2.4 1.8"/></svg>`,
+  skull:`<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.8a7.6 7.6 0 0 0-7.6 7.6c0 2.6 1.3 4.6 3.3 5.8v2.6c0 .6.5 1 1 1h6.6c.6 0 1-.4 1-1v-2.6c2-1.2 3.3-3.2 3.3-5.8A7.6 7.6 0 0 0 12 2.8z"/><circle cx="9" cy="11" r="2" style="fill:var(--aw-2)"/><circle cx="15" cy="11" r="2" style="fill:var(--aw-2)"/><path d="M11 15.6l1-1.7 1 1.7z" style="fill:var(--aw-2)"/></svg>`};
+const AWD = {
+  player_of_the_period:{cls:"potw", icon:"crown", name:"Player of the Week", desc:"Highest Performance Score over the week (3+ matches)."},
+  most_improved:{cls:"impr", icon:"up", name:"Most Improved Player", desc:"Biggest rise in Performance Score from the week before."},
+  most_washed:{cls:"wash", icon:"down", name:"Most Washed Player", desc:"Biggest drop in Performance Score from the week before."},
+  shackles:{cls:"shack", icon:"cuffs", name:"Weekly Shackles", desc:"Lowest Performance Score over the week (3+ matches)."},
+  performance_of_the_period:{cls:"perf", icon:"star", name:"Performance of the Week", desc:"Best single-match Performance Score of the week.", match:true},
+  dishonorable_mention:{cls:"dish", icon:"skull", name:"Dishonorable Mention", desc:"Worst single-match Performance Score of the week.", match:true}};
+const AW_PANEL_ORDER = ["player_of_the_period","most_improved","most_washed","shackles","performance_of_the_period","dishonorable_mention"];
+const AW_BADGE_ORDER = ["player_of_the_period","performance_of_the_period","most_improved","most_washed","shackles","dishonorable_mention"];
+const AW_NOTE = {"previous period is before complete data collection started":"Not awarded: the week before is not fully in the database.",
+  "no eligible player improved":"Not awarded: nobody with 3+ matches in both weeks improved.",
+  "no eligible player declined":"Not awarded: nobody with 3+ matches in both weeks declined.",
+  "no player was eligible in both this and the previous period":"Not awarded: nobody played 3+ matches in both weeks.",
+  "no specified player played":"Not awarded: no Core-5 matches this week.", "no scored matches":"Not awarded: no Core-5 matches this week."};
+const awNote = n => AW_NOTE[n] || (/minimum matches/.test(n || "") ? "Not awarded: nobody played 3+ matches this week." : "Not awarded this week.");
+function badge(a, n, tip, extra){
+  const d = AWD[a];
+  return `<span class="bdg aw-${d.cls} ${extra || ""}" tabindex="0" role="img" aria-label="${esc(tip.split("\n")[0])}" data-tip="${esc(tip)}">${AWI[d.icon]}${n > 1 ? `<span class="ct">${n}×</span>` : ""}</span>`;
+}
+function badgesHtml(p){
+  const B = ((D.awards || {}).badges || {})[p]; if (!B) return "";
+  const items = AW_BADGE_ORDER.filter(a => B[a] && B[a].length); if (!items.length) return "";
+  return `<div class="badges" aria-label="Weekly awards"><span class="eyebrow">Awards</span>${items.map((a, k) => {
+    const wk = B[a].slice().sort().reverse(), n = wk.length;
+    const tip = `${AWD[a].name}${n > 1 ? ` ×${n}` : ""}\n` + wk.slice(0, 5).map(w => "Week of " + wkLabel(w)).join("\n") + (n > 5 ? `\n+${n - 5} more` : "");
+    return badge(a, n, tip, k >= 3 && k >= items.length - 2 ? "tr" : ""); }).join("")}</div>`;
+}
+function awPanel(a, x){
+  const d = AWD[a];
+  const head = `<div class="awt">${badge(a, 1, d.name, "lg")}<div><h3>${d.name}</h3><div class="note">${d.desc}</div></div></div>`;
+  if (!x || x.none) return `<div class="card awc aw-${d.cls}">${head}<div class="awnone">${esc(awNote(x && x.none))}</div></div>`;
+  const nm = x.p !== null && x.p !== undefined ? `<button class="awname" type="button" data-p="${x.p}" title="Open ${esc(x.name)}'s page">${esc(x.name)}</button>` : `<span class="awname">${esc(x.name)}</span>`;
+  const col = v => v > 0 ? "var(--pos)" : v < 0 ? "var(--neg)" : "var(--muted)";
+  const elo = `<div class="awelo">${x.elo != null ? `FACEIT Elo <b class="num">${Math.round(x.elo).toLocaleString()}</b>${d.match ? " going in" : ""}${x.ed != null ? ` · <span class="num" style="color:${col(x.ed)}">${x.ed > 0 ? "+" : x.ed < 0 ? "−" : "±"}${Math.abs(Math.round(x.ed))}</span> ${d.match ? "that match" : "this week"}` : ""}` : "FACEIT Elo –"}</div>`;
+  const st = (lab, v, sub) => `<div><div class="eyebrow">${lab}</div><b>${v}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
+  let big, stats, foot;
+  if (a === "most_improved" || a === "most_washed"){
+    big = `<b style="color:${col(x.v)}">${x.v > 0 ? "+" : "−"}${Math.abs(x.v).toFixed(1)}</b><span>Performance Score<br><span class="num">${fmt(x.ps, "f1")} → ${fmt(x.score, "f1")}</span></span>`;
+    stats = st("Rating", fmt(x.rt, "f2"), `was ${fmt(x.prt, "f2")}`) + st("ADR", fmt(x.adr, "f1"), `was ${fmt(x.padr, "f1")}`) + st("K–D", esc(x.kd)) + st("Record", esc(x.rec), "W–L");
+    foot = `<span><span class="mt">${x.m} matches this week</span> · ${x.pm ?? "–"} the week before</span>`;
+  } else if (d.match){
+    big = `<b>${fmt(x.score, "f1")}</b><span>Performance Score<br>${esc(mapName(x.map))} · ${x.rec === "W" ? "Won" : x.rec === "L" ? "Lost" : "Tied"} <span class="num">${esc(x.sl)}</span></span>`;
+    stats = st("Rating", fmt(x.rt, "f2")) + st("K–D", esc(x.kd)) + st("ADR", fmt(x.adr, "f1")) + st("KAST", fmt(x.kast, "pct"));
+    foot = `<span><span class="mt">${x.mw} matches this week</span> · played ${esc(dayLabel(x.date))}</span>`;
+  } else {
+    big = `<b>${fmt(x.score, "f1")}</b><span>Performance Score<br>average over ${x.m} matches</span>`;
+    stats = st("Rating", fmt(x.rt, "f2")) + st("ADR", fmt(x.adr, "f1")) + st("K–D", esc(x.kd)) + st("Record", esc(x.rec), "W–L");
+    foot = `<span><span class="mt">${x.m} matches this week</span> · KAST ${fmt(x.kast, "pct")}</span>`;
+  }
+  const delta = a === "most_improved" || a === "most_washed";
+  const ru = (x.ru || []).length ? `<span>Runners-up: ${x.ru.map(([n, v]) => `${esc(n)} <span class="num">${delta ? (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1) : (+v).toFixed(1)}</span>`).join(" · ")}</span>` : "";
+  return `<div class="card awc aw-${d.cls}">${head}<div class="awwho">${nm}${elo}</div><div class="awbig">${big}</div><div class="awstats">${stats}</div><div class="awfoot">${foot}${ru}</div></div>`;
+}
+function awardsSection(){
+  const A = D.awards || {}, W = A.weeks || [];
+  if (!W.length) return "";
+  if (!(S.awk >= 0 && S.awk < W.length)) S.awk = 0;
+  const wk = W[S.awk];
+  return `<div class="section" id="awards">
+    <div class="awhead"><div><div class="eyebrow">Core-5 · Week of ${esc(wk.label)}${S.awk === 0 ? " · Latest" : ""}</div><h2>Weekly Awards</h2>
+      <p class="lead">Ranked by Performance Score: 50 = an average player-match in the database and every 10 points = one standard deviation. Weeks run Monday to Sunday. <button class="link" type="button" data-faqto="awards">How It's Scored</button></p></div>
+      <div class="ctl"><label class="eyebrow" for="aw-week">Week</label><select id="aw-week">${W.map((w, i) => `<option value="${i}" ${i === S.awk ? "selected" : ""}>Week of ${esc(w.label)}${i === 0 ? " (latest)" : ""}</option>`).join("")}</select></div></div>
+    <div class="awgrid">${AW_PANEL_ORDER.map(a => awPanel(a, wk.aw[a])).join("")}</div>
+    <p class="note">${wk.matches} Core-5 matches this week · ${wk.eligible} of 5 players eligible (3+ matches). A week's awards are issued once all of its matches are in the database (collected through ${esc(String(A.collected_through || "").slice(0, 10))}).</p>
+  </div>`;
+}
+function viewHome(){
+  const P = D.players, meta = D.meta;
+  const ex = metric(0, "adr", {win:"All", side:"All", wf:"All", map:"All maps"});
+  return `
+  <section class="hero">
+    <div class="eyebrow">FACEIT CS2 pugs</div>
+    <h1>Ticklab</h1>
+    <p class="lead">Scouting reports, 1-100 ratings and weekly Core-5 awards, built from ${meta.matches} FACEIT matches. <button class="link" type="button" data-go2="players">Find a player</button></p>
+  </section>
+  ${awardsSection()}
   <div class="kpis">
     <div><div class="eyebrow">Matches</div><b>${meta.matches}</b></div>
     <div><div class="eyebrow">Players seen</div><b>${meta.players_in_store.toLocaleString()}</b></div>
@@ -671,26 +816,24 @@ function viewHome(){
     </div>
     <div class="card">
       <h3>What's Inside</h3>
-      <p class="lead">Five views, all built from the same match data.</p>
+      <p class="lead">Every page is built from the same match data.</p>
       <ul class="steps">
-        <li><b>Players</b>: headline stats, 1-100 ratings, archetype, strongest and weakest stats, aim and movement, spray control and recoil patterns, trading, utility, how they die, teammates, rivals, Elo and form. Any page can be filtered to one map.</li>
+        <li><b>Home</b>: this week's Core-5 awards, with every past week one click away.</li>
+        <li><b>Player pages</b>: weekly award badges, headline stats with week-over-week changes, 1-100 ratings, archetype, strongest and weakest stats, aim and movement, spray control and recoil patterns, trading, utility, how they die, teammates, rivals, Elo and form. Any page can be filtered to one map.</li>
         <li><b>Leaderboards</b>: rank every regular by 1-100 ratings, Elo or matches played, or on any of the ${D.meta.metrics.length} stats, filtered by matches and Elo.</li>
-        <li><b>Compare</b>: two regulars side by side, plus their record against and alongside each other.</li>
+        <li><b>Compare</b>: two regulars side by side, plus their record against and alongside each other, and a simulated 1v1.</li>
+        <li><b>Core 5</b>: the five of us head to head on ratings and the essential stats.</li>
         <li><b>Maps</b>: T take timing and strategy, CT setups and rotations, win % per map.</li>
         <li><b>Heatmaps</b>: where each side stands, gets kills and dies (plus Hotspots), with prefire and clear-order lists.</li>
       </ul>
     </div>
   </div>
-  <div class="section">
-    <div><h2>All Regulars</h2><p class="lead">Sorted by matches in the database. The badge is the Overall 1-100 rating.</p></div>
-    <div class="chips">${(S.homeAll ? topN : topN.slice(0, 25)).map(({p,i}) => { const r = D.ratings[i] && D.ratings[i].All; const ov = r && r.r[0]!==null ? r.r[0] : null;
-      return `<button class="chip" type="button" data-p="${i}"><span style="min-width:0"><b>${esc(p.name)}</b><small><span class="num">Elo ${p.last_elo ? Math.round(p.last_elo) : "–"}</span> · ${p.matches} matches${p.core?" · Core-5":""}${p.pro?` · Pro${p.team?" ("+esc(p.team)+")":""}`:""}</small></span><span class="score" style="${ov===null?"":`background:${pctTint(ov,.2)};box-shadow:inset 0 0 0 1px ${pctTint(ov,.45)}`}">${ov ?? "–"}</span></button>`; }).join("")}</div>
-    ${topN.length > 25 ? `<div style="display:flex;justify-content:center;margin-top:14px"><button type="button" class="morebtn" id="home-more">${S.homeAll ? "Show Fewer Players" : `View More Players (${topN.length - 25} more)`}</button></div>` : ""}
-  </div>`;
+  `;
 }
-
 function viewPlayer(){
-  const p = S.p, P = D.players[p], w = effWin(p);
+  const p = S.p, P = D.players[p];
+  if (!S.winSet) S.win = P.matches > 30 && hasWin(p, "Last 30") ? "Last 30" : "All";      // v4.29 default window
+  const w = effWin(p);
   const rat = (D.ratings[p]||{})[w] || (D.ratings[p]||{}).All;
   const ar = (D.arch[p]||{})[w] || (D.arch[p]||{}).All;
   const need = {"Last 10":10, "Last 30":30, "Last 50":50};
@@ -699,10 +842,11 @@ function viewPlayer(){
   const ms = D.mapsum[p] || {};
   const mapOpts = ["All maps", ...Object.keys(ms).sort((a,b)=>ms[b][0]-ms[a][0])];
   if (onMap && !ms[S.map]) S.map = "All maps";
+  const wi = wowInfo(p);
   const headline = D.meta.groups.headline.map(k => {
     const x = metric(p, k), m = x.meta;
     return `<div class="tile"><div class="eyebrow">${esc(m.label.replace("Avg ",""))}</div><div class="v">${x.empty?"–":fmt(x.value, m.fmt)}</div>
-      ${!x.empty && x.rankable && x.pct!==null ? `<div class="pbar"><i style="width:${Math.max(2,x.pct)}%;background:${pctColor(x.pct)}"></i></div><div class="sub"><span>${ord(Math.round(x.pct))} pct</span><span>Average ${fmt(x.lobby,m.fmt)}</span></div>` : `<div class="pbar"></div><div class="sub"><span>${x.allWeapons?"All weapons":"Not ranked"}</span><span>Average ${fmt(x.lobby,m.fmt)}</span></div>`}</div>`;
+      ${!x.empty && x.rankable && x.pct!==null ? `<div class="pbar"><i style="width:${Math.max(2,x.pct)}%;background:${pctColor(x.pct)}"></i></div><div class="sub"><span>${ord(Math.round(x.pct))} pct</span><span>Average ${fmt(x.lobby,m.fmt)}</span></div>` : `<div class="pbar"></div><div class="sub"><span>${x.allWeapons?"All weapons":"Not ranked"}</span><span>Average ${fmt(x.lobby,m.fmt)}</span></div>`}${wowLine(k, m, wi)}</div>`;
   }).join("");
   const tabs = [["overview","Overview"],["aim","Aim & Mechanics"],["spray","Spray"],["team","Team Play & Utility"],["deaths","How They Die"],["social","Social"],["heat","Heatmap"],["form","Form & Elo"]];
   return `
@@ -718,6 +862,7 @@ function viewPlayer(){
           ${P.aliases ? `<span class="sep"></span><span>formerly ${esc(P.aliases)}</span>` : ""}
           <span class="sep"></span><a class="pill fc" href="${faceitUrl(P.name)}" target="_blank" rel="noopener noreferrer" title="Open ${esc(P.name)} on FACEIT (new tab)">FACEIT Profile ↗</a>
         </div>
+        ${badgesHtml(p)}
       </div>
     </div>
     <div class="overall">
@@ -737,9 +882,40 @@ function viewPlayer(){
     ${!onMap && w !== S.win ? `<div class="banner">${esc(P.name)} has ${P.matches} matches, so “${esc(S.win)}” shows all of them.</div>` : ""}
     ${onMap ? `<div class="banner">${esc(mapName(S.map))}: ${ms[S.map][0]} matches, ${ms[S.map][1]} won, rating ${fmt(ms[S.map][2],"f2")}. Bars rank the player among regulars on this map (raw, not Elo-adjusted). Ratings, archetype and strongest / weakest stats use all maps.</div>` : ""}
   </div>
-  <div class="tiles">${headline}</div>
+  ${wowCap(wi)}
+  <div class="tiles"${wi && wi.prev ? ' style="margin-top:8px"' : ""}>${headline}</div>
   <div class="tabs" role="tablist">${tabs.map(([k,l]) => `<button role="tab" type="button" data-tab="${k}" aria-selected="${S.tab===k}">${l}</button>`).join("")}</div>
   <div id="tabbody">${tabBody(p)}</div>`;
+}
+
+// v4.29 week over week: the player's latest Mon-Sun week with matches vs the week before (else their previous week played)
+const WOW_TH = {rating:[.03, .12], adr:[2, 8], kpr:[.02, .07], kdr:[.05, .2], kast:[1.5, 5], hs_pct:[2, 6]};
+const WOW_WORDS = {"2":"On Fire", "1":"Heating Up", "0":"Holding Steady", "-1":"Cooling Off", "-2":"Ice Cold"};
+function wowInfo(p){
+  const A = D.awards || {}, rows = (A.wow || {})[p];
+  if (!rows || !rows.length) return null;
+  const last = rows[rows.length - 1], want = new Date(ymd(last[0]).getTime() - 7 * 864e5).toISOString().slice(0, 10);
+  let prev = rows.find(r => r[0] === want), consec = true;
+  if (!prev && rows.length > 1){ prev = rows[rows.length - 2]; consec = false; }
+  const built = ymd(String(D.meta.built_utc).slice(0, 10)), end = new Date(ymd(last[0]).getTime() + 6 * 864e5);
+  return {keys: A.wow_keys || [], last, prev: prev || null, consec, soFar: end >= built};
+}
+function wowCap(wi){
+  if (!wi) return "";
+  if (!wi.prev) return `<div class="wowcap">Week over week: <b>Week of ${wkLabel(wi.last[0])}</b> is their only week in the database, so there is nothing to compare yet.</div>`;
+  return `<div class="wowcap">Week over week (all maps, both sides): <b>Week of ${wkLabel(wi.last[0])}</b>${wi.soFar ? " so far" : ""} (${wi.last[1]} match${wi.last[1] === 1 ? "" : "es"}) vs <b>${wkLabel(wi.prev[0])}</b> (${wi.prev[1]} match${wi.prev[1] === 1 ? "" : "es"}${wi.consec ? "" : ", their previous week played"}).</div>`;
+}
+function wowLine(k, m, wi){
+  if (!wi || !wi.prev) return "";
+  const j = wi.keys.indexOf(k); if (j < 0) return "";
+  const c = wi.last[2 + j], q = wi.prev[2 + j];
+  if (c === null || c === undefined || q === null || q === undefined) return "";
+  const d = c - q, th = WOW_TH[k] || [0, 0], ad = Math.abs(d), dir = m.dir || 1;
+  const lvl = ad < th[0] ? 0 : (ad < th[1] ? 1 : 2) * Math.sign(d * dir);
+  const cls = lvl > 0 ? "up" : lvl < 0 ? "dn" : "flat";
+  const dv = (d >= 0 ? "+" : "−") + (m.fmt === "pct" ? ad.toFixed(1) + " pts" : fmt(ad, m.fmt));
+  const tip = `${m.label}: ${fmt(c, m.fmt)} in the week of ${wkLabel(wi.last[0])} vs ${fmt(q, m.fmt)} in the week of ${wkLabel(wi.prev[0])}`;
+  return `<div class="wow ${cls}" title="${esc(tip)}"><span class="ar" aria-hidden="true">${ad < th[0] ? "●" : d > 0 ? "▲" : "▼"}</span><span class="num">${dv}</span><span class="fl">${WOW_WORDS[String(lvl)]}</span></div>`;
 }
 
 function eloBlock(p){
@@ -1024,6 +1200,7 @@ function viewCompare(){
     S.cmp.b = m.length ? m[0] : (S.cmp.a === 0 ? 1 : 0);
   }
   const a = S.cmp.a, b = S.cmp.b, A = P[a], B = P[b];
+  if (!S.winSet) S.win = A.matches > 30 && B.matches > 30 && hasWin(a, "Last 30") && hasWin(b, "Last 30") ? "Last 30" : "All";   // v4.29
   const w = (hasWin(a, S.win) && hasWin(b, S.win)) ? S.win : "All";
   const opts = {win:w, map:"All maps"};
   const sorted = P.map((x,i)=>({x,i})).sort((u,v)=>u.x.name.localeCompare(v.x.name, undefined, {sensitivity:"base"}));
@@ -2217,6 +2394,13 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-10-05T11:45:43Z", "v4.29", "New Home Page and Weekly Awards", [
+    "New Home page (click the Ticklab logo) with six weekly Core-5 awards: Player of the Week, Most Improved Player, Most Washed Player, Weekly Shackles, Performance of the Week and Dishonorable Mention. Each panel shows the winner, their FACEIT Elo, the key stats and their matches that week. Use the Week menu to see earlier weeks.",
+    "Awards are backfilled for every week since Core-5 data collection began (Aug 24 – Sep 27) and recorded in an award register. Winners get badges on their player page. Hover over a badge to see its name and weeks; repeat winners show 2×, 3× and so on.",
+    "Player pages now show the week-over-week change under each headline stat, color-coded (blue = better, orange = worse).",
+    "Player pages open on Last 30 for players with more than 30 matches. Compare does the same when both players have more than 30.",
+    "The site introduction and How to Read a Stat moved from Players to Home. Players keeps the search and the list of regulars.",
+    "FAQ: new section on how the weekly awards are scored."]],
   ["2026-09-30T01:58:45Z", "v4.28", "Simulate 1v1 Pace and Wording Fixes", [
     "Simulate 1v1 plays at its original speed again (the 10% slowdown from v4.27 is undone). Best of 5 and the Start Round button stay.",
     "The loading screen now says “Loading the database”, and the Spray tab says “average” or “all players” instead of “lobby”."]],
@@ -2333,7 +2517,7 @@ function viewFaq(){
   const st = faqArchStats(), nArch = Object.values(D.arch || {}).filter(w => w.All).length;
   const q = (id, title, body) => `<div class="card faq" id="faq-${id}"><h3>${title}</h3>${body}</div>`;
   const toc = [["kinds","Three Kinds of Numbers"],["rating","The Match Rating"],["calc","How the 1-100 Ratings Work"],["cats","What Each Rating Measures"],
-    ["overall","Overall"],["bands","Bands, Windows and Small Samples"],["arch","How Archetypes Are Assigned"],["types","The 11 Archetypes"],["pct","Elo-Adjusted Percentiles"]];
+    ["overall","Overall"],["bands","Bands, Windows and Small Samples"],["arch","How Archetypes Are Assigned"],["types","The 11 Archetypes"],["pct","Elo-Adjusted Percentiles"],["awards","Weekly Awards"]];
   const catCard = ([c, blurb, comps]) => `<div class="card"><h3>${c}</h3><p class="lead note">${blurb}</p>
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th><th>Measured</th></tr></thead><tbody>
     ${comps.map(([l, w, u]) => `<tr><td>${l}</td><td class="r num">${pct(w)}</td><td class="note">${u}</td></tr>`).join("")}</tbody></table></div></div>`;
@@ -2383,6 +2567,18 @@ function viewFaq(){
   <div class="section" id="faq-types"><div><div class="eyebrow">Archetypes</div><h2 class="faqh2">The 11 Archetypes</h2><p class="lead">Weights are shares of each archetype's mix. Counts and best fits use all matches and update with the data.</p></div>
     <div class="grid g2">${FAQ_ARCH.map(archCardF).join("")}</div></div>
   <div class="section">
+  ${q("awards", "How Do the Weekly Awards Work?", (() => { const A = D.awards || {}, Wt = A.weights || {};
+    const lab = {rating:"Match Rating", adr:"ADR (damage per round)", kast:"KAST", round_win:"Team round win %", open_net:"Opening duels: (opening kills − opening deaths) per round", multikill:"Multi-kill rounds (2+ kills) per round", clutch:"Clutch wins per round (1v1 = 1, 1v2 = 2, 1v3+ = 3)"};
+    const core = D.players.filter(x => x.core).map(x => esc(x.name)).join(", ");
+    return `<p class="note" style="color:var(--ink-2)">Every week (Monday to Sunday, US Eastern time) the Core-5 (${core}) compete for six awards, shown on the Home page. Each match is scored with one <b>Performance Score</b>.</p>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th></tr></thead><tbody>${Object.entries(Wt).map(([k, w]) => `<tr><td>${lab[k] || esc(k)}</td><td class="r num">${pct(w)}</td></tr>`).join("")}</tbody></table></div>
+    <ul class="steps" style="margin-top:10px">
+      <li><b>The scale.</b> Each ingredient is turned into a z-score against every non-pro player-match in the database, the weighted z-scores are added, and the total is rescaled so <b>50 = an average player-match</b> and <b>10 points = one standard deviation</b>. That yardstick is frozen, so past weeks don't change as new matches arrive.</li>
+      <li><b>Player of the Week</b> and <b>Weekly Shackles</b>: highest and lowest Performance Score over the week (each match weighted by its rounds). The player needs ${A.min_matches || 3}+ matches that week.</li>
+      <li><b>Most Improved Player</b> and <b>Most Washed Player</b>: biggest rise and biggest drop in the weekly score from the week before. The player needs ${A.min_matches || 3}+ matches in both weeks.</li>
+      <li><b>Performance of the Week</b> and <b>Dishonorable Mention</b>: best and worst single match (${A.min_rounds || 10}+ rounds).</li>
+      <li><b>When awards are issued.</b> A week's awards are issued once all of its matches are in the database, and they are recorded in an award register. Weeks start from ${esc(wkLabel(A.coverage_start || "2026-08-24"))}, the first full week with every Core-5 match collected. Badges on player pages count the awards; hover over one to see its name and weeks.</li>
+      <li><b>Ties</b> go to the player with more matches.</li></ul>`; })())}
   ${q("pct", "How Do the Elo-Adjusted Percentiles Differ?", `<p class="note" style="color:var(--ink-2)">The stat rows, Leaderboards and Compare use a different yardstick. For each stat, a line of expected value against pre-match Elo is fitted on every player's matches. The player's gap to that line is shrunk with the same model as the ratings, and the percentile is the share of players he is estimated to be better than, given his Elo. A 2,800 Elo player needs a better number than a 1,800 Elo player to reach the same percentile. A stat where players don't differ measurably once Elo is allowed for is shown but not ranked.</p>`)}
   </div>`;
 }
@@ -2396,7 +2592,7 @@ function setStickyTop(){                                       // v4.21: frozen 
 addEventListener("resize", () => { if (S.view === "board") setStickyTop(); });
 function render(){
   const app = $("#app");
-  document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", (b.dataset.view === S.view || (S.view==="player" && b.dataset.view==="home") || (S.view==="sim" && b.dataset.view==="compare")) ? "page" : "false"));
+  document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", (b.dataset.view === S.view || (S.view==="player" && b.dataset.view==="players") || (S.view==="sim" && b.dataset.view==="compare")) ? "page" : "false"));
   let html = "";
   if (S.view === "player" && S.p !== null) html = viewPlayer();
   else if (S.view === "compare") html = viewCompare();
@@ -2407,6 +2603,7 @@ function render(){
   else if (S.view === "spots") html = viewSpots();
   else if (S.view === "faq") html = viewFaq();
   else if (S.view === "updates") html = viewUpdates();
+  else if (S.view === "players") html = viewPlayers();
   else { S.view = "home"; html = viewHome(); }
   html += `<p class="foot">Built from ${D.meta.matches} FACEIT matches · ${D.players.length} regulars (3+ matches) · data ${esc(D.meta.built_utc)} · pipeline v${esc(D.meta.version)}. Percentiles are Elo-adjusted and shrunk toward 50 for small samples.</p>`;
   SIMTOK++;                                                // stops a running 1v1 simulation
@@ -2427,16 +2624,20 @@ function bind(){
   if (cb) cb.addEventListener("change", () => { S.cmp.b = +cb.value; if (S.cmp.b === S.cmp.a) S.cmp.a = null; render(); });
   const sw = $("#c-swap"); if (sw) sw.addEventListener("click", () => { [S.cmp.a, S.cmp.b] = [S.cmp.b, S.cmp.a]; render(); });
   const csim = $("#c-sim"); if (csim) csim.addEventListener("click", () => simGo("sim", S.cmp.a, S.cmp.b));
-  onSeg("c-win", v => { S.win = v; render(); }); onSeg("c-side", v => { S.side = v; render(); }); onSeg("c-wf", v => { S.wf = v; render(); });
+  onSeg("c-win", v => { S.win = v; S.winSet = true; render(); }); onSeg("c-side", v => { S.side = v; render(); }); onSeg("c-wf", v => { S.wf = v; render(); });
   onSeg("k-win", v => { S.win = v; render(); }); onSeg("k-side", v => { S.side = v; render(); }); onSeg("k-wf", v => { S.wf = v; render(); });
   onSeg("k-all", v => { S.c5.all = v === "All stats"; render(); });
   onSeg("c-adj", v => { S.adj = v === "Raw" ? "raw" : "elo"; render(); }); onSeg("k-adj", v => { S.adj = v === "Raw" ? "raw" : "elo"; render(); });
   onSeg("s-mode", v => { S.heatMode = {"Where They Stand":"pres", "Where Kills Come From":"kills", "Where They Die":"deaths", "Hotspots":"hot"}[v]; render(); });
   onSeg("s-level", v => { S.spots.level = v; render(); });
   const q2 = $("#q2"); if (q2) wireSearch(q2, $("#sugg2"));
+  const awk = $("#aw-week"); if (awk) awk.addEventListener("change", () => { const y = scrollY; S.awk = +awk.value; render(); scrollTo(0, y); });
+  document.querySelectorAll("[data-go2]").forEach(b => b.addEventListener("click", () => go(b.dataset.go2)));
+  document.querySelectorAll("[data-faqto]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.faqto; go("faq");
+    requestAnimationFrame(() => { const t = document.getElementById("faq-" + id); if (t) t.scrollIntoView({block:"start"}); }); }));
   const hm = $("#home-more"); if (hm) hm.addEventListener("click", () => { const y = scrollY; S.homeAll = !S.homeAll; render(); scrollTo(0, y); });
   document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => go("player", +b.dataset.p)));
-  onSeg("f-win", v => { S.win = v; render(); });
+  onSeg("f-win", v => { S.win = v; S.winSet = true; render(); });
   onSeg("f-side", v => { S.side = v; render(); });
   onSeg("f-wf", v => { S.wf = v; render(); });
   document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { S.tab = b.dataset.tab; const tb = $("#tabbody"); killCharts(); tb.innerHTML = tabBody(S.p); document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x===b)); bindTab(); drawCharts(); saveState(); }));
