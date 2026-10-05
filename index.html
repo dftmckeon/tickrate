@@ -780,12 +780,13 @@ function awPanel(a, x){
   const st = (lab, v, sub) => `<div><div class="eyebrow">${lab}</div><b>${v}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
   const RS_TIP = "Round Swing % (RS%): round win probability added per round. Every kill, death, plant, defuse and bomb explosion changes the team's chance of winning the round; the change is credited to the players involved. +3.0% = three points of round-win chance added per round. See the FAQ.";
   const rsLab = `RS% <span class="awi" tabindex="0" role="img" aria-label="${RS_TIP}" data-tip="${RS_TIP}">i</span>`;
-  const rs = x.rs !== null && x.rs !== undefined ? st(rsLab, fmt(x.rs, "pct"))
+  const spct = v => v === null || v === undefined ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "") + fmt(Math.abs(v), "pct");
+  const rs = x.rs !== null && x.rs !== undefined ? st(rsLab, spct(x.rs))
     : `<div class="soon">${`<div class="eyebrow">${rsLab}</div>`}<b>–</b><small>soon</small></div>`;
   let big, stats, foot;
   if (a === "most_improved" || a === "most_washed"){
     big = `<b style="color:${col(x.v)}">${x.v > 0 ? "+" : "−"}${Math.abs(x.v).toFixed(1)}</b><span>Weekly Score<br><span class="num">${fmt(x.ps, "f1")} → ${fmt(x.score, "f1")}</span></span>`;
-    const rsw = x.rs !== null && x.rs !== undefined ? st(rsLab, fmt(x.rs, "pct"), `was ${fmt(x.prs, "pct")}`) : rs;
+    const rsw = x.rs !== null && x.rs !== undefined ? st(rsLab, spct(x.rs), `was ${spct(x.prs)}`) : rs;
     stats = st("Rating", fmt(x.rt, "f2"), `was ${fmt(x.prt, "f2")}`) + st("ADR", fmt(x.adr, "f1"), `was ${fmt(x.padr, "f1")}`) + rsw + st("Record", esc(x.rec), "W–L");
     foot = "";
   } else if (d.match){
@@ -2398,7 +2399,7 @@ const FAQ_ARCH = [
   ["The Backpack", "Low output and low impact: few multi-kills, few opening duels, weak clutching. Gets carried.",
     [["Overall Rating", "−60%"], ["Impact (Multi-Kill Rounds, Opening Duels Taken, Clutching; Averaged)", "−40%"]]],
   ["The Glue Guy", "Holds the team together: support, trading and utility, in equal parts.",
-    [["Support Rating", "+⅓"], ["Trading Rating", "+⅓"], ["Utility Rating", "+⅓"]]],
+    [["Support Rating", "+33.3%"], ["Trading Rating", "+33.3%"], ["Utility Rating", "+33.3%"]]],
   ["Mr. Average", "Nothing stands out: the ten category ratings other than Consistency sit closer to 50 than a typical player's would with the same amount of data. Scored differently from the rest (see below).",
     [["Distance of the Ten Category Ratings from 50, vs a Typical Player with the Same Data", "−100%"]]],
   ["The Anchor", "The opposite of Mr. Impact: swings rounds toward losing more than the stat sheet says he should, with a low Round Swing %, less than his Overall predicts, and weak clutching, pistol and knife-round ratings.",
@@ -2424,11 +2425,13 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
-  ["2026-10-05T16:55:00Z", "v4.34", "Round Swing %", [
+  ["2026-10-05T17:35:00Z", "v4.34", "Round Swing %", [
     "New stat: Round Swing % (RS%), the round win probability a player adds per round. A model of every round (players alive, equipment, bomb planted, time left, map) moves the team's chance of winning at every kill, death, plant, defuse and explosion, and credits the change to the players involved. Kill credit is shared with teammates who damaged the victim, and a traded death costs half. How it works: [[faq:rs|Round Swing FAQ]].",
     "Time left follows the bomb timer once the bomb is planted. A separate bombsite effect was tested and does not yet improve the predictions; it is re-tested and switched on automatically when the data supports it.",
     "Round Swing % is on every player page (headline tiles and week-over-week notes), Leaderboards, Compare, Stat Over Time and the Core 5 page, and fills the RS% slot on the award panels.",
     "Player pages: HS% moved from the headline tiles to the Aim & Mechanics tab.",
+    "Award panels: positive Round Swing figures now show a + sign.",
+    "FAQ: every weight table is sorted from highest to lowest weight, and The Glue Guy's thirds are shown as 33.3%.",
     "Weekly awards: the Performance Score is now Rating 15%, Round Swing % 30%, ADR 15%, KAST 15%, opening duels 10%, multi-kills 10%, clutches 5% (team round win % removed). Every past week was re-scored once; five awards changed hands. From now on issued awards are locked: [[faq:awards|Weekly Awards FAQ]].",
     "Archetypes: The Carry, Mr. Impact and The Anchor use Round Swing % in place of round win %. Consistency splits its Match Rating weight with Round Swing %.",
     "Database: 50 more matches (Sep 28 – Oct 4); that week now has awards."]],
@@ -2566,17 +2569,19 @@ function viewUpdates(){
 }
 function viewFaq(){
   const pct = w => (Math.round(w * 10000) / 100) + "%";
+  const wSort = (rows, f) => rows.map((r, i) => [r, i]).sort((a, b) => f(b[0]) - f(a[0]) || a[1] - b[1]).map(x => x[0]);   // v4.34: highest weight first
+  const wAbs = w => Math.abs(parseFloat(String(w).replace("−", "-").replace("+", "")) || 0);
   const st = faqArchStats(), nArch = Object.values(D.arch || {}).filter(w => w.All).length;
   const q = (id, title, body) => `<div class="card faq" id="faq-${id}"><h3>${title}</h3>${body}</div>`;
   const toc = [["kinds","Three Kinds of Numbers"],["rating","The Match Rating"],["rs","Round Swing (RS%)"],["calc","How the 1-100 Ratings Work"],["cats","What Each Rating Measures"],
     ["overall","Overall"],["bands","Bands, Windows and Small Samples"],["arch","How Archetypes Are Assigned"],["types","The 11 Archetypes"],["pct","Elo-Adjusted Percentiles"],["awards","Weekly Awards"]];
   const catCard = ([c, blurb, comps]) => `<div class="card"><h3>${c}</h3><p class="lead note">${blurb}</p>
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th><th>Measured</th></tr></thead><tbody>
-    ${comps.map(([l, w, u]) => `<tr><td>${l}</td><td class="r num">${pct(w)}</td><td class="note">${u}</td></tr>`).join("")}</tbody></table></div></div>`;
+    ${wSort(comps, r => r[1]).map(([l, w, u]) => `<tr><td>${l}</td><td class="r num">${pct(w)}</td><td class="note">${u}</td></tr>`).join("")}</tbody></table></div></div>`;
   const archCardF = ([a, blurb, ing]) => { const s = st[a], top = s.prim.slice(0, 5);
     return `<div class="card"><h3>${a}</h3><p class="lead note" style="color:var(--ink-2)">${blurb}</p>
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Trait</th><th class="r">Weight</th></tr></thead><tbody>
-    ${ing.map(([l, w]) => `<tr><td>${l}</td><td class="r num" style="color:${w.startsWith("−")?"var(--neg)":"var(--pos)"}">${w}</td></tr>`).join("")}</tbody></table></div>
+    ${wSort(ing, r => wAbs(r[1])).map(([l, w]) => `<tr><td>${l}</td><td class="r num" style="color:${w.startsWith("−")?"var(--neg)":"var(--pos)"}">${w}</td></tr>`).join("")}</tbody></table></div>
     <p class="note" style="margin-top:8px">Primary label for <b>${s.prim.length}</b> of ${nArch} regulars, secondary for <b>${s.sec}</b> (all matches).${top.length ? ` Best fits: ${top.map(x => `<button class="link" data-p="${x.p}">${esc(D.players[x.p].name)}</button> <span class="num">${x.fit ?? "–"}</span>`).join(" · ")}${s.prim.length > 5 ? ` and ${s.prim.length - 5} more` : ""}.` : ""}</p></div>`; };
   return `<section class="pagehead"><div class="eyebrow">FAQ</div><h1>How the Ratings and Archetypes Work</h1><p class="lead">What every rating means, how it is calculated and how each player gets his two archetype labels. Every number on the site comes from the same ${D.meta.matches} FACEIT matches.</p></section>
   <div class="card" style="margin-top:18px"><div class="eyebrow">On This Page</div><div class="faqtoc">${toc.map(([id, t]) => `<button class="link" data-faq="${id}">${t}</button>`).join("")}</div></div>
@@ -2640,7 +2645,7 @@ function viewFaq(){
     <div class="grid g2">${FAQ_CATS.map(catCard).join("")}</div></div>
   <div class="section">
   ${q("overall", "How Is Overall Built?", `<p class="note" style="color:var(--ink-2)">Overall mixes eight skill ratings. Knifing, Luck and Consistency are left out: they describe the player but are not skill at winning rounds.</p>
-    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Rating</th><th class="r">Weight in Overall</th></tr></thead><tbody>${FAQ_OVERALL.map(([c, w]) => `<tr><td>${c}</td><td class="r num">${pct(w)}</td></tr>`).join("")}</tbody></table></div>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Rating</th><th class="r">Weight in Overall</th></tr></thead><tbody>${wSort(FAQ_OVERALL, r => r[1]).map(([c, w]) => `<tr><td>${c}</td><td class="r num">${pct(w)}</td></tr>`).join("")}</tbody></table></div>
     <p class="note" style="margin-top:8px">Overall is the weighted sum of the eight category scores, rescaled by its own true-skill spread. That spread is worked out from the correlations of all the ingredients at once, so categories that overlap (Aiming and Entrying, say) don't stretch the scale. It is the number in the ring on each player's page.</p>`)}
   ${q("bands", "What Do the Bands, Match Windows and Small Samples Mean?", `<ul class="steps">
     <li><b>Band</b> (for example 71-88): the rating one standard error either side, about a two-in-three range for the player's true level. It allows for correlated noise between ingredients. A wide band means little data.</li>
@@ -2661,7 +2666,7 @@ function viewFaq(){
     const lab = {rating:"Match Rating", rs:"Round Swing % (round win probability added per round)", adr:"ADR (damage per round)", kast:"KAST", round_win:"Team round win %", open_net:"Opening duels: (opening kills − opening deaths) per round", multikill:"Multi-kill rounds (2+ kills) per round", clutch:"Clutch wins per round (1v1 = 1, 1v2 = 2, 1v3+ = 3)"};
     const core = D.players.filter(x => x.core).map(x => esc(x.name)).join(", ");
     return `<p class="note" style="color:var(--ink-2)">Every week (Monday to Sunday, US Eastern time) the Core-5 (${core}) compete for six awards, shown on the Home page. Each match gets one score from these ingredients.</p>
-    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th></tr></thead><tbody>${Object.entries(Wt).map(([k, w]) => `<tr><td>${lab[k] || esc(k)}</td><td class="r num">${pct(w)}</td></tr>`).join("")}</tbody></table></div>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th></tr></thead><tbody>${wSort(Object.entries(Wt), r => r[1]).map(([k, w]) => `<tr><td>${lab[k] || esc(k)}</td><td class="r num">${pct(w)}</td></tr>`).join("")}</tbody></table></div>
     <ul class="steps" style="margin-top:10px">
       <li><b>Match Score.</b> Each ingredient is turned into a z-score against every non-pro player-match in the database, the weighted z-scores are added, and the total is rescaled so <b>50 = an average player-match</b> and <b>10 points = one standard deviation of single matches</b>.</li>
       <li><b>Weekly Score.</b> The week's matches are averaged (each weighted by its rounds) and put on a wider scale. 50 is still the database average, but <b>10 points = one standard deviation of Core-5 weekly averages</b>. Averages over many matches vary far less than single matches, so on the match scale a whole week's gap between best and worst would fit in a few points.</li>
