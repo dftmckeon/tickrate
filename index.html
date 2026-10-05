@@ -515,7 +515,8 @@ button.awname{cursor:pointer}button.awname:hover{color:var(--accent)}
 .mv-awst{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .mv-awst>div{display:grid;gap:2px;min-width:0}.mv-awst b{font-size:15px}
 .mv-leads{margin-top:16px}
-.mv-lgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.mv-lgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:980px){.mv-lgrid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}}
 .mv-lead{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);min-width:0}
 .mv-lead b{font-size:19px}.mv-ln{font-size:13px;overflow-wrap:anywhere}
 .mv-tabs{margin-top:26px}
@@ -966,7 +967,7 @@ function awPanel(a, x){
     foot = "";
   }
   const delta = a === "most_improved" || a === "most_washed";
-  const ru = (x.ru || []).length ? `<span>Runners-up: ${x.ru.map(([n, v]) => `${esc(n)} <span class="num">${delta ? (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1) : (+v).toFixed(1)}</span>`).join(" · ")}</span>` : "";
+  const ru = !d.match && (x.ru || []).length ? `<span>Runners-up: ${x.ru.map(([n, v]) => `${esc(n)} <span class="num">${delta ? (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1) : (+v).toFixed(1)}</span>`).join(" · ")}</span>` : "";
   return `<div class="card awc aw-${d.cls}">${head}<div class="awwho">${nm}${elo}</div><div class="awbig"${d.match && x.mid ? ` data-mid="${esc(x.mid)}" title="Open this match"` : ""}>${big}</div><div class="awstats${d.match ? " c3" : ""}">${stats}</div>${foot || ru ? `<div class="awfoot">${foot}${ru}</div>` : ""}</div>`;
 }
 function awardsSection(){
@@ -2589,12 +2590,12 @@ const MV_COL = {
   fsh:{lab:"First-Shot Acc.", tip:"First bullet of each burst that hit", f:o => o.fs ? o.fs_hit / o.fs * 100 : null, fmt:"pct", dir:1, min:o => o.fs >= 5},
   cs:{lab:"Counter-Strafe", tip:"First shots fired stopped (counter-strafed)", f:o => o.fs ? o.fs_cs / o.fs * 100 : null, fmt:"pct", dir:1, min:o => o.fs >= 5},
   sts:{lab:"Sight-to-Shot", tip:"Time from an enemy becoming visible to the first shot", f:o => o.sts_n ? o.sts_sum / o.sts_n * 1000 : null, fmt:"ms", dir:-1, min:o => o.sts_n >= 3},
-  ttd:{lab:"Time-to-Damage", tip:"Time from an enemy becoming visible to the first damage", f:o => o.ttd_n ? o.ttd_sum / o.ttd_n * 1000 : null, fmt:"ms", dir:-1, min:o => o.ttd_n >= 3},
+  ttd:{lab:"Time-to-Damage", tip:"From first seeing an enemy to his first damage on him (sightings where he did no damage are left out)", f:o => o.ttd_n ? o.ttd_sum / o.ttd_n * 1000 : null, fmt:"ms", dir:-1, min:o => o.ttd_n >= 3},
   xh:{lab:"Crosshair Error", tip:"Degrees between the crosshair and the enemy's head when he became visible", f:o => o.xh_n ? o.xh_sum / o.xh_n : null, fmt:"deg", dir:-1, min:o => o.xh_n >= 3},
   duel:{lab:"Duel Win %", tip:"Two-way fights won", f:o => o.duels ? o.duels_won / o.duels * 100 : null, fmt:"pct", dir:1, min:o => o.duels >= 3},
   acc:{lab:"Accuracy", tip:"Bullets that hit a player", f:o => o.shots ? o.hits / o.shots * 100 : null, fmt:"pct", dir:1, min:o => o.shots >= 20},
   bpk:{lab:"Bullets / Kill", tip:"Bullets fired per gun kill", f:o => o.bpk_n ? o.bpk_sum / o.bpk_n : null, fmt:"f1", dir:-1, min:o => o.bpk_n >= 3},
-  ttk:{lab:"Time-to-Kill", tip:"First damage to kill, gun kills", f:o => o.ttk_n ? o.ttk_sum / o.ttk_n * 1000 : null, fmt:"ms", dir:-1, min:o => o.ttk_n >= 3},
+  ttk:{lab:"Hit-to-Kill", tip:"From his first hit in the killing burst to the kill (0 ms = one shot). Starts at the first hit, so it does not include finding and aiming at the enemy (that is Time-to-Damage)", f:o => o.ttk_n ? o.ttk_sum / o.ttk_n * 1000 : null, fmt:"ms", dir:-1, min:o => o.ttk_n >= 3},
   // entrying
   ok:{lab:"Opening Kills", tip:"First kill of the round", f:o => o.ok, fmt:"f0", dir:1},
   od:{lab:"Opening Deaths", tip:"First death of the round", f:o => o.od, fmt:"f0", dir:-1},
@@ -2728,7 +2729,7 @@ function mvAwards(M){
       <div class="mv-awst"><div><span class="eyebrow">Rating</span><b class="num">${fmt(o.rating, "f2")}</b></div><div><span class="eyebrow">RS%</span><b class="num">${mvSigned(rs, "f1")}</b></div>
       <div><span class="eyebrow">K–A–D</span><b class="num">${o.kills ?? "–"}–${o.assists ?? "–"}–${o.deaths ?? "–"}</b></div><div><span class="eyebrow">ADR</span><b class="num">${fmt(R0(o.damage, o.rounds), "f1")}</b></div>
       <div><span class="eyebrow">Elo</span><b>${eloTxt(p.ed)}</b></div></div></div>`; };
-  const leads = [["rating","Rating"],["rs","Round Swing"],["adr","ADR"],["kpr","KPR"],["kast","KAST"],["hs","HS%"],["ok","Opening Kills"],["ud","Utility Damage"]].map(([k, lab]) => {
+  const leads = [["rating","Rating"],["rs","Round Swing"],["adr","ADR"],["kpr","KPR"],["kast","KAST"],["ok","Opening Kills"],["ud","Utility Damage"]].map(([k, lab]) => {
     const c = MV_COL[k], vals = mvVals(M, "All", k), b = [...mvBest(vals, c.dir)];
     if (!b.length) return `<div class="mv-lead"><span class="eyebrow">${lab}</span><b class="num">–</b><span class="note">No clear leader</span></div>`;
     const v = vals[b[0]].v;
@@ -2791,7 +2792,7 @@ function mvRoundSides(M, r){ const s0 = r.s0 || (r.half && Math.floor(r.half / 2
 function mvRoundStrip(M){
   const N = M.rd.length; if (!(S.mv.rd >= 0 && S.mv.rd < N)) S.mv.rd = 0;
   const row = t => M.rd.map((r, j) => { const sides = mvRoundSides(M, r), won = r.wt === t, br = j > 0 && (M.rd[j - 1].half !== r.half || M.rd[j - 1].ot !== r.ot);
-    return `<button type="button" class="mv-rc${won ? " w " + mvSideCls(sides[t]) : ""}${j === S.mv.rd ? " on" : ""}${br ? " br" : ""}" data-mvrd="${j}" title="Round ${r.n}: ${r.w || "?"} win · ${esc(MV_REASON[r.r] || r.r || "")} · ${r.s[0]}–${r.s[1]}">${won ? MV_RI[r.r] || MV_RI.elim : ""}</button>`; }).join("");
+    return `<button type="button" class="mv-rc${won ? " w " + mvSideCls(sides[t]) : ""}${j === S.mv.rd && (won || ((r.wt !== 0 && r.wt !== 1) && t === 0)) ? " on" : ""}${br ? " br" : ""}" data-mvrd="${j}" title="Round ${r.n}: ${r.w || "?"} win · ${esc(MV_REASON[r.r] || r.r || "")} · ${r.s[0]}–${r.s[1]}">${won ? MV_RI[r.r] || MV_RI.elim : ""}</button>`; }).join("");
   const nums = M.rd.map((r, j) => `<span class="mv-rn${j === S.mv.rd ? " on" : ""}${j > 0 && (M.rd[j - 1].half !== r.half || M.rd[j - 1].ot !== r.ot) ? " br" : ""}">${r.n}</span>`).join("");
   return `<div class="card mv-strip"><div class="mv-sgrid" style="--n:${N}">
     <div class="mv-sl"><span class="mv-side ${M.teams[0].start === "CT" ? "ct" : "t"}"></span>${esc(mvTeamName(M.teams[0].name))}</div><div class="mv-srow">${row(0)}</div>
@@ -2959,14 +2960,14 @@ function matchesTab(p){
   const rows = S.pmAll ? L : L.slice(0, 30);
   const w = L.filter(x => x[7] === "W").length;
   return `<div class="section"><div class="card"><div class="mv-th"><h3>Matches</h3><span class="note">${L.length} match${L.length === 1 ? "" : "es"}${S.map !== "All maps" ? " on " + esc(mapName(S.map)) : ""} · ${w}–${L.length - w - L.filter(x => x[7] === "T").length}${L.some(x => x[7] === "T") ? "–" + L.filter(x => x[7] === "T").length : ""} · newest first. Click a match for its full scoreboard, rounds and duels.</span></div>
-    <div class="tscroll"><table class="mv-tbl mv-ml"><thead><tr><th>Date</th><th>Map</th><th>Score</th><th class="r" title="Match rating">Rating</th><th class="r" title="Round Swing %">RS%</th><th class="r">K</th><th class="r">A</th><th class="r">D</th><th class="r" title="FACEIT Elo won or lost">Elo ±</th><th class="r" title="Match Score (awards composite; 50 = average match)">Match Score</th></tr></thead>
+    <div class="tscroll"><table class="mv-tbl mv-ml"><thead><tr><th>Date</th><th>Map</th><th>Score</th><th class="r" title="Match rating">Rating</th><th class="r" title="Round Swing %">RS%</th><th class="r">K</th><th class="r">A</th><th class="r">D</th><th class="r" title="Damage to enemies per round">ADR</th><th class="r" title="FACEIT Elo won or lost">Elo ±</th><th class="r" title="Match Score (awards composite; 50 = average match)">Match Score</th></tr></thead>
     <tbody>${rows.map(x => { const m = D.mt[x[0]];
       return `<tr class="mv-mrow" data-mid="${esc(m[0])}" tabindex="0" role="link" aria-label="Open the ${esc(mapName(m[2]))} match of ${esc(m[1])}"><td class="num">${mvWhen(m[1])}</td><td>${esc(mapName(m[2]))}</td>
         <td><span class="mv-res ${x[7]}">${x[7]}</span> <span class="num">${x[8]}–${x[9]}</span></td>
         <td class="r">${mvChip("rating", x[1], fmt(x[1], "f2"))}</td><td class="r">${x[2] === null ? "–" : mvChip("rs", x[2], mvSigned(x[2], "f1"))}</td>
-        <td class="r num">${x[3]}</td><td class="r num">${x[4]}</td><td class="r num">${x[5]}</td><td class="r">${eloTxt(x[6])}</td><td class="r">${x[10] === null ? "–" : mvChip("score", x[10], fmt(x[10], "f1"))}</td></tr>`; }).join("")}</tbody></table></div>
+        <td class="r num">${x[3]}</td><td class="r num">${x[4]}</td><td class="r num">${x[5]}</td><td class="r">${x[11] === null || x[11] === undefined ? "–" : mvChip("adr", x[11], fmt(x[11], "f1"))}</td><td class="r">${eloTxt(x[6])}</td><td class="r">${x[10] === null ? "–" : mvChip("score", x[10], fmt(x[10], "f1"))}</td></tr>`; }).join("")}</tbody></table></div>
     ${L.length > 30 ? `<div style="display:flex;justify-content:center;margin-top:14px"><button type="button" class="morebtn" id="pm-more">${S.pmAll ? "Show the Latest 30" : `Show All ${L.length} Matches`}</button></div>` : ""}
-    <p class="note" style="margin-top:10px">Rating, RS% and Match Score are coloured by where they fall among every player-match in the database (blue = better, orange = worse). Follows the Map filter.</p></div></div>`;
+    <p class="note" style="margin-top:10px">Rating, RS%, ADR and Match Score are coloured by where they fall among every player-match in the database (blue = better, orange = worse). Follows the Map filter.</p></div></div>`;
 }
 
 // ---------------------------------------------------------------- events (delegated once)
@@ -3095,14 +3096,15 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
-  ["2026-10-05T18:55:00Z", "v4.35", "Match Pages", [
-    "New Match page for every match in the database. It shows the map, date and time, final score and half scores, the Match MVP and Match Shackles (highest and lowest Match Score in the lobby, the same score the weekly awards use) and the Match Leaders on rating, Round Swing %, ADR, KPR, KAST, HS%, opening kills and utility damage.",
+  ["2026-10-05T19:20:00Z", "v4.35", "Match Pages", [
+    "New Match page for every match in the database. It shows the map, date and time, final score and half scores, the Match MVP and Match Shackles (highest and lowest Match Score in the lobby, the same score the weekly awards use) and the Match Leaders on rating, Round Swing %, ADR, KPR, KAST, opening kills and utility damage.",
     "Scoreboard: both teams with Rating, Elo won or lost, Round Swing %, K, A, D, ADR, K/D, KPR, HS% and multi-kill round %. It is sorted by rating; click any column to re-sort. Switch between All, T and CT rounds.",
     "Advanced Stats: Aim, Entrying, Trading, Support, Utility, Clutching, AWPing and Economy tabs, each with All / T / CT. The best player in the lobby on each stat is highlighted.",
     "Round-by-Round: every round across the top, coloured by the side that won it, with an icon for how (elimination, bomb, defuse, time). Click a round, or use the arrow keys, to see each player's kills, assists, deaths, damage and Round Swing for that round, the T win chance through the round, and a timestamped log of every kill, grenade and bomb event with names in team colours. In the middle, a top-down map shows where every kill happened (killer to victim) and where each grenade went off. Scrub or play the round to watch it unfold; hover a log line to find it on the map.",
     "Duels: head-to-head matrix of every player against every opponent, by kills, opening kills or damage.",
-    "Player pages: new Matches tab with the latest 30 matches (Show All for the rest). Each row shows the date and time, map, score, rating, Round Swing %, K, A, D, Elo change and Match Score; rating, Round Swing and Match Score are colour-coded against every match in the database. Click a match to open it.",
-    "Home: Performance of the Week and Dishonorable Mention now link to the match they came from."]],
+    "Player pages: new Matches tab with the latest 30 matches (Show All for the rest). Each row shows the date and time, map, score, rating, Round Swing %, K, A, D, ADR, Elo change and Match Score; rating, Round Swing, ADR and Match Score are colour-coded against every match in the database. Click a match to open it.",
+    "Home: Performance of the Week and Dishonorable Mention now link to the match they came from (their runners-up are dropped to keep the panels compact).",
+    "On the Match page Aim tab, Hit-to-Kill runs from the first hit of the killing burst to the kill (0 ms = one shot), so it can be shorter than Time-to-Damage, which starts when the enemy is first seen."]],
   ["2026-10-05T17:35:00Z", "v4.34", "Round Swing %", [
     "New stat: Round Swing % (RS%), the round win probability a player adds per round. A model of every round (players alive, equipment, bomb planted, time left, map) moves the team's chance of winning at every kill, death, plant, defuse and explosion, and credits the change to the players involved. Kill credit is shared with teammates who damaged the victim, and a traded death costs half. How it works: [[faq:rs|Round Swing FAQ]].",
     "Time left follows the bomb timer once the bomb is planted. A separate bombsite effect was tested and does not yet improve the predictions; it is re-tested and switched on automatically when the data supports it.",
