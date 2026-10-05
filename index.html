@@ -253,6 +253,7 @@ td.num,td .num{font-size:13px}
 .faq,.section[id^="faq-"]{scroll-margin-top:calc(var(--bar-h) + 16px)}
 .faq .steps{font-size:13.5px}
 .faqh2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-top:4px}
+.faqh4{font-size:14px;font-weight:600;margin:16px 0 4px;color:var(--ink)}
 .formula{font-family:var(--mono);font-size:12.5px;line-height:1.7;background:var(--surface-3);border-radius:var(--r-sm);padding:10px 12px;margin:8px 0;overflow-wrap:anywhere}
 
 /* heatmap, compare */
@@ -777,14 +778,15 @@ function awPanel(a, x){
   const col = v => v > 0 ? "var(--pos)" : v < 0 ? "var(--neg)" : "var(--muted)";
   const elo = `<div class="awelo">${x.elo != null ? `FACEIT Elo <b class="num">${Math.round(x.elo).toLocaleString()}</b>${d.match ? " going in" : ""}${x.ed != null ? ` · <span class="num" style="color:${col(x.ed)}">${x.ed > 0 ? "+" : x.ed < 0 ? "−" : "±"}${Math.abs(Math.round(x.ed))}</span> ${d.match ? "that match" : "this week"}` : ""}` : "FACEIT Elo –"}</div>`;
   const st = (lab, v, sub) => `<div><div class="eyebrow">${lab}</div><b>${v}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
-  const RS_TIP = "Round Swing % (RS%): the share of round-win probability the player added through kills, deaths, plants and defuses. Coming soon.";
+  const RS_TIP = "Round Swing % (RS%): round win probability added per round. Every kill, death, plant, defuse and bomb explosion changes the team's chance of winning the round; the change is credited to the players involved. +3.0% = three points of round-win chance added per round. See the FAQ.";
   const rsLab = `RS% <span class="awi" tabindex="0" role="img" aria-label="${RS_TIP}" data-tip="${RS_TIP}">i</span>`;
   const rs = x.rs !== null && x.rs !== undefined ? st(rsLab, fmt(x.rs, "pct"))
     : `<div class="soon">${`<div class="eyebrow">${rsLab}</div>`}<b>–</b><small>soon</small></div>`;
   let big, stats, foot;
   if (a === "most_improved" || a === "most_washed"){
     big = `<b style="color:${col(x.v)}">${x.v > 0 ? "+" : "−"}${Math.abs(x.v).toFixed(1)}</b><span>Weekly Score<br><span class="num">${fmt(x.ps, "f1")} → ${fmt(x.score, "f1")}</span></span>`;
-    stats = st("Rating", fmt(x.rt, "f2"), `was ${fmt(x.prt, "f2")}`) + st("ADR", fmt(x.adr, "f1"), `was ${fmt(x.padr, "f1")}`) + rs + st("Record", esc(x.rec), "W–L");
+    const rsw = x.rs !== null && x.rs !== undefined ? st(rsLab, fmt(x.rs, "pct"), `was ${fmt(x.prs, "pct")}`) : rs;
+    stats = st("Rating", fmt(x.rt, "f2"), `was ${fmt(x.prt, "f2")}`) + st("ADR", fmt(x.adr, "f1"), `was ${fmt(x.padr, "f1")}`) + rsw + st("Record", esc(x.rec), "W–L");
     foot = "";
   } else if (d.match){
     big = `<b>${fmt(x.score, "f1")}</b><span>Match Score<br>${esc(mapName(x.map))} · ${x.rec === "W" ? "Won" : x.rec === "L" ? "Lost" : "Tied"} <span class="num">${esc(x.sl)}</span> · ${esc(dayLabel(x.date))}</span>`;
@@ -916,7 +918,7 @@ function viewPlayer(){
 }
 
 // v4.29 week over week: the player's latest Mon-Sun week with matches vs the week before (else their previous week played)
-const WOW_TH = {rating:[.03, .12], adr:[2, 8], kpr:[.02, .07], kdr:[.05, .2], kast:[1.5, 5], hs_pct:[2, 6]};
+const WOW_TH = {rating:[.03, .12], rs:[.5, 2], adr:[2, 8], kpr:[.02, .07], kdr:[.05, .2], kast:[1.5, 5], hs_pct:[2, 6]};
 const WOW_WORDS = {"2":"On Fire", "1":"Heating Up", "0":"Holding Steady", "-1":"Cooling Off", "-2":"Ice Cold"};
 function wowInfo(p){
   const A = D.awards || {}, rows = (A.wow || {})[p];
@@ -962,7 +964,7 @@ function tabBody(p){
   const g = D.meta.groups;
   switch(S.tab){
     case "aim": return `<div class="section">
-      ${metricCard(p, "Reaction and aim", ["sight_to_shot","time_to_damage","xhair_err","flick","first_shot_hit","duel_wr","first_hit_conv"], "From the moment an enemy becomes visible: how fast the first shot and the first damage come, and how far the crosshair was from the enemy's head.")}
+      ${metricCard(p, "Reaction and aim", ["sight_to_shot","time_to_damage","xhair_err","flick","first_shot_hit","hs_pct","duel_wr","first_hit_conv"], "From the moment an enemy becomes visible: how fast the first shot and the first damage come, and how far the crosshair was from the enemy's head.")}
       ${metricCard(p, "Movement and counter-strafing", ["cs_rate","cs_hit","moving_fs_hit","duel_wr_stopped","duel_wr_moving"], "Speed at the first bullet of each burst. Accuracy while stopped vs moving is the cleanest read on movement discipline.")}
       ${metricCard(p, "Against stronger and weaker opponents", g.opp, "Fights against opponents at least 50 Elo above or below the player (measured Elo only).")}
     </div>`;
@@ -1728,7 +1730,7 @@ function bindSim(){
 
 const STAT_GROUPS = [["Headline","headline"],["Aim & Mechanics","aim"],["Spray Control","sprayctl"],["Sprays","spray"],["Team Play","team"],["Utility","utility"],["How They Die","deaths"],["Opponents","opp"]];
 // ------------------------------------------------------------------ core 5
-const C5_ESSENTIAL = {headline:["rating","adr","kpr","kdr","kast","hs_pct"], aim:["sight_to_shot","xhair_err","first_shot_hit","cs_rate","duel_wr"],
+const C5_ESSENTIAL = {headline:["rating","rs","adr","kpr","kdr","kast","hs_pct"], aim:["sight_to_shot","xhair_err","first_shot_hit","cs_rate","duel_wr"],
   sprayctl:["sp_hoe","sp_vdrift"], team:["traded_5s","dmg_left"], utility:["flash_blind_s","flash_team_blind_s","he_dmg","util_wasted"],
   deaths:["death_reloading","death_audible"], opp:["duel_wr_up","duel_wr_down"]};   // essentials = stats that rank players (all five ranked on the All cell)
 function viewCore5(){
@@ -2383,23 +2385,24 @@ const FAQ_CATS = [
     ["Kills While Moving", .15, "Per gun kill: the killing burst's first bullet was fired above counter-strafe speed (34% of the weapon's max)"],
     ["Wallbang Kills", .11, "Per kill"], ["Grenade and Molotov Kills", .11, "Per kill"], ["No-Scope AWP Kills", .10, "Per kill"], ["Kills While Blind", .08, "Per kill"]]],
   ["Consistency", "How steady the player is from match to match (higher = steadier). Not part of Overall.", [
-    ["Spread of Match Rating (Lower Is Better)", .50, "Per match with 10+ rounds"], ["Spread of Match ADR (Lower Is Better)", .25, "Per match with 10+ rounds"],
-    ["Matches Rated Below 0.80 (Lower Is Better)", .25, "Per match"]]],
+    ["Spread of Match Rating (Lower Is Better)", .25, "Per match with 10+ rounds"], ["Spread of Match Round Swing % (Lower Is Better)", .25, "Per match with 10+ rounds"],
+    ["Spread of Match ADR (Lower Is Better)", .25, "Per match with 10+ rounds"], ["Matches Rated Below 0.80 (Lower Is Better)", .125, "Per match"],
+    ["Matches With a Dud Round Swing % (Lower Is Better)", .125, "Per match: Round Swing % below the cut-off that as many matches fall under as are rated below 0.80"]]],
 ];
 const FAQ_OVERALL = [["Aiming", .25], ["Entrying", .13], ["Trading", .13], ["Support", .13], ["Utility", .13], ["Clutching", .10], ["Pistols", .08], ["AWPing", .05]];
 const FAQ_ARCH = [
-  ["The Carry", "Puts up the biggest numbers and wins. The top all-round players.",
-    [["Overall Rating", "+50%"], ["Round Win %", "+30%"], ["Damage Per Round (ADR)", "+20%"]]],
-  ["Mr. Impact", "Wins more than the stat sheet says he should: a high round win %, more than his Overall predicts, plus strong clutching, pistol and knife-round ratings.",
-    [["Round Win %", "+35%"], ["Round Win % Above What His Overall Predicts", "+25%"], ["Clutching Rating", "+15%"], ["Pistols Rating", "+15%"], ["Knifing Rating", "+10%"]]],
+  ["The Carry", "Puts up the biggest numbers and swings rounds toward winning. The top all-round players.",
+    [["Overall Rating", "+50%"], ["Round Swing %", "+30%"], ["Damage Per Round (ADR)", "+20%"]]],
+  ["Mr. Impact", "Swings rounds more than the stat sheet says he should: a high Round Swing %, more than his Overall predicts, plus strong clutching, pistol and knife-round ratings.",
+    [["Round Swing %", "+35%"], ["Round Swing % Above What His Overall Predicts", "+25%"], ["Clutching Rating", "+15%"], ["Pistols Rating", "+15%"], ["Knifing Rating", "+10%"]]],
   ["The Backpack", "Low output and low impact: few multi-kills, few opening duels, weak clutching. Gets carried.",
     [["Overall Rating", "−60%"], ["Impact (Multi-Kill Rounds, Opening Duels Taken, Clutching; Averaged)", "−40%"]]],
   ["The Glue Guy", "Holds the team together: support, trading and utility, in equal parts.",
     [["Support Rating", "+⅓"], ["Trading Rating", "+⅓"], ["Utility Rating", "+⅓"]]],
   ["Mr. Average", "Nothing stands out: the ten category ratings other than Consistency sit closer to 50 than a typical player's would with the same amount of data. Scored differently from the rest (see below).",
     [["Distance of the Ten Category Ratings from 50, vs a Typical Player with the Same Data", "−100%"]]],
-  ["The Anchor", "The opposite of Mr. Impact: wins less than the stat sheet says he should, with a low round win %, less than his Overall predicts, and weak clutching, pistol and knife-round ratings.",
-    [["Round Win %", "−35%"], ["Round Win % Above What His Overall Predicts", "−25%"], ["Clutching Rating", "−15%"], ["Pistols Rating", "−15%"], ["Knifing Rating", "−10%"]]],
+  ["The Anchor", "The opposite of Mr. Impact: swings rounds toward losing more than the stat sheet says he should, with a low Round Swing %, less than his Overall predicts, and weak clutching, pistol and knife-round ratings.",
+    [["Round Swing %", "−35%"], ["Round Swing % Above What His Overall Predicts", "−25%"], ["Clutching Rating", "−15%"], ["Pistols Rating", "−15%"], ["Knifing Rating", "−10%"]]],
   ["The Leprechaun", "Gets the lucky kills: through smoke, with grenades and on wild flicks.",
     [["Luck Rating", "+50%"], ["Kills Through Smoke", "+20%"], ["Grenade and Molotov Kills", "+15%"], ["Duel Wins With a 20°+ Flick", "+15%"]]],
   ["The Ninja", "Lurks away from the team and wins fights from behind the enemy or through smoke.",
@@ -2421,6 +2424,14 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-10-05T16:55:00Z", "v4.34", "Round Swing %", [
+    "New stat: Round Swing % (RS%), the round win probability a player adds per round. A model of every round (players alive, equipment, bomb planted, time left, map) moves the team's chance of winning at every kill, death, plant, defuse and explosion, and credits the change to the players involved. Kill credit is shared with teammates who damaged the victim, and a traded death costs half. How it works: [[faq:rs|Round Swing FAQ]].",
+    "Time left follows the bomb timer once the bomb is planted. A separate bombsite effect was tested and does not yet improve the predictions; it is re-tested and switched on automatically when the data supports it.",
+    "Round Swing % is on every player page (headline tiles and week-over-week notes), Leaderboards, Compare, Stat Over Time and the Core 5 page, and fills the RS% slot on the award panels.",
+    "Player pages: HS% moved from the headline tiles to the Aim & Mechanics tab.",
+    "Weekly awards: the Performance Score is now Rating 15%, Round Swing % 30%, ADR 15%, KAST 15%, opening duels 10%, multi-kills 10%, clutches 5% (team round win % removed). Every past week was re-scored once; five awards changed hands. From now on issued awards are locked: [[faq:awards|Weekly Awards FAQ]].",
+    "Archetypes: The Carry, Mr. Impact and The Anchor use Round Swing % in place of round win %. Consistency splits its Match Rating weight with Round Swing %.",
+    "Database: 50 more matches (Sep 28 – Oct 4); that week now has awards."]],
   ["2026-10-05T13:45:00Z", "v4.32", "Cleaner Award Panels", [
     "Award panels no longer end with a matches-this-week line. Player of the Week and Weekly Shackles still show the match count next to the Weekly Score.",
     "Performance of the Week and Dishonorable Mention show the day the match was played right after the map score, so the award boxes stay compact."]],
@@ -2546,16 +2557,18 @@ const UPDATES = [
     "Leaderboards, Compare, Maps and Enemy Spots (prefire lists, clear order and heatmaps of where they stand, get kills and die).",
     "225 matches at launch."]],
 ];
+// v4.34: "[[faq:<id>|Label]]" in a patch-note item becomes a link to that FAQ section (applied after esc)
+const updLinks = h => h.replace(/\[\[faq:([a-z]+)\|([^\]]+)\]\]/g, (m, id, lab) => `<button class="link" type="button" data-faqto="${id}">${lab}</button>`);
 function viewUpdates(){
   const when = iso => { const d = new Date(iso); try { return d.toLocaleString(undefined, {year:"numeric", month:"short", day:"numeric", hour:"numeric", minute:"2-digit", timeZoneName:"short"}); } catch (e) { return iso.replace("T", " ").slice(0, 16) + " UTC"; } };
   return `<section class="pagehead"><div class="eyebrow">Updates</div><h1>Patch Notes</h1><p class="lead">Every update to the live site, newest first. Times are in your time zone.</p></section>
-  <div class="section upd">${UPDATES.map(([t, v, title, items], k) => `<div class="card updc"><div class="updh"><span class="pill${k === 0 ? " core" : ""} num">${esc(v)}</span><h3>${esc(title)}</h3><span class="note num">${esc(when(t))}</span></div><ul class="steps">${items.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`).join("")}</div>`;
+  <div class="section upd">${UPDATES.map(([t, v, title, items], k) => `<div class="card updc"><div class="updh"><span class="pill${k === 0 ? " core" : ""} num">${esc(v)}</span><h3>${esc(title)}</h3><span class="note num">${esc(when(t))}</span></div><ul class="steps">${items.map(x => `<li>${updLinks(esc(x))}</li>`).join("")}</ul></div>`).join("")}</div>`;
 }
 function viewFaq(){
   const pct = w => (Math.round(w * 10000) / 100) + "%";
   const st = faqArchStats(), nArch = Object.values(D.arch || {}).filter(w => w.All).length;
   const q = (id, title, body) => `<div class="card faq" id="faq-${id}"><h3>${title}</h3>${body}</div>`;
-  const toc = [["kinds","Three Kinds of Numbers"],["rating","The Match Rating"],["calc","How the 1-100 Ratings Work"],["cats","What Each Rating Measures"],
+  const toc = [["kinds","Three Kinds of Numbers"],["rating","The Match Rating"],["rs","Round Swing (RS%)"],["calc","How the 1-100 Ratings Work"],["cats","What Each Rating Measures"],
     ["overall","Overall"],["bands","Bands, Windows and Small Samples"],["arch","How Archetypes Are Assigned"],["types","The 11 Archetypes"],["pct","Elo-Adjusted Percentiles"],["awards","Weekly Awards"]];
   const catCard = ([c, blurb, comps]) => `<div class="card"><h3>${c}</h3><p class="lead note">${blurb}</p>
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th><th>Measured</th></tr></thead><tbody>
@@ -2576,6 +2589,44 @@ function viewFaq(){
   ${q("rating", "How Is the Match Rating Calculated?", `<p class="note" style="color:var(--ink-2)">An HLTV 2.0-style formula applied to each match:</p>
     <div class="formula">Rating = 0.0073 × KAST% + 0.3591 × KPR − 0.5329 × DPR + 0.2372 × Impact + 0.0032 × ADR + 0.1587<br>Impact = 2.13 × KPR + 0.42 × APR − 0.41</div>
     <p class="note">KPR, DPR and APR = kills, deaths and assists per round; ADR = damage per round; KAST% = share of rounds with a kill, assist, survival or traded death. The Rating stat over several matches is weighted by rounds, so a 30-round match counts more than a 16-round one.</p>`)}
+  ${q("rs", "What Is Round Swing % (RS%)?", (() => { const R = D.meta.rs || {}, f1 = v => v == null ? "–" : (v * 100).toFixed(1);
+    const sites = (R.sites || []).filter(r => r[2] >= 60);
+    const maps = [...new Set(sites.map(r => r[0]))];
+    const siteRows = maps.map(m => { const a = sites.find(r => r[0] === m && r[1] === "A"), b = sites.find(r => r[0] === m && r[1] === "B");
+      return `<tr><td>${esc(mapName(m))}</td><td class="r num">${a ? fmt(a[3] * 100, "pct") + ` <span class="note">(${a[2]})</span>` : "–"}</td><td class="r num">${b ? fmt(b[3] * 100, "pct") + ` <span class="note">(${b[2]})</span>` : "–"}</td></tr>`; }).join("");
+    return `<p class="note" style="color:var(--ink-2)">Round Swing % measures how much a player moves his team's chance of winning each round. A model estimates that chance at every moment of every round; each kill, death, plant, defuse and bomb explosion moves it, and the move is credited to the players involved. <b>RS% = the win-probability points a player adds per round played</b>: +3.0% means he adds three points of round-win chance per round, on average.</p>
+    <h4 class="faqh4">The round-state model</h4>
+    <ul class="steps">
+      <li><b>Players alive</b> on each side.</li>
+      <li><b>Equipment</b>: the value of the gear each side's still-alive players bought at the start of the round. When a player dies, his gear leaves his side's total. Defuse kits among the alive CTs count too. Picked-up weapons and grenades already thrown are not seen.</li>
+      <li><b>Bomb planted</b> or not.</li>
+      <li><b>Time left</b>: the 1:55 round clock until the bomb is planted. From the plant on, the clock becomes the 40-second bomb timer, so a plant with 1:00 on the round clock leaves 0:40 to defuse.</li>
+      <li><b>Map</b>, and the <b>bombsite</b> of the plant when the data supports it (see below).</li>
+    </ul>
+    <p class="note">The model is a set of gradient-boosted decision trees trained on ${R.snapshots ? R.snapshots.toLocaleString() : "–"} moments from ${R.rounds ? R.rounds.toLocaleString() : "–"} rounds in ${R.matches || "–"} matches. It is constrained so that an extra player alive, more equipment or an extra kit can never lower that side's chance. Every prediction used for credit comes from a version of the model that never saw that match. Accuracy on matches it did not see: Brier score ${R.brier ?? "–"} (guessing 50% scores ${R.brier_base ?? "–"}; lower is better), and the predicted chances are on average within ${f1(R.ece)} points of how often rounds were actually won.</p>
+    <h4 class="faqh4">Who gets the credit</h4>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Event</th><th>Credit</th></tr></thead><tbody>
+      <tr><td><b>Kill</b></td><td>The swing (the rise in the killer's side's chance) is split: <b>50% to the killer</b>, and the other 50% shared by everyone who damaged the victim that round, in proportion to their damage (the killer's own damage included). A clean one-tap kill keeps 100%.</td></tr>
+      <tr><td><b>Death</b></td><td>The victim loses the full swing, or <b>half of it if a teammate trades him within 5 seconds</b>.</td></tr>
+      <tr><td><b>Plant</b></td><td>The planter gets the rise in the T side's chance.</td></tr>
+      <tr><td><b>Defuse</b></td><td>The defuser gets the jump to a certain CT win.</td></tr>
+      <tr><td><b>Explosion</b></td><td>The jump to a certain T win is shared equally by the Ts still alive.</td></tr>
+      <tr><td>Team kill, fall or bomb death</td><td>The drop goes to the team-killer, or to the player who died.</td></tr>
+    </tbody></table></div>
+    <p class="note" style="margin-top:8px">Time running down on its own is credited to nobody, and nothing counts once a round is already decided (kills after the bomb has gone off, for example). A typical kill moves the round by about ${f1(R.kill_swing)} points. Kills in small, even fights (1v1, 2v2) swing it the most; kills when one side is already three or more players up (4v1, 5v1) swing it the least. Because traded deaths cost only half and objectives add credit, the average player-match sits slightly above zero (${R.rs_mean ?? "–"}%).</p>
+    <h4 class="faqh4">Bombsites</h4>
+    <p class="note">Some sites look harder to retake than others. Rounds where the bomb was planted, T win % (rounds in brackets):</p>
+    <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Map</th><th class="r">A</th><th class="r">B</th></tr></thead><tbody>${siteRows || `<tr><td colspan="3" class="note">Not enough plants yet.</td></tr>`}</tbody></table></div>
+    <p class="note" style="margin-top:8px">These raw rates mix the site with the situation at the plant (players alive, gear, time left) and with chance: a few hundred rounds per site still leaves several points of noise. Every time the model is refitted it is tested with and without a separate bombsite effect on rounds it did not see. ${R.site ? "The bombsite effect currently improves the predictions, so it is used." : `It currently does not improve the post-plant predictions (log-loss ${R.ll_site === R.ll_nosite ? (R.ll_site ?? "–") + " either way" : (R.ll_site ?? "–") + " with it vs " + (R.ll_nosite ?? "–") + " without"}), so the model uses the map only. It is switched on automatically once the data supports it.`}</p>
+    <h4 class="faqh4">Recalibration</h4>
+    <p class="note">The model is refitted on the whole database every time new demos are added, and every match's RS% is recomputed, so old numbers can move slightly as the model learns. Weekly awards already issued are locked and do not change. Last fitted ${esc(R.fitted || "–")} UTC.</p>
+    <h4 class="faqh4">Where it is used</h4>
+    <ul class="steps">
+      <li><b>Stat rows, Leaderboards, Compare and Stat Over Time</b>: Round Swing % sits next to the Match Rating (all weapons; both sides or one).</li>
+      <li><b>Weekly awards</b>: 30% of the Performance Score, the largest single ingredient (see <button class="link" type="button" data-faq="awards">Weekly Awards</button>).</li>
+      <li><b>Archetypes</b>: replaces round win % in The Carry, Mr. Impact and The Anchor.</li>
+      <li><b>Consistency</b>: its match-to-match spread and dud matches share the weight with the Match Rating's.</li>
+    </ul>`; })())}
   ${q("calc", "How Are the 1-100 Ratings Calculated?", `<ol class="steps">
     <li><b>Break each category into ingredients.</b> Every ingredient is a rate (Consistency also uses match-to-match spreads) (for example kills per round, or headshots per kill). The next section lists each one and its weight.</li>
     <li><b>Compare with everyone.</b> Each rate is compared with the pooled rate across all ${D.meta.players_in_store.toLocaleString()} players in the data, not just the regulars. The comparison is not adjusted for Elo.</li>
@@ -2594,7 +2645,7 @@ function viewFaq(){
   ${q("bands", "What Do the Bands, Match Windows and Small Samples Mean?", `<ul class="steps">
     <li><b>Band</b> (for example 71-88): the rating one standard error either side, about a two-in-three range for the player's true level. It allows for correlated noise between ingredients. A wide band means little data.</li>
     <li><b>Last 10 / 30 / 50</b>: the same model scored on only those matches, against the same all-data average and spread, so the scale doesn't move between windows. A shorter window has less evidence and is pulled harder toward 50. A window only appears when the player has that many matches.</li>
-    <li><b>Consistency</b> uses the spread of the player's match ratings and ADR (on a log scale, shrunk toward the typical spread when the player has few matches), plus the share of matches rated below 0.80. It needs 3+ matches of 10+ rounds.</li>
+    <li><b>Consistency</b> uses the spread of the player's match ratings, Round Swing % and ADR (on a log scale, shrunk toward the typical spread when the player has few matches), plus the share of dud matches (rated below 0.80, or with a Round Swing % that low). It needs 3+ matches of 10+ rounds.</li>
     <li><b>Why are newcomers' ratings less extreme?</b> Three matches is weak evidence, so the model pulls them toward average and gives them wide bands until the data says otherwise.</li></ul>`)}
   ${q("arch", "How Are Archetypes Assigned?", `<ol class="steps">
     <li><b>Traits.</b> Each archetype is a weighted mix of traits (the tables below). The traits are ratings or shrunk true-skill z-scores, so small samples are pulled toward average here too. A minus weight means less of that trait fits better.</li>
@@ -2607,18 +2658,18 @@ function viewFaq(){
     <div class="grid g2">${FAQ_ARCH.map(archCardF).join("")}</div></div>
   <div class="section">
   ${q("awards", "How Do the Weekly Awards Work?", (() => { const A = D.awards || {}, Wt = A.weights || {};
-    const lab = {rating:"Match Rating", adr:"ADR (damage per round)", kast:"KAST", round_win:"Team round win %", open_net:"Opening duels: (opening kills − opening deaths) per round", multikill:"Multi-kill rounds (2+ kills) per round", clutch:"Clutch wins per round (1v1 = 1, 1v2 = 2, 1v3+ = 3)"};
+    const lab = {rating:"Match Rating", rs:"Round Swing % (round win probability added per round)", adr:"ADR (damage per round)", kast:"KAST", round_win:"Team round win %", open_net:"Opening duels: (opening kills − opening deaths) per round", multikill:"Multi-kill rounds (2+ kills) per round", clutch:"Clutch wins per round (1v1 = 1, 1v2 = 2, 1v3+ = 3)"};
     const core = D.players.filter(x => x.core).map(x => esc(x.name)).join(", ");
     return `<p class="note" style="color:var(--ink-2)">Every week (Monday to Sunday, US Eastern time) the Core-5 (${core}) compete for six awards, shown on the Home page. Each match gets one score from these ingredients.</p>
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th></tr></thead><tbody>${Object.entries(Wt).map(([k, w]) => `<tr><td>${lab[k] || esc(k)}</td><td class="r num">${pct(w)}</td></tr>`).join("")}</tbody></table></div>
     <ul class="steps" style="margin-top:10px">
       <li><b>Match Score.</b> Each ingredient is turned into a z-score against every non-pro player-match in the database, the weighted z-scores are added, and the total is rescaled so <b>50 = an average player-match</b> and <b>10 points = one standard deviation of single matches</b>.</li>
       <li><b>Weekly Score.</b> The week's matches are averaged (each weighted by its rounds) and put on a wider scale. 50 is still the database average, but <b>10 points = one standard deviation of Core-5 weekly averages</b>. Averages over many matches vary far less than single matches, so on the match scale a whole week's gap between best and worst would fit in a few points.</li>
-      <li>Both yardsticks are frozen, so past weeks don't change as new matches arrive.</li>
+      <li>Both yardsticks are frozen. Round Swing % is recalibrated whenever new demos are added, so past match scores can move slightly, but <b>awards already issued are locked</b> and never change.</li>
       <li><b>Player of the Week</b> and <b>Weekly Shackles</b>: highest and lowest Weekly Score. The player needs ${A.min_matches || 3}+ matches that week.</li>
       <li><b>Most Improved Player</b> and <b>Most Washed Player</b>: biggest rise and biggest drop in Weekly Score from the week before. The player needs ${A.min_matches || 3}+ matches in both weeks.</li>
       <li><b>Performance of the Week</b> and <b>Dishonorable Mention</b>: best and worst Match Score of the week (${A.min_rounds || 10}+ rounds).</li>
-      <li><b>Round Swing %</b> (coming soon): the share of round-win probability a player adds through kills, deaths, plants and defuses.</li>
+      <li><b>Round Swing %</b>: round win probability added per round through kills, deaths, plants, defuses and explosions (see <button class="link" type="button" data-faq="rs">Round Swing</button>). It replaced team round win % on Oct 5, 2026, and every week was re-scored once at that point.</li>
       <li><b>When awards are issued.</b> A week's awards are issued once all of its matches are in the database, and they are recorded in an award register. Weeks start from ${esc(wkLabel(A.coverage_start || "2026-08-24"))}, the first full week with every Core-5 match collected. Badges on player pages count the awards; hover over one to see its name and weeks.</li>
       <li><b>Ties</b> go to the player with more matches.</li></ul>`; })())}
   ${q("pct", "How Do the Elo-Adjusted Percentiles Differ?", `<p class="note" style="color:var(--ink-2)">The stat rows, Leaderboards and Compare use a different yardstick. For each stat, a line of expected value against pre-match Elo is fitted on every player's matches. The player's gap to that line is shrunk with the same model as the ratings, and the percentile is the share of players he is estimated to be better than, given his Elo. A 2,800 Elo player needs a better number than a 1,800 Elo player to reach the same percentile. A stat where players don't differ measurably once Elo is allowed for is shown but not ranked.</p>`)}
