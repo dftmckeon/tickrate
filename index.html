@@ -104,7 +104,7 @@ h3{font-size:15px;font-weight:600}
 .meets{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin:6px 0 2px}.meets b{font-size:30px;line-height:1}.ma{color:var(--accent);font-weight:600}.mb{color:var(--neg);font-weight:600}
 .kbar{display:flex;height:10px;border-radius:999px;overflow:hidden;margin-top:10px;background:var(--track)}.kbar .ka{background:var(--accent)}.kbar .kb{background:var(--neg)}.kleg{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted);margin-top:4px}
 .tgw{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.tgw>div{display:flex;flex-direction:column}.tgw b{font-size:18px}
-.mlist{margin-top:6px}.mrowm{display:grid;grid-template-columns:44px minmax(0,1fr) auto minmax(0,1.4fr) auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.mrowm:last-child{border-bottom:0}
+.mlist{margin-top:6px}.mrowm{display:grid;grid-template-columns:44px minmax(0,1fr) auto minmax(0,1.4fr) auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.mrowm:last-child{border-bottom:0}.mrowm[data-mid]{cursor:pointer}.mrowm[data-mid]:hover{background:var(--hover, rgba(127,127,127,.08))}
 .res.w{color:var(--pos)}.res.l{color:var(--neg)}.rt b{font-weight:500}.rt b.hi{font-weight:700;color:var(--ink)}
 @container (max-width:460px){ .mrowm{grid-template-columns:40px minmax(0,1fr) auto;} .mrowm .res,.mrowm .rt{grid-column:2/-1} }
 .upd{display:grid;gap:12px}.updh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.updh h3{margin:0;flex:1 1 auto}.updc ul{margin-top:8px}
@@ -1435,6 +1435,7 @@ function viewCompare(){
   const meets = EA.map(r => { const s2 = EB.get(r[0] + "|" + r[1]); if (!s2) return null;
     const same = r[6] === s2[6] && r[7] === s2[7] && r[6] !== r[7], opp = r[6] === s2[7] && r[7] === s2[6] && r[6] !== r[7];
     return same || opp ? {r, s2, team: same} : null; }).filter(Boolean);
+  const MIDS = new Map(); [a, b].forEach(i => ((D.pml || {})[i] || []).forEach(x => { const m = D.mt[x[0]]; if (m) MIDS.set(m[1] + "|" + String(m[2]).replace(/^de_/, ""), m[0]); }));   // v4.35d
   const oppM = meets.filter(x => !x.team), teamM = meets.filter(x => x.team);
   const oW = oppM.filter(x => x.r[5] === "W").length, oL = oppM.length - oW;
   const wpOf = E => { const n = E.filter(r => r[5] === "W" || r[5] === "L").length; return n ? 100 * E.filter(r => r[5] === "W").length / n : null; };
@@ -1448,7 +1449,8 @@ function viewCompare(){
         <div class="tgw"><div><span class="note">${esc(A.name)} usually</span><b class="num">${wA!==null?Math.round(wA)+"%":"–"}</b></div><div><span class="note">${esc(B.name)} usually</span><b class="num">${wB!==null?Math.round(wB)+"%":"–"}</b></div></div>` : `<div class="note" style="margin-top:6px">Never on the same team</div>`}</div>
     </div>
     ${meets.length ? `<div class="eyebrow" style="margin-top:14px">Recent meetings</div><div class="mlist">${meets.slice(-6).reverse().map(x => { const ra = x.r[4], rb = x.s2[4];
-      return `<div class="mrowm"><span class="note num">${esc(x.r[0].slice(5,10))}</span><span>${esc(mapName("de_"+x.r[1]))}</span><span class="pill ${x.team?"":"core"}">${x.team?"Together":"Against"}</span><span class="res ${x.r[5]==="W"?"w":"l"}">${x.team ? (x.r[5]==="W"?"Won":"Lost") : (x.r[5]==="W"?esc(A.name)+" won":esc(B.name)+" won")} <span class="num note">${x.r[6]}-${x.r[7]}</span></span><span class="num rt"><b class="${ra!=null&&rb!=null&&ra>=rb?"hi":""}">${ra!=null?ra.toFixed(2):"–"}</b> <span class="note">vs</span> <b class="${ra!=null&&rb!=null&&rb>ra?"hi":""}">${rb!=null?rb.toFixed(2):"–"}</b></span></div>`; }).join("")}</div><p class="note" style="margin-top:4px">Ratings: ${esc(A.name)} vs ${esc(B.name)} in that match.</p>` : ""}
+      const mid = MIDS.get(x.r[0] + "|" + x.r[1]);
+      return `<div class="mrowm"${mid ? ` data-mid="${esc(mid)}" tabindex="0" role="link" title="Open this match" aria-label="Open the ${esc(mapName("de_"+x.r[1]))} match of ${esc(x.r[0])}"` : ""}><span class="note num">${esc(x.r[0].slice(5,10))}</span><span>${esc(mapName("de_"+x.r[1]))}</span><span class="pill ${x.team?"":"core"}">${x.team?"Together":"Against"}</span><span class="res ${x.r[5]==="W"?"w":"l"}">${x.team ? (x.r[5]==="W"?"Won":"Lost") : (x.r[5]==="W"?esc(A.name)+" won":esc(B.name)+" won")} <span class="num note">${x.r[6]}-${x.r[7]}</span></span><span class="num rt"><b class="${ra!=null&&rb!=null&&ra>=rb?"hi":""}">${ra!=null?ra.toFixed(2):"–"}</b> <span class="note">vs</span> <b class="${ra!=null&&rb!=null&&rb>ra?"hi":""}">${rb!=null?rb.toFixed(2):"–"}</b></span></div>`; }).join("")}</div><p class="note" style="margin-top:4px">Ratings: ${esc(A.name)} vs ${esc(B.name)} in that match.</p>` : ""}
   </div>`;
   const body = groups.map(([lab,g]) => `<div class="card"><h3>${esc(titleCase(lab))}</h3><div class="cmp" style="border-bottom:2px solid var(--line)"><div class="eyebrow">Stat</div><div class="eyebrow" style="text-align:right">${esc(A.name)}</div><div class="eyebrow" style="text-align:right">${esc(B.name)}</div></div>${D.meta.groups[g].map(line).join("")}</div>`).join("");
   return `<section class="pagehead"><div class="eyebrow">Compare</div><h1>Head to Head</h1><p class="lead">Two regulars side by side. The better player on each ranked stat is highlighted: solid when 5+ percentile points ahead, dashed when closer. ${S.adj==="raw" ? "Raw: values and percentiles as posted, not adjusted for Elo." : "Elo-adjusted: each value is shifted by the gap between what players at that player's Elo usually post and the pool average (the raw value is shown underneath), and bars are Elo-adjusted percentiles."}</p><button type="button" class="simbtn" id="c-sim"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z" fill="currentColor"/></svg>Simulate 1v1</button></section>
@@ -2999,7 +3001,7 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => {
   if (!D) return;
-  if (e.key === "Enter" && e.target.closest && e.target.closest("tr[data-mid]")){ goMatch(e.target.closest("tr[data-mid]").dataset.mid); return; }
+  if (e.key === "Enter" && e.target.closest && e.target.closest("tr[data-mid], .mrowm[data-mid]")){ goMatch(e.target.closest("tr[data-mid], .mrowm[data-mid]").dataset.mid); return; }
   if (S.view !== "match" || S.mv.tab !== "rounds" || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
   const M = MCACHE[S.mid]; if (!M || M.err) return;
   if (e.key === "ArrowLeft" || e.key === "ArrowRight"){ const n = S.mv.rd + (e.key === "ArrowRight" ? 1 : -1); if (n < 0 || n >= M.rd.length) return; e.preventDefault(); S.mv.rd = n; S.mv.t = null; S.mv.lvl = null; mvRerender(); }
@@ -3096,6 +3098,9 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-10-05T19:59:00Z", "v4.35d", "Small Fixes", [
+    "Compare: each Recent Meetings row now opens that match's Match page.",
+    "Home: the Most Washed Player description is shorter so it fits on one line."]],
   ["2026-10-05T19:45:00Z", "v4.35", "Match Pages", [
     "New Match page for every match in the database. It shows the map, date and time, final score and half scores, the Match MVP and Match Shackles (highest and lowest Match Score in the lobby, the same score the weekly awards use) and the Match Leaders on rating, Round Swing %, ADR, KPR, KAST, opening kills and utility damage.",
     "Scoreboard: both teams with Rating, Elo won or lost, Round Swing %, K, A, D, ADR, K/D, KPR, HS% and multi-kill round %. It is sorted by rating; click any column to re-sort. Switch between All, T and CT rounds.",
