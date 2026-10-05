@@ -493,6 +493,172 @@ button.awname{cursor:pointer}button.awname:hover{color:var(--accent)}
 .awi::after{content:attr(data-tip);position:absolute;top:calc(100% + 8px);right:-12px;width:230px;white-space:normal;background:var(--ink);color:var(--surface);
   font:500 12px/1.45 var(--sans);padding:7px 10px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .12s;z-index:40;box-shadow:var(--shadow-pop);text-align:left}
 .awi:hover::after,.awi:focus::after{opacity:1}
+/* ------------------------------------------------------------------ v4.35 match viewer */
+:root{--t:#B7791F;--ct:#3E6BB4;--t-soft:#F8EBD3;--ct-soft:#E1E9F7}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--t:#E3B04B;--ct:#8FB0EA;--t-soft:#3A2D16;--ct-soft:#1B2840}}
+:root[data-theme="dark"]{--t:#E3B04B;--ct:#8FB0EA;--t-soft:#3A2D16;--ct-soft:#1B2840}
+.mv-head{margin-top:22px;display:grid;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;box-shadow:var(--shadow)}
+.mv-mapname{font-size:30px}
+.mv-score{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:18px;padding:14px 0 4px;border-top:1px solid var(--line)}
+.mv-team{min-width:0}.mv-team.r{text-align:right}
+.mv-tn{font-size:18px;font-weight:600;overflow-wrap:anywhere}
+.mv-team:not(.won) .mv-tn{color:var(--ink-2)}
+.mv-sc{display:flex;align-items:baseline;gap:10px;font-size:44px;line-height:1}
+.mv-sc b{font-weight:600;color:var(--muted)}.mv-sc b.w{color:var(--ink)}.mv-sc i{font-style:normal;color:var(--muted);font-size:30px}
+.mv-halves{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.mv-half{display:inline-flex;gap:8px;align-items:baseline}
+.mv-awrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:16px;margin-top:16px}
+.mv-awh{display:flex;gap:14px;align-items:center}
+.mv-awh>div:nth-child(2){flex:1;min-width:0}
+.mv-awn{font-size:17px;font-weight:600;margin:1px 0}
+.mv-aws{display:grid;justify-items:end;text-align:right}.mv-aws b{font-size:30px;line-height:1.05}
+.mv-awst{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.mv-awst>div{display:grid;gap:2px;min-width:0}.mv-awst b{font-size:15px}
+.mv-leads{margin-top:16px}
+.mv-lgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.mv-lead{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);min-width:0}
+.mv-lead b{font-size:19px}.mv-ln{font-size:13px;overflow-wrap:anywhere}
+.mv-tabs{margin-top:26px}
+.mv-ctl{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;margin-top:16px}
+.mv-sub{display:flex;gap:2px;flex-wrap:wrap;padding:3px;background:var(--surface-3);border-radius:9px;max-width:100%}
+.mv-sub button{border:0;background:transparent;padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;white-space:nowrap}
+.mv-sub button:hover{color:var(--ink)}
+.mv-sub button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.mv-tcard{margin-top:14px}
+.mv-th{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.mv-th.sm{margin:0 0 4px;font-size:13px}
+.mv-side{display:inline-block;width:5px;height:16px;border-radius:3px;background:var(--muted);vertical-align:-3px;margin-right:6px;flex:none}
+.mv-side.t{background:var(--t)}.mv-side.ct{background:var(--ct)}
+.mv-tbl th.r,.mv-tbl td.r{text-align:right}
+.mv-tbl td,.mv-tbl th{white-space:nowrap}
+.mv-sort{border:0;background:transparent;padding:0;cursor:pointer;font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit}
+.mv-sort.on,.mv-sort:hover{color:var(--ink)}
+.mv-tbl td.mv-best{font-weight:700;color:var(--accent);background:var(--accent-soft)}
+.mv-tbl td.mv-thin{color:var(--muted)}
+.mv-chip{display:inline-block;padding:1px 7px;border-radius:6px;min-width:44px;text-align:right}
+.mv-ptd{min-width:150px}
+.mv-pl{border:0;background:transparent;padding:0;font:inherit;font-weight:600;color:var(--ink);cursor:default}
+button.mv-pl{cursor:pointer}button.mv-pl:hover{color:var(--accent);text-decoration:underline}
+.mv-tag{font-size:10.5px;padding:0 7px;margin-left:6px;vertical-align:1px}
+.mv-party{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
+.mv-party.pk0{background:#8E6BB0}.mv-party.pk1{background:#2A9D8F}.mv-party.pk2{background:#D17A22}.mv-party.pk3{background:#C2417A}.mv-party.pk4{background:#5A8F29}.mv-party.pk5{background:#6C7A89}
+/* round strip */
+.mv-strip{margin-top:16px;overflow-x:auto}
+.mv-sgrid{display:grid;grid-template-columns:max-content minmax(calc(var(--n) * 24px),1fr);gap:4px 12px;align-items:center}
+.mv-sl{font-size:12.5px;font-weight:600;white-space:nowrap;display:flex;align-items:center}
+.mv-srow{display:grid;grid-template-columns:repeat(var(--n),minmax(20px,1fr));gap:3px}
+.mv-rc{height:28px;border:0;border-radius:5px;background:var(--surface-3);cursor:pointer;display:grid;place-items:center;padding:0;color:#fff}
+.mv-rc svg{width:14px;height:14px}
+.mv-rc.w.t{background:var(--t)}.mv-rc.w.ct{background:var(--ct)}
+.mv-rc:hover{filter:brightness(1.1)}
+.mv-rc.on{outline:2px solid var(--accent);outline-offset:1px}
+.mv-rc.br,.mv-rn.br{margin-left:7px}
+.mv-rn{font-size:10.5px;text-align:center;color:var(--muted);font-family:var(--mono)}
+.mv-rn.on{color:var(--accent);font-weight:700}
+.mv-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.mv-legend span{display:inline-flex;gap:5px;align-items:center}
+.mv-li svg{width:13px;height:13px}
+.mv-sw{display:inline-block;width:11px;height:11px;border-radius:3px}.mv-sw.t{background:var(--t)}.mv-sw.ct{background:var(--ct)}
+/* round detail */
+.mv-round{margin-top:14px}
+.mv-rhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.mv-rhead h2{margin-top:2px}
+.mv-rnav{display:flex;gap:8px}.mv-rnav .morebtn{padding:6px 14px}.mv-rnav .morebtn:disabled{opacity:.4;cursor:not-allowed}
+.mv-buys{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:13px;color:var(--ink-2)}
+.mv-buy{display:inline-block}
+.mv-nm.t{color:var(--t)}.mv-nm.ct{color:var(--ct)}
+b.mv-nm{font-weight:600}
+.mv-nm .mv-pl{color:inherit}
+.mv-wp{margin-top:14px}
+.mv-wpl{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.mv-wpsvg{display:block;width:100%;height:84px;margin-top:4px;background:var(--surface-2);border-radius:var(--r-sm)}
+.mv-wpline{fill:none;stroke:var(--t);stroke-width:2.2;vector-effect:non-scaling-stroke}
+.mv-wpfill{fill:var(--t-soft);opacity:.75}
+.mv-wp50{stroke:var(--line-strong);stroke-dasharray:4 4;vector-effect:non-scaling-stroke}
+.mv-wpcur{stroke:var(--ink);stroke-width:1.2;opacity:.45;vector-effect:non-scaling-stroke}
+.mv-wpax{display:flex;justify-content:space-between;margin-top:2px}
+.mv-rgrid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.35fr) minmax(0,1fr);gap:18px;margin-top:16px;align-items:start}
+.mv-contrib{display:grid;gap:14px;min-width:0}
+.mv-ctbl th,.mv-ctbl td{padding:5px 6px;font-size:12.5px}
+.mv-ctbl .mv-ptd{min-width:0;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.mv-ctbl tr.mv-dead td{opacity:.5}
+.mv-mapwrap{min-width:0;display:grid;gap:8px}
+.mv-mapctl{display:flex;justify-content:flex-end}
+.mv-map{aspect-ratio:1/1;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.mv-svg{display:block;width:100%;height:100%}
+.mv-svg .t{--sc:var(--t)}.mv-svg .ct{--sc:var(--ct)}
+.mvm{cursor:pointer;transition:opacity .15s}
+.mvm.smoke circle{fill:rgba(150,150,162,.42);stroke:var(--sc,#999);stroke-width:3}
+.mvm.molly circle{fill:rgba(232,86,31,.32);stroke:#E2561F;stroke-width:2;stroke-dasharray:5 3}
+.mvm.flash path{fill:#FFF3B0;stroke:var(--sc,#999);stroke-width:2.5}
+.mvm.he circle{fill:rgba(220,60,60,.1);stroke:var(--sc,#999);stroke-width:2;stroke-dasharray:4 3}.mvm.he circle.core{fill:var(--sc,#999);stroke:none}
+.mvm.decoy circle{fill:var(--muted)}
+.mvm .trace{stroke:var(--sc,#999);stroke-width:3;stroke-dasharray:9 7;opacity:.75}
+.mvm .killer{fill:var(--sc,#999);stroke:var(--surface);stroke-width:3}
+.mvm .victim path{stroke:var(--sc,#999);stroke-width:5.5;stroke-linecap:round;fill:none}
+.mvm .victim .halo{fill:var(--surface);opacity:.9;stroke:var(--sc,#999);stroke-width:2.5}
+.mvm.hi{filter:drop-shadow(0 0 6px var(--accent))}.mvm.hi .trace{opacity:1;stroke-width:5}
+.mvm.hi.smoke circle,.mvm.hi.molly circle{stroke-width:6}
+.mvm.fresh{animation:mvpulse .9s ease-out}
+@keyframes mvpulse{from{opacity:.2}to{opacity:1}}
+@media (prefers-reduced-motion: reduce){.mvm.fresh{animation:none}}
+.mvlab{font:600 22px var(--sans);fill:var(--sc,var(--ink));paint-order:stroke;stroke:var(--surface);stroke-width:6px;stroke-linejoin:round;pointer-events:none}
+.mvlab.hi{font-size:27px}
+.mv-scrub{display:flex;gap:10px;align-items:center}
+.mv-scrub input{flex:1;accent-color:var(--accent);min-width:0}
+.mv-scrub span{min-width:84px;text-align:right;font-size:12.5px;color:var(--muted)}
+.mv-play{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;color:var(--accent);font-size:12px;flex:none}
+.mv-play:hover{border-color:var(--accent)}
+.mv-mlegend{display:flex;gap:12px;flex-wrap:wrap}
+.mv-mlegend span{display:inline-flex;gap:5px;align-items:center}
+.mk{display:inline-block;width:12px;height:12px;border-radius:50%}
+.mk.kill{background:none;position:relative;width:12px;height:12px}
+.mk.kill::before,.mk.kill::after{content:"";position:absolute;left:5px;top:0;width:2.5px;height:12px;background:var(--ink-2);border-radius:2px;transform:rotate(45deg)}.mk.kill::after{transform:rotate(-45deg)}
+.mk.smoke{background:rgba(150,150,162,.6)}.mk.molly{background:rgba(232,86,31,.6)}.mk.flash{background:#F2D649}.mk.he{border:2px dashed #C94040}
+.mv-logwrap{min-width:0}
+.mv-logh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mv-utog{display:inline-flex;gap:5px;align-items:center;cursor:pointer}
+.mv-log{list-style:none;margin:0;padding:0;max-height:640px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm)}
+.mv-ev{display:grid;grid-template-columns:38px 18px minmax(0,1fr);gap:8px;padding:7px 10px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px;align-items:start;transition:background .12s,opacity .12s}
+.mv-ev:last-child{border-bottom:0}
+.mv-ev:hover,.mv-ev.hi{background:var(--accent-soft)}
+.mv-ev.future{opacity:.32}
+.mv-ev.end{background:var(--surface-2);cursor:default}
+.mv-log.noutil .mv-ev.util{display:none}
+.mv-t{color:var(--muted);font-size:12px;padding-top:1px}
+.mv-tx{min-width:0;overflow-wrap:anywhere}
+.mv-sub2{font-size:12px;color:var(--muted);margin-top:1px}
+.mv-wpd{margin-left:6px;font-weight:600}
+.mv-ico{display:grid;place-items:center;padding-top:2px;color:var(--ink-2)}
+.mv-ico svg{width:14px;height:14px}
+.mv-ico.u::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--muted)}
+.mv-ico.u.flash::before{background:#F2D649}.mv-ico.u.he::before{background:#C94040}.mv-ico.u.molly::before{background:#E2561F}.mv-ico.u.smoke::before{background:#9A9AA6}
+.mv-ico.b{color:var(--accent)}.mv-ico.t{color:var(--t)}.mv-ico.ct{color:var(--ct)}
+/* duels */
+.mv-duel td.mv-dc{text-align:center;min-width:74px}
+.mv-duel td.mv-dc .note{margin:0 3px}
+.mv-duel th.mv-dh{text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink);text-align:center;white-space:nowrap}
+.mv-duel .mv-dt .note,.mv-dtot .note{margin:0 3px}
+.mv-dtot td{font-weight:600;background:var(--surface-2)}
+.mv-duel thead th:first-child{white-space:normal;min-width:150px;max-width:220px}
+/* player Matches tab */
+.mv-ml tbody tr.mv-mrow{cursor:pointer}
+.mv-ml tbody tr.mv-mrow:hover td{background:var(--accent-soft)}
+.mv-res{display:inline-grid;place-items:center;width:22px;height:20px;border-radius:5px;font-size:11.5px;font-weight:700}
+.mv-res.W{background:var(--pos-soft);color:var(--pos)}.mv-res.L{background:var(--neg-soft);color:var(--neg)}.mv-res.T{background:var(--surface-3);color:var(--muted)}
+.awbig[data-mid]{cursor:pointer;border-radius:var(--r-sm)}.awbig[data-mid]:hover b{color:var(--accent)}
+.awmatch{margin-top:10px;display:inline-flex;font-weight:600}
+@media (max-width:1080px){
+  .mv-rgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .mv-mapwrap{grid-column:1/-1;order:-1;max-width:640px;width:100%;justify-self:center}
+}
+@media (max-width:700px){
+  .mv-rgrid{grid-template-columns:minmax(0,1fr)}
+  .mv-sc{font-size:34px}.mv-sc i{font-size:24px}
+  .mv-tn{font-size:15px}
+  .mv-awst{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mv-head{padding:16px}
+}
 </style>
 
 <header class="appbar">
@@ -526,7 +692,7 @@ button.awname{cursor:pointer}button.awname:hover{color:var(--accent)}
 (() => {
 "use strict";
 let D = null;                        // data.json
-const S = {view:"home", p:null, win:"All", winSet:false, awk:0, side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, c5:{all:false}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"r:0", sort:"pct", ranked:true}, adj:"elo", ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}};
+const S = {view:"home", p:null, win:"All", winSet:false, awk:0, side:"All", wf:"All", map:"All maps", tab:"overview", open:{}, spw:"AK-47", cmp:{a:null, b:null}, c5:{all:false}, heatMode:"pres", pheat:{map:null, mode:"stand", level:null}, board:{metric:"r:0", sort:"pct", ranked:true}, adj:"elo", ts:{metric:"adr", k:5}, maps:{map:"All maps", scope:"All rounds"}, spots:{map:null, side:"T", snap:20, scope:"Opponents of Core-5", level:null}, mid:null, pmAll:false, mv:{tab:"board", side:"All", cat:"aim", sort:null, desc:true, rd:0, du:"Kills", t:null, lvl:null, util:true}};
 // v4.25: page selections (everything in S except view + p). Clicking onto a page resets them to these defaults;
 // Back/Forward (and reload) bring back what that history entry had, via history.state.
 const SEL_DEF = JSON.stringify(Object.fromEntries(Object.entries(S).filter(([k]) => k !== "view" && k !== "p")));
@@ -652,6 +818,7 @@ function fromHash(){
   const sm = /^sim(\d+)-(\d+)$/.exec(h);
   if (sm && D.players[+sm[1]] && D.players[+sm[2]] && sm[1] !== sm[2]) { S.view = "sim"; S.cmp = {a:+sm[1], b:+sm[2]}; }
   else if (/^p\d+$/.test(h) && D.players[+h.slice(1)]) { S.view = "player"; S.p = +h.slice(1); }
+  else if (/^m[0-9a-f-]{36}$/.test(h)) { S.view = "match"; S.mid = h.slice(1); }
   else if (["home","players","board","maps","spots","compare","core5","faq","updates"].includes(h)) S.view = h;
   else if (/^(overview|aim|spray|team|deaths|social|form)$/.test(h)) { S.view = "player"; S.tab = h; }
 }
@@ -792,7 +959,7 @@ function awPanel(a, x){
   } else if (d.match){
     big = `<b>${fmt(x.score, "f1")}</b><span>Match Score<br>${esc(mapName(x.map))} · ${x.rec === "W" ? "Won" : x.rec === "L" ? "Lost" : "Tied"} <span class="num">${esc(x.sl)}</span> · ${esc(dayLabel(x.date))}</span>`;
     stats = st("Rating", fmt(x.rt, "f2")) + st("ADR", fmt(x.adr, "f1")) + rs;
-    foot = "";
+    foot = x.mid ? `<button type="button" class="link awmatch" data-mid="${esc(x.mid)}">View the Match →</button>` : "";
   } else {
     big = `<b>${fmt(x.score, "f1")}</b><span>Weekly Score<br>over ${x.m} matches</span>`;
     stats = st("Rating", fmt(x.rt, "f2")) + st("ADR", fmt(x.adr, "f1")) + rs + st("Record", esc(x.rec), "W–L");
@@ -800,7 +967,7 @@ function awPanel(a, x){
   }
   const delta = a === "most_improved" || a === "most_washed";
   const ru = (x.ru || []).length ? `<span>Runners-up: ${x.ru.map(([n, v]) => `${esc(n)} <span class="num">${delta ? (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1) : (+v).toFixed(1)}</span>`).join(" · ")}</span>` : "";
-  return `<div class="card awc aw-${d.cls}">${head}<div class="awwho">${nm}${elo}</div><div class="awbig">${big}</div><div class="awstats${d.match ? " c3" : ""}">${stats}</div>${foot || ru ? `<div class="awfoot">${foot}${ru}</div>` : ""}</div>`;
+  return `<div class="card awc aw-${d.cls}">${head}<div class="awwho">${nm}${elo}</div><div class="awbig"${d.match && x.mid ? ` data-mid="${esc(x.mid)}" title="Open this match"` : ""}>${big}</div><div class="awstats${d.match ? " c3" : ""}">${stats}</div>${foot || ru ? `<div class="awfoot">${foot}${ru}</div>` : ""}</div>`;
 }
 function awardsSection(){
   const A = D.awards || {}, W = A.weeks || [];
@@ -850,6 +1017,7 @@ function viewHome(){
       <ul class="steps">
         <li><b>Home</b>: this week's Core-5 awards, with every past week one click away.</li>
         <li><b>Player pages</b>: weekly award badges, headline stats with week-over-week changes, 1-100 ratings, archetype, strongest and weakest stats, aim and movement, spray control and recoil patterns, trading, utility, how they die, teammates, rivals, Elo and form. Any page can be filtered to one map.</li>
+        <li><b>Match pages</b>: every match in the database, from a player's Matches tab or an award: scoreboard by side, MVP and Shackles, advanced stats, a round-by-round replay on the map, and head-to-head duels.</li>
         <li><b>Leaderboards</b>: rank every regular by 1-100 ratings, Elo or matches played, or on any of the ${D.meta.metrics.length} stats, filtered by matches and Elo.</li>
         <li><b>Compare</b>: two regulars side by side, plus their record against and alongside each other, and a simulated 1v1.</li>
         <li><b>Core 5</b>: the five of us head to head on ratings and the essential stats.</li>
@@ -878,7 +1046,7 @@ function viewPlayer(){
     return `<div class="tile"><div class="eyebrow">${esc(m.label.replace("Avg ",""))}</div><div class="v">${x.empty?"–":fmt(x.value, m.fmt)}</div>
       ${!x.empty && x.rankable && x.pct!==null ? `<div class="pbar"><i style="width:${Math.max(2,x.pct)}%;background:${pctColor(x.pct)}"></i></div><div class="sub"><span>${ord(Math.round(x.pct))} pct</span><span>Average ${fmt(x.lobby,m.fmt)}</span></div>` : `<div class="pbar"></div><div class="sub"><span>${x.allWeapons?"All weapons":"Not ranked"}</span><span>Average ${fmt(x.lobby,m.fmt)}</span></div>`}${wowLine(k, m, wi)}</div>`;
   }).join("");
-  const tabs = [["overview","Overview"],["aim","Aim & Mechanics"],["spray","Spray"],["team","Team Play & Utility"],["deaths","How They Die"],["social","Social"],["heat","Heatmap"],["form","Form & Elo"]];
+  const tabs = [["overview","Overview"],["matches","Matches"],["aim","Aim & Mechanics"],["spray","Spray"],["team","Team Play & Utility"],["deaths","How They Die"],["social","Social"],["heat","Heatmap"],["form","Form & Elo"]];
   return `
   <div class="phead">
     <div class="who">
@@ -982,6 +1150,7 @@ function tabBody(p){
     case "social": return `<div class="grid g2 section">${matesCard(p)}${vrCard(p)}${oppDuelsCard(p)}</div>`;
     case "form": return `<div class="section">${eloCard(p)}${tsCard(p)}<div class="grid g2">${famCard(p)}${tiltCard(p)}</div></div>`;
     case "heat": return playerHeatCard(p);
+    case "matches": return matchesTab(p);
     default: return overview(p);
   }
 }
@@ -2343,6 +2512,507 @@ function drawCharts(){
   }
 }
 
+// ------------------------------------------------------------------ v4.35 match viewer
+// Player page Matches tab (D.pml + D.mt) and the Match page (#m<match_id>), which lazy-loads m/<match_id>.json.
+const MCACHE = {}, MLOAD = {};
+let MVPLAY = null;
+const MV_TABS = [["board","Scoreboard"],["adv","Advanced Stats"],["rounds","Round-by-Round"],["duels","Duels"]];
+const MV_DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function mvWhen(s, long){                                       // "2026-09-07 16:59" (US Eastern, as stored)
+  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(s || "")); if (!m) return esc(s || "");
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])), h = +m[4], ap = h >= 12 ? "PM" : "AM", h12 = (h % 12) || 12;
+  const t = `${h12}:${m[5]} ${ap}`;
+  return long ? `${MV_DAYS[d.getUTCDay()]}, ${MON[+m[2] - 1]} ${+m[3]}, ${m[1]} · ${t} ET` : `${MON[+m[2] - 1]} ${+m[3]} · ${t}`;
+}
+const mvClock = t => { if (t === null || t === undefined) return "–"; const s = Math.max(0, Math.round(t)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+const mvTeamName = n => { const s = String(n || "").replace(/^team_/i, ""); return s ? "Team " + s : "Team"; };
+const mvSigned = (v, f) => v === null || v === undefined || Number.isNaN(v) ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "±") + fmt(Math.abs(v), f);
+// colour a single-match number by where it falls among every scored player-match in the database (D.mq quantiles)
+function mvPct(key, v){
+  const q = (D.mq || {})[key]; if (!q || v === null || v === undefined || Number.isNaN(v)) return null;
+  if (v <= q[0]) return 0; if (v >= q[q.length - 1]) return 100;
+  for (let j = 1; j < q.length; j++) if (v <= q[j]){ const a = q[j - 1], b = q[j]; return (j - 1 + (b > a ? (v - a) / (b - a) : .5)) * 100 / (q.length - 1); }
+  return 100;
+}
+const mvChip = (key, v, txt) => { const p = mvPct(key, v); return `<span class="mv-chip num" style="${p === null ? "" : `background:${pctTint(p, .2)};box-shadow:inset 0 0 0 1px ${pctTint(p, .5)}`}">${txt}</span>`; };
+const eloTxt = v => v === null || v === undefined ? `<span class="note">–</span>` : `<span class="num" style="color:${v > 0 ? "var(--pos)" : v < 0 ? "var(--neg)" : "var(--muted)"}">${v > 0 ? "+" : v < 0 ? "−" : "±"}${Math.abs(v)}</span>`;
+
+function goMatch(id, rd){
+  mvStop(); saveState(); selRestore(null);
+  S.view = "match"; S.mid = id;
+  if (rd !== undefined && rd !== null){ S.mv.tab = "rounds"; S.mv.rd = rd; }
+  if (location.hash !== "#m" + id) history.pushState({sel: selSnap(), y: 0}, "", "#m" + id);
+  else history.replaceState({sel: selSnap(), y: 0}, "");
+  render(); window.scrollTo({top:0});
+}
+function mvGet(id){
+  if (MCACHE[id]) return MCACHE[id];
+  if (!MLOAD[id]) MLOAD[id] = fetch(`m/${id}.json`, {cache:"no-cache"})
+    .then(r => { if (!r.ok) throw new Error(r.status === 404 ? "this match isn't in the database" : "HTTP " + r.status); return r.json(); })
+    .then(d => { MCACHE[id] = mvPrep(d); })
+    .catch(e => { MCACHE[id] = {err: e.message || String(e)}; MLOAD[id] = null; })
+    .then(() => { if (S.view === "match" && S.mid === id){ const y = scrollY; render(); scrollTo(0, y); } });
+  return null;
+}
+function mvPrep(M){                                             // stat vectors -> objects; derived per-player facts
+  M.S = {};
+  for (const sd of ["All", "T", "CT"]) M.S[sd] = (M.st[sd] || []).map(r => { if (!r) return null; const o = {}; M.sk.forEach((k, j) => o[k] = r[j]); return o; });
+  M.n = M.pl.length;
+  M.side0 = (M.teams[0] || {}).start;
+  // parties: number each multi-player party within its team
+  const cnt = {}; M.pl.forEach(p => { if (p.party) cnt[p.party] = (cnt[p.party] || 0) + 1; });
+  const ids = {}; let k = 0; M.pl.forEach(p => { if (p.party && cnt[p.party] > 1 && !(p.party in ids)) ids[p.party] = k++; });
+  M.pl.forEach(p => { p.pk = p.party && cnt[p.party] > 1 ? ids[p.party] : null; p.ps = p.party ? cnt[p.party] : 1; });
+  // half / overtime scores
+  const halves = []; let cur = null;
+  M.rd.forEach(r => { const key = r.ot ? "OT" : "H" + r.half; if (!cur || cur.key !== key){ cur = {key, s:[0, 0]}; halves.push(cur); } if (r.wt === 0 || r.wt === 1) cur.s[r.wt]++; });
+  M.halves = halves;
+  return M;
+}
+
+// ---------------------------------------------------------------- stat columns
+const R0 = (a, b) => (a === null || a === undefined || !b ? null : a / b);
+const MV_COL = {
+  rating:{lab:"Rating", tip:"Our match rating (same formula as everywhere on the site)", f:o => o.rating, fmt:"f2", dir:1, q:"rating"},
+  elo:{lab:"Elo ±", tip:"FACEIT Elo won or lost in this match", f:(o, p, sd) => sd === "All" ? p.ed : null, fmt:"elo", dir:1, noBest:true},
+  rs:{lab:"RS%", tip:"Round Swing %: round win probability added per round (signed)", f:o => o.rs_rounds ? o.rs_sum / o.rs_rounds * 100 : null, fmt:"spct", dir:1, q:"rs"},
+  k:{lab:"K", tip:"Kills", f:o => o.kills, fmt:"f0", dir:1},
+  a:{lab:"A", tip:"Assists", f:o => o.assists, fmt:"f0", dir:1},
+  d:{lab:"D", tip:"Deaths", f:o => o.deaths, fmt:"f0", dir:-1},
+  adr:{lab:"ADR", tip:"Damage to enemies per round", f:o => R0(o.damage, o.rounds), fmt:"f1", dir:1, q:"adr"},
+  kd:{lab:"K/D", tip:"Kills per death", f:o => o.deaths ? o.kills / o.deaths : o.kills, fmt:"f2", dir:1},
+  kpr:{lab:"KPR", tip:"Kills per round", f:o => R0(o.kills, o.rounds), fmt:"f2", dir:1},
+  hs:{lab:"HS%", tip:"Share of kills that were headshots (3+ kills to be highlighted)", f:o => o.kills ? o.hs_kills / o.kills * 100 : null, fmt:"pct", dir:1, min:o => o.kills >= 3},
+  mk:{lab:"MK%", tip:"Multi-kill rounds: share of rounds with 2+ kills", f:o => R0(o.mk, o.rounds) === null ? null : o.mk / o.rounds * 100, fmt:"pct", dir:1},
+  kast:{lab:"KAST", tip:"Rounds with a kill, assist, survival or traded death", f:o => R0(o.kast, o.rounds) === null ? null : o.kast / o.rounds * 100, fmt:"pct", dir:1},
+  // aim
+  fsh:{lab:"First-Shot Acc.", tip:"First bullet of each burst that hit", f:o => o.fs ? o.fs_hit / o.fs * 100 : null, fmt:"pct", dir:1, min:o => o.fs >= 5},
+  cs:{lab:"Counter-Strafe", tip:"First shots fired stopped (counter-strafed)", f:o => o.fs ? o.fs_cs / o.fs * 100 : null, fmt:"pct", dir:1, min:o => o.fs >= 5},
+  sts:{lab:"Sight-to-Shot", tip:"Time from an enemy becoming visible to the first shot", f:o => o.sts_n ? o.sts_sum / o.sts_n * 1000 : null, fmt:"ms", dir:-1, min:o => o.sts_n >= 3},
+  ttd:{lab:"Time-to-Damage", tip:"Time from an enemy becoming visible to the first damage", f:o => o.ttd_n ? o.ttd_sum / o.ttd_n * 1000 : null, fmt:"ms", dir:-1, min:o => o.ttd_n >= 3},
+  xh:{lab:"Crosshair Error", tip:"Degrees between the crosshair and the enemy's head when he became visible", f:o => o.xh_n ? o.xh_sum / o.xh_n : null, fmt:"deg", dir:-1, min:o => o.xh_n >= 3},
+  duel:{lab:"Duel Win %", tip:"Two-way fights won", f:o => o.duels ? o.duels_won / o.duels * 100 : null, fmt:"pct", dir:1, min:o => o.duels >= 3},
+  acc:{lab:"Accuracy", tip:"Bullets that hit a player", f:o => o.shots ? o.hits / o.shots * 100 : null, fmt:"pct", dir:1, min:o => o.shots >= 20},
+  bpk:{lab:"Bullets / Kill", tip:"Bullets fired per gun kill", f:o => o.bpk_n ? o.bpk_sum / o.bpk_n : null, fmt:"f1", dir:-1, min:o => o.bpk_n >= 3},
+  ttk:{lab:"Time-to-Kill", tip:"First damage to kill, gun kills", f:o => o.ttk_n ? o.ttk_sum / o.ttk_n * 1000 : null, fmt:"ms", dir:-1, min:o => o.ttk_n >= 3},
+  // entrying
+  ok:{lab:"Opening Kills", tip:"First kill of the round", f:o => o.ok, fmt:"f0", dir:1},
+  od:{lab:"Opening Deaths", tip:"First death of the round", f:o => o.od, fmt:"f0", dir:-1},
+  oa:{lab:"Opening Duels", tip:"Rounds in the first fight (opening kills + deaths)", f:o => (o.ok || 0) + (o.od || 0), fmt:"f0", dir:0},
+  owr:{lab:"Opening Win %", tip:"Opening duels won", f:o => (o.ok || 0) + (o.od || 0) ? o.ok / (o.ok + o.od) * 100 : null, fmt:"pct", dir:1, min:o => o.ok + o.od >= 2},
+  onet:{lab:"Opening ±", tip:"Opening kills minus opening deaths", f:o => (o.ok || 0) - (o.od || 0), fmt:"sf0", dir:1},
+  odu:{lab:"Untraded Opening Deaths", tip:"Opening deaths no teammate traded within 5 s", f:o => o.d_open_untr, fmt:"f0", dir:-1},
+  // trading
+  tk:{lab:"Trade Kills", tip:"Kills that avenged a teammate within 5 s", f:o => o.tk, fmt:"f0", dir:1},
+  td:{lab:"Traded Deaths", tip:"Deaths to an enemy that a teammate avenged within 5 s", f:o => o.d_tr5, fmt:"f0", dir:0},
+  tdp:{lab:"Traded in 5 s", tip:"Share of his deaths to enemies that a teammate avenged within 5 s", f:o => o.d_n ? o.d_tr5 / o.d_n * 100 : null, fmt:"pct", dir:1, min:o => o.d_n >= 3},
+  tr3:{lab:"Traded in 3 s", tip:"Share of his deaths to enemies that a teammate avenged within 3 s", f:o => o.d_n ? o.d_tr3 / o.d_n * 100 : null, fmt:"pct", dir:1, min:o => o.d_n >= 3},
+  mate:{lab:"Mate Distance", tip:"Nearest teammate when the player died (game units)", f:o => o.mate_n ? o.mate_sum / o.mate_n : null, fmt:"f0", dir:0},
+  esc_:{lab:"Low-HP Escapes", tip:"Fights where he left an enemy alive under 30 HP and no teammate finished him within 2 s, as a share of those fights plus his gun kills", f:o => o.dl_ch ? o.dl_n / o.dl_ch * 100 : null, fmt:"pct", dir:-1, min:o => o.dl_ch >= 3},
+  // support
+  fa:{lab:"Flash Assists", tip:"Kills on enemies he flashed", f:o => o.fa, fmt:"f0", dir:1},
+  surv:{lab:"Survival %", tip:"Rounds survived", f:o => o.rounds ? o.survived / o.rounds * 100 : null, fmt:"pct", dir:1},
+  dmgt:{lab:"Damage Taken / Rd", tip:"Damage taken per round", f:o => R0(o.dmg_taken, o.rounds), fmt:"f1", dir:0},
+  gave:{lab:"Value Dropped", tip:"Estimated value of weapons dropped for teammates", f:o => o.gave, fmt:"usd", dir:1},
+  plants:{lab:"Plants", tip:"Bomb plants", f:o => o.plants, fmt:"f0", dir:1},
+  defs:{lab:"Defuses", tip:"Bomb defuses", f:o => o.defuses, fmt:"f0", dir:1},
+  // utility
+  ut:{lab:"Utility Thrown", tip:"Grenades thrown (flash, HE, molotov, smoke)", f:o => o.u_thrown, fmt:"f0", dir:0},
+  fl:{lab:"Flashes", tip:"Flashbangs thrown", f:o => o.fl_thrown, fmt:"f0", dir:0},
+  enf:{lab:"Enemies Flashed", tip:"Enemies blinded", f:o => o.en_fl, fmt:"f0", dir:1},
+  enfs:{lab:"Enemy Blind Time", tip:"Seconds of blindness put on enemies", f:o => o.en_fl_s, fmt:"s", dir:1},
+  tmf:{lab:"Team Flashed", tip:"Teammates blinded", f:o => o.tm_fl, fmt:"f0", dir:-1},
+  ud:{lab:"Utility Damage", tip:"Damage from HE grenades and fire", f:o => o.ud, fmt:"f0", dir:1},
+  flk:{lab:"Flash Kills", tip:"Kills (by him or a teammate) on enemies blinded by his flash", f:o => o.fl_k, fmt:"f0", dir:1},
+  uw:{lab:"Utility Unused", tip:"Value of grenades still held when he died", f:o => o.u_wasted, fmt:"usd", dir:-1},
+  // clutching
+  cln:{lab:"Clutches", tip:"Rounds he was last alive against 1+ enemies", f:o => o.cl_n, fmt:"f0", dir:0},
+  clw:{lab:"Won", tip:"Clutches won", f:o => o.cl_w, fmt:"f0", dir:1},
+  c1:{lab:"1v1", tip:"1v1 clutches won / faced", f:o => o.c1w, txt:o => o.c1f ? `${o.c1w}/${o.c1f}` : "–", dir:1, min:o => o.c1f > 0},
+  c2:{lab:"1v2", tip:"1v2 clutches won / faced", f:o => o.c2w, txt:o => o.c2f ? `${o.c2w}/${o.c2f}` : "–", dir:1, min:o => o.c2f > 0},
+  c3:{lab:"1v3+", tip:"1v3, 1v4 and 1v5 clutches won / faced", f:o => o.c3w, txt:o => o.c3f ? `${o.c3w}/${o.c3f}` : "–", dir:1, min:o => o.c3f > 0},
+  k2:{lab:"2K", tip:"Rounds with exactly 2 kills", f:o => o.r2k, fmt:"f0", dir:1},
+  k3:{lab:"3K", tip:"Rounds with exactly 3 kills", f:o => o.r3k, fmt:"f0", dir:1},
+  k4:{lab:"4K", tip:"Rounds with 4 kills", f:o => o.r4k, fmt:"f0", dir:1},
+  k5:{lab:"Ace", tip:"Rounds with 5 kills", f:o => o.r5k, fmt:"f0", dir:1},
+  // awping
+  awr:{lab:"AWP Rounds", tip:"Rounds started with an AWP", f:o => o.awp_r, fmt:"f0", dir:0},
+  awk:{lab:"AWP Kills", tip:"Kills with the AWP", f:o => o.awp_k, fmt:"f0", dir:1},
+  awkr:{lab:"Kills / AWP Round", tip:"AWP kills (including with a picked-up AWP) per round he started with one", f:o => o.awp_r ? o.awp_k / o.awp_r : null, fmt:"f2", dir:1, min:o => o.awp_r >= 2},
+  aws:{lab:"AWP Kill Share", tip:"Share of his kills made with the AWP", f:o => o.kills ? o.awp_k / o.kills * 100 : null, fmt:"pct", dir:0},
+  dawp:{lab:"Deaths to AWP", tip:"Times he was killed by an AWP", f:o => o.d_awp, fmt:"f0", dir:-1},
+  // economy
+  eq:{lab:"Avg Equipment", tip:"Average equipment value at the start of his rounds", f:o => R0(o.equip, o.rounds), fmt:"usd", dir:0},
+  sp:{lab:"Avg Spent", tip:"Average money spent per round", f:o => R0(o.spent, o.rounds), fmt:"usd", dir:0},
+  pis:{lab:"Pistol Rounds", tip:"Pistol rounds (first round of each half) won / played", f:o => o.w_pis, txt:o => o.r_pis ? `${o.w_pis}/${o.r_pis}` : "–", dir:0},
+  pk:{lab:"Pistol Kills", tip:"Kills in pistol rounds", f:o => o.k_pis, fmt:"f0", dir:1},
+  pdr:{lab:"Pistol ADR", tip:"Damage per pistol round", f:o => R0(o.dm_pis, o.r_pis), fmt:"f1", dir:1, min:o => o.r_pis > 0},
+  ek:{lab:"Eco Kills", tip:"Kills when the team was on an eco", f:o => o.k_eco, fmt:"f0", dir:1},
+  fk:{lab:"Force Kills", tip:"Kills when the team force-bought", f:o => o.k_force, fmt:"f0", dir:1},
+  fbk:{lab:"Full-Buy KPR", tip:"Kills per round his team full-bought", f:o => R0(o.k_full, o.r_fullt), fmt:"f2", dir:1, min:o => o.r_fullt >= 3},
+  sav:{lab:"Saves", tip:"Rounds he saved a weapon", f:o => o.saved, fmt:"f0", dir:0},
+};
+const MV_BOARD = ["rating","elo","rs","k","a","d","adr","kd","kpr","hs","mk"];
+const MV_CATS = [
+  ["aim","Aim",["hs","fsh","cs","sts","ttd","xh","duel","acc","bpk","ttk"], "Mechanics from the moment an enemy is visible. Rows need a few events before they're highlighted."],
+  ["entry","Entrying",["ok","od","oa","owr","onet","odu"], "The first fight of each round."],
+  ["trade","Trading",["tk","td","tdp","tr3","mate","esc_"], "Avenging teammates within 5 s, and staying close enough to be avenged. Trade shares count deaths to enemies."],
+  ["support","Support",["a","fa","kast","surv","gave","plants","defs","dmgt"], "Helping the team win rounds without the kill."],
+  ["utility","Utility",["ut","fl","enf","enfs","tmf","flk","ud","uw"], "Grenades thrown and what they did."],
+  ["clutch","Clutching",["cln","clw","c1","c2","c3","k2","k3","k4","k5"], "Last player alive, plus multi-kill rounds."],
+  ["awp","AWPing",["awr","awk","awkr","aws","dawp"], "Rounds he started with the AWP."],
+  ["econ","Economy",["eq","sp","pis","pk","pdr","ek","fk","fbk","sav"], "Money, pistol rounds and kills by buy type (buy type is the team's)."]];
+function mvFmt(c, v, o){
+  if (c.txt) return c.txt(o);
+  if (v === null || v === undefined || Number.isNaN(v)) return "–";
+  switch (c.fmt){
+    case "spct": return mvSigned(v, "f1");
+    case "sf0": return v > 0 ? "+" + v : v < 0 ? "−" + Math.abs(v) : "0";
+    case "deg": return v.toFixed(1) + "°";
+    case "s": return v.toFixed(1) + " s";
+    case "elo": return eloTxt(v);
+    default: return fmt(v, c.fmt);
+  }
+}
+function mvVals(M, sd, key){                                   // value per player (null = no data / below sample)
+  const c = MV_COL[key];
+  return M.pl.map((p, i) => { const o = M.S[sd][i]; if (!o) return {v:null, o:null, ok:false};
+    const v = c.f(o, p, sd); return {v, o, ok: v !== null && v !== undefined && !Number.isNaN(v) && (!c.min || c.min(o))}; });
+}
+function mvBest(vals, dir){                                    // indices of the best value (needs 2+ players and a spread)
+  if (!dir) return new Set();
+  const ok = vals.map((x, i) => [x, i]).filter(([x]) => x.ok);
+  if (ok.length < 2) return new Set();
+  const best = dir > 0 ? Math.max(...ok.map(([x]) => x.v)) : Math.min(...ok.map(([x]) => x.v));
+  if (ok.every(([x]) => x.v === best)) return new Set();
+  return new Set(ok.filter(([x]) => x.v === best).map(([, i]) => i));
+}
+
+// ---------------------------------------------------------------- page
+function viewMatch(){
+  const M = S.mid ? mvGet(S.mid) : null;
+  if (!M) return `<div class="loading">Loading the match…</div>`;
+  if (M.err) return `<div class="section"><div class="card"><h3>Couldn't load this match</h3><p class="lead">${esc(M.err)}. ${location.protocol === "file:" ? "Match pages need the live site (they load one file per match)." : "Reload the page to try again."}</p></div></div>`;
+  return mvHeader(M) + mvAwards(M) +
+    `<div class="tabs mv-tabs" role="tablist">${MV_TABS.map(([k, l]) => `<button role="tab" type="button" data-mvtab="${k}" aria-selected="${S.mv.tab === k}">${l}</button>`).join("")}</div>
+     <div id="mvbody">${mvBody(M)}</div>`;
+}
+function mvHeader(M){
+  const T = M.teams, w0 = T[0].score > T[1].score, w1 = T[1].score > T[0].score;
+  const team = (t, w, al) => `<div class="mv-team ${al}${w ? " won" : ""}"><div class="mv-tn">${esc(mvTeamName(t.name))}</div>
+    <div class="note">${w ? "Won" : t.score === (al === "l" ? T[1] : T[0]).score ? "Tied" : "Lost"} · started ${esc(t.start)}${t.elo ? ` · avg Elo <span class="num">${Math.round(t.elo).toLocaleString()}</span>` : ""}</div></div>`;
+  const hv = M.halves.map(h => `<span class="mv-half"><span class="eyebrow">${h.key === "OT" ? "OT" : h.key === "H1" ? "1st half" : "2nd half"}</span> <span class="num">${h.s[0]}–${h.s[1]}</span></span>`).join("");
+  return `<div class="mv-head">
+    <div class="mv-top"><div><div class="eyebrow">Match · ${esc(mapName(M.map))}</div><h1 class="mv-mapname">${esc(mapName(M.map))}</h1>
+      <div class="pmeta"><span>${mvWhen(M.start, true)}</span>${M.dur ? `<span class="sep"></span><span class="num">${M.dur} min</span>` : ""}${M.loc ? `<span class="sep"></span><span>${esc(M.loc)} server</span>` : ""}<span class="sep"></span><span class="num">${M.rd.length} rounds</span>
+      ${M.url && /^https:\/\//.test(M.url) ? `<span class="sep"></span><a class="pill fc" href="${esc(M.url)}" target="_blank" rel="noopener noreferrer">FACEIT Room ↗</a>` : ""}</div></div></div>
+    <div class="mv-score">${team(T[0], w0, "l")}<div class="mv-sc num"><b class="${w0 ? "w" : ""}">${T[0].score}</b><i>:</i><b class="${w1 ? "w" : ""}">${T[1].score}</b></div>${team(T[1], w1, "r")}</div>
+    <div class="mv-halves">${hv}</div>
+  </div>`;
+}
+function mvName(M, i, cls){
+  const p = M.pl[i]; if (!p) return "–";
+  const dot = p.pk !== null ? `<span class="mv-party pk${p.pk % 6}" title="Queued together (party of ${p.ps})"></span>` : "";
+  const tag = p.core ? `<span class="pill core mv-tag">Core-5</span>` : p.pro ? `<span class="pill pro mv-tag">Pro</span>` : "";
+  const nm = p.p !== null && p.p !== undefined ? `<button class="mv-pl ${cls || ""}" type="button" data-p="${p.p}" title="Open ${esc(p.n)}'s page">${esc(p.n)}</button>` : `<span class="mv-pl ${cls || ""}">${esc(p.n)}</span>`;
+  return `${dot}${nm}${p.nm && p.nm !== p.n ? ` <small class="note" title="Name at the time">(${esc(p.nm)})</small>` : ""}${tag}`;
+}
+function mvAwards(M){
+  const sc = M.perf.map((v, i) => [v, i]).filter(([v]) => v !== null && v !== undefined);
+  const top = sc.length ? sc.reduce((a, b) => b[0] > a[0] ? b : a) : null, bot = sc.length ? sc.reduce((a, b) => b[0] < a[0] ? b : a) : null;
+  const card = (kind, [v, i]) => { const o = M.S.All[i] || {}, p = M.pl[i];
+    const d = kind === "mvp" ? {cls:"perf", icon:"star", name:"Match MVP", desc:"Highest Match Score in the lobby"} : {cls:"shack", icon:"cuffs", name:"Match Shackles", desc:"Lowest Match Score in the lobby"};
+    const rs = o.rs_rounds ? o.rs_sum / o.rs_rounds * 100 : null;
+    return `<div class="card mv-aw aw-${d.cls}"><div class="mv-awh"><span class="bdg aw-${d.cls} lg" role="img" aria-label="${d.name}">${AWI[d.icon]}</span><div><div class="eyebrow">${d.name}</div><div class="mv-awn">${mvName(M, i)}</div><div class="note">${d.desc} · ${esc(mvTeamName(M.teams[p.t].name))}</div></div>
+      <div class="mv-aws"><b class="num">${fmt(v, "f1")}</b><span class="eyebrow">Match Score</span></div></div>
+      <div class="mv-awst"><div><span class="eyebrow">Rating</span><b class="num">${fmt(o.rating, "f2")}</b></div><div><span class="eyebrow">RS%</span><b class="num">${mvSigned(rs, "f1")}</b></div>
+      <div><span class="eyebrow">K–A–D</span><b class="num">${o.kills ?? "–"}–${o.assists ?? "–"}–${o.deaths ?? "–"}</b></div><div><span class="eyebrow">ADR</span><b class="num">${fmt(R0(o.damage, o.rounds), "f1")}</b></div>
+      <div><span class="eyebrow">Elo</span><b>${eloTxt(p.ed)}</b></div></div></div>`; };
+  const leads = [["rating","Rating"],["rs","Round Swing"],["adr","ADR"],["kpr","KPR"],["kast","KAST"],["hs","HS%"],["ok","Opening Kills"],["ud","Utility Damage"]].map(([k, lab]) => {
+    const c = MV_COL[k], vals = mvVals(M, "All", k), b = [...mvBest(vals, c.dir)];
+    if (!b.length) return `<div class="mv-lead"><span class="eyebrow">${lab}</span><b class="num">–</b><span class="note">No clear leader</span></div>`;
+    const v = vals[b[0]].v;
+    return `<div class="mv-lead"><span class="eyebrow">${lab}</span><b class="num">${mvFmt(c, v, vals[b[0]].o)}</b><span class="mv-ln">${b.map(i => mvName(M, i)).join(" <span class='note'>&amp;</span> ")}</span></div>`;
+  }).join("");
+  return `${sc.length ? `<div class="mv-awrow">${card("mvp", top)}${card("shack", bot)}</div>` : `<div class="card mv-leads"><p class="note">No Match MVP or Shackles: Match Scores need 10+ rounds played, and this match ended too early.</p></div>`}
+    <div class="card mv-leads"><h3>Match Leaders</h3><p class="lead note">Best in the lobby on the essentials (all rounds). Match Score is the composite the weekly awards use: 50 = an average match, 10 points = one standard deviation. <button class="link" type="button" data-faqto="awards">How It's Scored</button></p><div class="mv-lgrid">${leads}</div></div>`;
+}
+function mvBody(M){
+  if (S.mv.tab === "rounds") return mvRounds(M);
+  if (S.mv.tab === "duels") return mvDuels(M);
+  const sideCtl = `<div class="ctl"><span class="eyebrow">Side</span>${seg("mv-side", ["All", "T", "CT"], S.mv.side)}</div>`;
+  if (S.mv.tab === "adv"){
+    if (!MV_CATS.some(c => c[0] === S.mv.cat)) S.mv.cat = "aim";
+    const C = MV_CATS.find(c => c[0] === S.mv.cat);
+    return `<div class="mv-ctl"><div class="mv-sub" role="tablist">${MV_CATS.map(([k, l]) => `<button type="button" role="tab" data-mvcat="${k}" aria-selected="${k === S.mv.cat}">${l}</button>`).join("")}</div>${sideCtl}</div>
+      <p class="lead note" style="margin-top:10px">${esc(C[3])} Best in the lobby is highlighted. Hover a column for its definition.</p>
+      ${[0, 1].map(t => mvTable(M, t, C[2], false)).join("")}`;
+  }
+  return `<div class="mv-ctl">${sideCtl}<p class="note" style="margin:0">Click a column to sort. ${S.mv.side === "All" ? "" : `${esc(S.mv.side)} rounds only; Elo change is for the whole match.`}</p></div>
+    ${[0, 1].map(t => mvTable(M, t, MV_BOARD, true)).join("")}`;
+}
+function mvTable(M, t, cols, board){
+  const sd = S.mv.side, team = M.teams[t];
+  const V = Object.fromEntries(cols.map(k => [k, mvVals(M, sd, k)]));
+  const B = Object.fromEntries(cols.map(k => [k, MV_COL[k].noBest ? new Set() : mvBest(V[k], MV_COL[k].dir)]));
+  let idx = M.pl.map((p, i) => i).filter(i => M.pl[i].t === t);
+  const explicit = S.mv.sort && cols.includes(S.mv.sort);
+  const sk = explicit ? S.mv.sort : cols.includes("rating") ? "rating" : cols[0];
+  const dir = (explicit ? S.mv.desc !== false : MV_COL[sk].dir >= 0) ? -1 : 1;
+  const nul = v => v === null || v === undefined || Number.isNaN(v);
+  idx.sort((a, b) => { const x = V[sk][a].v, y = V[sk][b].v; if (nul(x) && nul(y)) return (M.perf[b] || 0) - (M.perf[a] || 0); if (nul(x)) return 1; if (nul(y)) return -1; return dir * (x - y) || ((M.perf[b] || 0) - (M.perf[a] || 0)); });
+  const sideOf = sd === "All" ? `started ${team.start}` : `on ${sd}`;
+  const won = team.score > M.teams[1 - t].score;
+  const cell = (k, i) => { const x = V[k][i], c = MV_COL[k], best = B[k].has(i);
+    let inner = mvFmt(c, x.v, x.o || {});
+    if (c.q && x.v !== null && x.v !== undefined && board && sd === "All") inner = mvChip(c.q, x.v, inner);
+    return `<td class="r num${best ? " mv-best" : ""}${x.o && !x.ok && x.v !== null && !c.txt ? " mv-thin" : ""}">${inner}</td>`; };
+  return `<div class="card mv-tcard"><div class="mv-th"><span class="mv-side ${team.start === "CT" ? "ct" : "t"}"></span><h3>${esc(mvTeamName(team.name))}</h3><span class="pill ${won ? "core" : ""}">${won ? "Won" : team.score === M.teams[1 - t].score ? "Tied" : "Lost"} ${team.score}–${M.teams[1 - t].score}</span><span class="note">${esc(sideOf)}</span></div>
+    <div class="tscroll"><table class="mv-tbl"><thead><tr><th>Player</th>${cols.map(k => `<th class="r"><button type="button" class="mv-sort${k === sk ? " on" : ""}" data-mvsort="${k}" title="${esc(MV_COL[k].tip)}">${esc(MV_COL[k].lab)}${k === sk ? (dir < 0 ? " ▾" : " ▴") : ""}</button></th>`).join("")}</tr></thead>
+    <tbody>${idx.map(i => `<tr><td class="mv-ptd">${mvName(M, i)}</td>${M.S[sd][i] ? cols.map(k => cell(k, i)).join("") : `<td colspan="${cols.length}" class="note">No ${esc(sd)} rounds</td>`}</tr>`).join("")}</tbody></table></div></div>`;
+}
+
+// ---------------------------------------------------------------- round by round
+const MV_RI = {
+  elim:`<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 1v3.2M8 11.8V15M1 8h3.2M11.8 8H15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+  bomb:`<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 .8l1.5 3.6 3.5-1.9-1.4 3.7 3.6 1.3-3.6 1.4 1.4 3.7-3.5-1.9L8 15.2l-1.5-3.6L3 13.5l1.4-3.7L.8 8.4l3.6-1.4L3 3.3l3.5 1.9z"/></svg>`,
+  defuse:`<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M8 1.3l5.6 2v4.2c0 3.4-2.4 5.9-5.6 7.2C4.8 13.4 2.4 10.9 2.4 7.5V3.3z"/><path d="M5.4 8.1l1.8 1.8 3.5-3.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  time:`<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8.6" r="5.9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 5.4v3.4l2.2 1.4M6.3 1.2h3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+  surrender:`<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 15V1.6M3.5 2.2h8.6l-1.8 2.9 1.8 2.9H3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>`};
+const MV_REASON = {elim:"Elimination", bomb:"Bomb exploded", defuse:"Bomb defused", time:"Time ran out", surrender:"Surrender"};
+const MV_UTIL = {smoke:"Smoke", flash:"Flashbang", he:"HE Grenade", molly:"Molotov", decoy:"Decoy"};
+const MV_WEP = {ak47:"AK-47", m4a1_silencer:"M4A1-S", m4a1:"M4A4", awp:"AWP", usp_silencer:"USP-S", deagle:"Desert Eagle", glock:"Glock-18", galilar:"Galil AR", mp9:"MP9", mac10:"MAC-10",
+  fiveseven:"Five-SeveN", famas:"FAMAS", tec9:"Tec-9", ssg08:"SSG 08", hegrenade:"HE Grenade", p250:"P250", mp7:"MP7", inferno:"Fire", hkp2000:"P2000", planted_c4:"Bomb", elite:"Dual Berettas",
+  xm1014:"XM1014", mag7:"MAG-7", nova:"Nova", p90:"P90", ump45:"UMP-45", sg556:"SG 553", aug:"AUG", cz75a:"CZ75-Auto", revolver:"R8 Revolver", mp5sd:"MP5-SD", bizon:"PP-Bizon", g3sg1:"G3SG1",
+  scar20:"SCAR-20", sawedoff:"Sawed-Off", negev:"Negev", m249:"M249", taser:"Zeus x27", world:"World", flashbang:"Flashbang", smokegrenade:"Smoke", molotov:"Molotov", incgrenade:"Incendiary", decoy:"Decoy"};
+const mvWep = w => !w ? "" : /^knife|bayonet/.test(w) ? "Knife" : MV_WEP[w] || titleCase(String(w).replace(/_/g, " "));
+const mvSideCls = s => s === "CT" ? "ct" : s === "T" ? "t" : "";
+function mvRoundSides(M, r){ const s0 = r.s0 || (r.half && Math.floor(r.half / 2) % 2 === 1 ? (M.side0 === "CT" ? "T" : "CT") : M.side0); return [s0, s0 === "CT" ? "T" : "CT"]; }
+function mvRoundStrip(M){
+  const N = M.rd.length; if (!(S.mv.rd >= 0 && S.mv.rd < N)) S.mv.rd = 0;
+  const row = t => M.rd.map((r, j) => { const sides = mvRoundSides(M, r), won = r.wt === t, br = j > 0 && (M.rd[j - 1].half !== r.half || M.rd[j - 1].ot !== r.ot);
+    return `<button type="button" class="mv-rc${won ? " w " + mvSideCls(sides[t]) : ""}${j === S.mv.rd ? " on" : ""}${br ? " br" : ""}" data-mvrd="${j}" title="Round ${r.n}: ${r.w || "?"} win · ${esc(MV_REASON[r.r] || r.r || "")} · ${r.s[0]}–${r.s[1]}">${won ? MV_RI[r.r] || MV_RI.elim : ""}</button>`; }).join("");
+  const nums = M.rd.map((r, j) => `<span class="mv-rn${j === S.mv.rd ? " on" : ""}${j > 0 && (M.rd[j - 1].half !== r.half || M.rd[j - 1].ot !== r.ot) ? " br" : ""}">${r.n}</span>`).join("");
+  return `<div class="card mv-strip"><div class="mv-sgrid" style="--n:${N}">
+    <div class="mv-sl"><span class="mv-side ${M.teams[0].start === "CT" ? "ct" : "t"}"></span>${esc(mvTeamName(M.teams[0].name))}</div><div class="mv-srow">${row(0)}</div>
+    <div class="mv-sl"></div><div class="mv-srow mv-nums">${nums}</div>
+    <div class="mv-sl"><span class="mv-side ${M.teams[1].start === "CT" ? "ct" : "t"}"></span>${esc(mvTeamName(M.teams[1].name))}</div><div class="mv-srow">${row(1)}</div></div>
+    <div class="mv-legend note"><span><i class="mv-sw t"></i>T win</span><span><i class="mv-sw ct"></i>CT win</span>${["elim","bomb","defuse","time"].map(k => `<span class="mv-li">${MV_RI[k]}${MV_REASON[k]}</span>`).join("")}<span>Use ← → to step through rounds.</span></div></div>`;
+}
+function mvEvents(M, r){                                       // log rows; kills and bomb events carry their own T win chance before / after
+  return r.ev.map((e, k) => {
+    const pb = e[1] === "k" ? e[14] : e[1] === "b" ? e[5] : null, pa = e[1] === "k" ? e[15] : e[1] === "b" ? e[6] : null;
+    return {e, k, d: pb !== null && pb !== undefined && pa !== null && pa !== undefined ? pa - pb : null};
+  });
+}
+function mvRounds(M){
+  const r = M.rd[S.mv.rd = Math.max(0, Math.min(M.rd.length - 1, S.mv.rd || 0))];
+  const [sA, sB] = mvRoundSides(M, r);
+  const sideOf = i => (r.p[i] && r.p[i][6]) || (M.pl[i].t === 0 ? sA : sB);
+  const wTeam = r.wt === 0 || r.wt === 1 ? r.wt : null;
+  const buy = (t, s) => { const b = s === "T" ? r.bt : r.bc, eq = s === "T" ? r.et : r.ec; return `<span class="mv-buy"><span class="mv-side ${mvSideCls(s)}"></span>${esc(mvTeamName(M.teams[t].name))} (${s}) · ${esc(pretty(b || "–"))}${eq ? ` <span class="num">$${eq.toLocaleString()}</span>` : ""}</span>`; };
+  // contributions
+  const contrib = t => { const idx = M.pl.map((p, i) => i).filter(i => M.pl[i].t === t && r.p[i]);
+    idx.sort((a, b) => (r.p[b][4] || 0) - (r.p[a][4] || 0));
+    const sd = t === 0 ? sA : sB;
+    return `<div class="mv-cteam"><div class="mv-th sm"><span class="mv-side ${mvSideCls(sd)}"></span><b>${esc(mvTeamName(M.teams[t].name))}</b><span class="note">${sd}${wTeam === t ? " · won" : ""}</span></div>
+      <table class="mv-tbl mv-ctbl"><thead><tr><th>Player</th><th class="r" title="Kills">K</th><th class="r" title="Assists">A</th><th class="r" title="Deaths">D</th><th class="r" title="Damage to enemies">Dmg</th><th class="r" title="Round Swing: round win probability this player added (points of %)">RS</th></tr></thead>
+      <tbody>${idx.map(i => { const q = r.p[i], rs = q[4] === null ? null : q[4] * 100;
+        return `<tr class="${q[5] ? "" : "mv-dead"}" data-mvpl="${i}"><td class="mv-ptd"><span class="mv-nm ${mvSideCls(sd)}">${M.pl[i].p !== null && M.pl[i].p !== undefined ? `<button class="mv-pl" type="button" data-p="${M.pl[i].p}">${esc(M.pl[i].n)}</button>` : esc(M.pl[i].n)}</span></td><td class="r num">${q[0]}</td><td class="r num">${q[1]}</td><td class="r num">${q[2]}</td><td class="r num">${q[3]}</td>
+          <td class="r num" style="color:${rs > 0.05 ? "var(--pos)" : rs < -0.05 ? "var(--neg)" : "var(--muted)"}">${rs === null ? "–" : mvSigned(rs, "f1")}</td></tr>`; }).join("")}</tbody></table></div>`; };
+  // log
+  const nm = i => i === null || i === undefined ? `<span class="note">someone</span>` : `<b class="mv-nm ${mvSideCls(sideOf(i))}">${esc(M.pl[i].n)}</b>`;
+  const ev = mvEvents(M, r);
+  const chg = (d, side) => { if (d === null || d === undefined) return ""; const v = (side === "T" ? d : -d) * 100; return `<span class="mv-wpd num" title="Change in ${side} round win chance" style="color:${v > 0.5 ? "var(--pos)" : v < -0.5 ? "var(--neg)" : "var(--muted)"}">${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(0)}%</span>`; };
+  const logRow = ({e, k, d}) => {
+    let ic = "", txt = "";
+    if (e[1] === "k"){
+      const fl = e[6] || "", tags = [fl.includes("h") ? "HS" : "", fl.includes("w") ? "Wallbang" : "", fl.includes("s") ? "Through Smoke" : "", fl.includes("n") ? "No-Scope" : "", fl.includes("b") ? "Blind" : "", fl.includes("a") ? "In Air" : "", fl.includes("o") ? "Opening" : "", fl.includes("t") ? "Trade" : ""].filter(Boolean);
+      ic = `<span class="mv-ico k">${MV_RI.elim}</span>`;
+      const ks = e[2] !== null && e[2] !== undefined ? sideOf(e[2]) : (e[3] !== null && e[3] !== undefined ? (sideOf(e[3]) === "T" ? "CT" : "T") : null);
+      txt = e[7] === "enemy" || e[7] === "team" ? `${nm(e[2])} <span class="note">${e[7] === "team" ? "team-killed" : "killed"}</span> ${nm(e[3])}${e[4] !== null && e[4] !== undefined ? ` <span class="note">+ ${esc(M.pl[e[4]].n)}${fl.includes("f") ? " (flash)" : ""}</span>` : ""}<div class="mv-sub2">${esc(mvWep(e[5]))}${tags.length ? " · " + tags.join(" · ") : ""}${chg(d, ks)}</div>`
+        : `${nm(e[3])} <span class="note">died (${esc(e[7] === "suicide" ? "suicide" : mvWep(e[5]) || "world")})</span>${d !== null ? `<div class="mv-sub2">${chg(d, ks)}</div>` : ""}`;
+    } else if (e[1] === "u"){
+      const kind = e[3]; ic = `<span class="mv-ico u ${kind}"></span>`;
+      const det = kind === "flash" ? (e[7] ? `blinded ${e[7]} ${e[7] === 1 ? "enemy" : "enemies"} (${(e[8] || 0).toFixed(1)} s)` : "blinded no enemies") + (e[9] ? ` · ${e[9]} teammate${e[9] === 1 ? "" : "s"}` : "")
+        : kind === "he" || kind === "molly" ? (e[11] ? `${e[11]} damage to enemies` : "no enemy damage") + (e[12] ? ` · ${e[12]} to teammates` : "") : "";
+      txt = `${nm(e[2])} <span class="note">${MV_UTIL[kind] || esc(kind)}</span>${det ? `<div class="mv-sub2">${det}</div>` : ""}`;
+    } else if (e[1] === "b"){
+      ic = `<span class="mv-ico b">${MV_RI[e[2] === "defuse" ? "defuse" : "bomb"]}</span>`;
+      const site = e[4] ? String(e[4]).replace(/^Bombsite/, "") : "";
+      txt = e[2] === "plant" ? `${nm(e[3])} <span class="note">planted the bomb${site ? " at " + esc(site) : ""}</span><div class="mv-sub2">${chg(d, "T")}</div>`
+        : e[2] === "defuse" ? `${nm(e[3])} <span class="note">defused the bomb</span><div class="mv-sub2">${chg(d, "CT")}</div>` : `<b>Bomb exploded</b>${site ? ` <span class="note">at ${esc(site)}</span>` : ""}${d !== null ? `<div class="mv-sub2">${chg(d, "T")}</div>` : ""}`;
+    }
+    return `<li class="mv-ev${e[1] === "u" ? " util" : ""}" data-ev="${k}" data-t="${e[0]}"><span class="mv-t num">${mvClock(e[0])}</span>${ic}<div class="mv-tx">${txt}</div></li>`;
+  };
+  const showUtil = S.mv.util !== false;
+  const end = `<li class="mv-ev end"><span class="mv-t num">${mvClock(r.end)}</span><span class="mv-ico b ${mvSideCls(r.w)}">${MV_RI[r.r] || MV_RI.elim}</span><div class="mv-tx"><b class="mv-nm ${mvSideCls(r.w)}">${esc(r.w || "?")} win</b> <span class="note">${esc(MV_REASON[r.r] || r.r || "")}${wTeam !== null ? ` · ${esc(mvTeamName(M.teams[wTeam].name))}` : ""}</span></div></li>`;
+  const radar = ((D.radar || {})[M.map]) || null;
+  const lvls = radar ? Object.keys(radar.levels) : [];
+  if (lvls.length > 1 && !lvls.includes(S.mv.lvl)){ const zs = r.ev.map(e => e[1] === "k" ? e[13] : e[1] === "u" ? e[6] : null).filter(z => z !== null && z !== undefined);
+    S.mv.lvl = zs.filter(z => z >= radar.split_z).length >= zs.length / 2 ? "upper" : "lower"; }
+  const mapCard = radar ? `<div class="mv-mapwrap">
+      ${lvls.length > 1 ? `<div class="mv-mapctl">${seg("mv-lvl", lvls.map(l => l === "upper" ? "Upper" : "Lower"), S.mv.lvl === "upper" ? "Upper" : "Lower")}</div>` : ""}
+      <div class="mv-map" id="mv-map"></div>
+      <div class="mv-scrub"><button type="button" class="mv-play" id="mv-play" aria-label="Play the round">▶</button><input type="range" id="mv-scrub" min="0" max="${Math.ceil(r.end || 115)}" step="0.5" value="${S.mv.t === null || S.mv.t === undefined ? Math.ceil(r.end || 115) : S.mv.t}" aria-label="Round time"><span class="num" id="mv-tlab"></span></div>
+      <div class="mv-mlegend note"><span><i class="mk kill"></i>Kill (killer → victim)</span><span><i class="mk smoke"></i>Smoke</span><span><i class="mk molly"></i>Molotov</span><span><i class="mk flash"></i>Flash</span><span><i class="mk he"></i>HE</span></div>
+    </div>` : `<div class="note">No map image for ${esc(mapName(M.map))}.</div>`;
+  return `${mvRoundStrip(M)}
+    <div class="card mv-round">
+      <div class="mv-rhead"><div><div class="eyebrow">Round ${r.n}${r.ot ? " · Overtime" : ""} · Score after ${r.s[0]}–${r.s[1]}</div>
+        <h2><span class="mv-nm ${mvSideCls(r.w)}">${esc(r.w || "?")} win</span> · ${esc(MV_REASON[r.r] || r.r || "")}${r.site ? ` <span class="note">(bomb ${r.r === "elim" && r.w === "CT" ? "planted" : "at"} ${esc(String(r.site).replace(/^Bombsite/, ""))})</span>` : ""}</h2>
+        <div class="mv-buys">${buy(0, sA)}${buy(1, sB)}</div></div>
+        <div class="mv-rnav"><button type="button" class="morebtn" data-mvstep="-1" ${S.mv.rd === 0 ? "disabled" : ""}>← Prev</button><button type="button" class="morebtn" data-mvstep="1" ${S.mv.rd === M.rd.length - 1 ? "disabled" : ""}>Next →</button></div></div>
+      ${mvWpChart(M, r)}
+      <div class="mv-rgrid">
+        <div class="mv-contrib">${contrib(0)}${contrib(1)}<p class="note">RS = points of round win chance the player added this round (kills, deaths, plants, defuses). Greyed rows died.</p></div>
+        ${mapCard}
+        <div class="mv-logwrap"><div class="mv-logh"><h3>Round Log</h3><label class="note mv-utog"><input type="checkbox" id="mv-util" ${showUtil ? "checked" : ""}> Utility</label></div>
+          <ol class="mv-log${showUtil ? "" : " noutil"}" id="mv-log">${ev.map(logRow).join("")}${end}</ol></div>
+      </div>
+    </div>`;
+}
+function mvWpChart(M, r){
+  const wp = r.wp || []; if (!wp.length) return "";
+  const end = Math.max(r.end || 0, wp[wp.length - 1][0], 1), W = 1000, H = 90, X = t => t / end * W, Y = p => H - 6 - p * (H - 12);
+  let d = `M0 ${Y(wp[0][1]).toFixed(1)}`;
+  for (const [t, b, a] of wp) d += ` L${X(t).toFixed(1)} ${Y(b).toFixed(1)} V${Y(a).toFixed(1)}`;
+  d += ` H${W}`;
+  const [sA, sB] = mvRoundSides(M, r), tTeam = sA === "T" ? 0 : 1;
+  return `<div class="mv-wp"><div class="mv-wpl"><span class="eyebrow">T round win chance</span><span class="note">${esc(mvTeamName(M.teams[tTeam].name))} on T · first event ${Math.round(wp[0][1] * 100)}% → end ${Math.round(wp[wp.length - 1][2] * 100)}%</span></div>
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="mv-wpsvg" aria-label="T round win chance over the round">
+      <line x1="0" x2="${W}" y1="${Y(.5)}" y2="${Y(.5)}" class="mv-wp50"/><path d="${d} V${H} H0 Z" class="mv-wpfill"/><path d="${d}" class="mv-wpline"/><line id="mv-wpcur" x1="${W}" x2="${W}" y1="0" y2="${H}" class="mv-wpcur"/></svg>
+    <div class="mv-wpax note num"><span>0:00 · dashed line = 50%</span><span>${mvClock(end)}</span></div></div>`;
+}
+function mvDark(){ const t = document.documentElement.getAttribute("data-theme"); return t === "dark" || (t !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches); }
+function mvDrawMap(){
+  const host = document.getElementById("mv-map"); if (!host || S.view !== "match") return;
+  const M = MCACHE[S.mid]; if (!M || M.err) return;
+  const r = M.rd[S.mv.rd], radar = (D.radar || {})[M.map]; if (!r || !radar) return;
+  const [x0, x1, y0, y1] = radar.bounds, W = 1000, sc = W / (x1 - x0);
+  const P = (x, y) => [((x - x0) * sc), ((y1 - y) * sc)];
+  const lv = Object.keys(radar.levels).length > 1 ? S.mv.lvl : Object.keys(radar.levels)[0];
+  const onLvl = z => lv === "all" || lv === undefined || z === null || z === undefined ? true : lv === "upper" ? z >= radar.split_z : z < radar.split_z;
+  const img = `radar/${radar.levels[lv].file}_${mvDark() ? "dark" : "light"}.png`;
+  const tcur = S.mv.t === null || S.mv.t === undefined ? 1e9 : S.mv.t;
+  const [sA, sB] = mvRoundSides(M, r);
+  const sideOf = i => (r.p[i] && r.p[i][6]) || (M.pl[i].t === 0 ? sA : sB);
+  const els = [], labels = [];
+  r.ev.forEach((e, k) => {
+    if (e[0] > tcur) return;
+    const age = tcur - e[0], fresh = tcur < 1e8 && age < 3;
+    if (e[1] === "u" && S.mv.util !== false){
+      if (e[4] === null || !onLvl(e[6])) return;
+      const [x, y] = P(e[4], e[5]), s = mvSideCls(sideOf(e[2])), kind = e[3];
+      if (tcur < 1e8 && ((kind === "smoke" && age > 18) || (kind === "molly" && age > 7) || ((kind === "flash" || kind === "he") && age > 4))) return;   // scrubbing: gone once it has burnt out
+      if (kind === "smoke") els.push(`<g class="mvm u smoke ${s}${fresh ? " fresh" : ""}" data-ev="${k}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(144 * sc).toFixed(1)}"/></g>`);
+      else if (kind === "molly") els.push(`<g class="mvm u molly ${s}${fresh ? " fresh" : ""}" data-ev="${k}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(110 * sc).toFixed(1)}"/></g>`);
+      else if (kind === "flash") els.push(`<g class="mvm u flash ${s}${fresh ? " fresh" : ""}" data-ev="${k}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><path d="M0 -16 L3.8 -3.8 L16 0 L3.8 3.8 L0 16 L-3.8 3.8 L-16 0 L-3.8 -3.8Z"/></g>`);
+      else if (kind === "he") els.push(`<g class="mvm u he ${s}${fresh ? " fresh" : ""}" data-ev="${k}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(60 * sc + 6).toFixed(1)}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" class="core"/></g>`);
+      else els.push(`<g class="mvm u decoy ${s}" data-ev="${k}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6"/></g>`);
+    } else if (e[1] === "k"){
+      if (e[11] === null || !onLvl(e[13])) return;
+      const [vx, vy] = P(e[11], e[12]), vs = mvSideCls(e[3] !== null && e[3] !== undefined ? sideOf(e[3]) : null);
+      const ks = e[2] !== null && e[2] !== undefined ? mvSideCls(sideOf(e[2])) : "";
+      let g = `<g class="mvm kill${fresh ? " fresh" : ""}" data-ev="${k}">`;
+      if (e[8] !== null && e[2] !== e[3] && onLvl(e[10])){ const [kx, ky] = P(e[8], e[9]);
+        g += `<line x1="${kx.toFixed(1)}" y1="${ky.toFixed(1)}" x2="${vx.toFixed(1)}" y2="${vy.toFixed(1)}" class="trace ${ks}"/><circle cx="${kx.toFixed(1)}" cy="${ky.toFixed(1)}" r="9" class="killer ${ks}"/>`; }
+      g += `<g transform="translate(${vx.toFixed(1)} ${vy.toFixed(1)})" class="victim ${vs}"><circle r="16" class="halo"/><path d="M-8 -8 L8 8 M8 -8 L-8 8"/></g></g>`;
+      els.push(g);
+      if (e[3] !== null && e[3] !== undefined) labels.push(`<text x="${(vx + 20).toFixed(1)}" y="${(vy + 7).toFixed(1)}" class="mvlab ${vs}" data-ev="${k}">${esc(M.pl[e[3]].n)}</text>`);
+    }
+  });
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${W}" class="mv-svg" role="img" aria-label="Top-down map of round ${r.n}"><image href="${img}" x="0" y="0" width="${W}" height="${W}"/>${els.join("")}${labels.join("")}</svg>`;
+  const lab = document.getElementById("mv-tlab"); if (lab) lab.textContent = tcur > 1e8 ? `${mvClock(r.end)} (end)` : mvClock(tcur);
+  const cur = document.getElementById("mv-wpcur"); if (cur){ const wp = r.wp || [], end = Math.max(r.end || 0, wp.length ? wp[wp.length - 1][0] : 0, 1), x = Math.min(1000, (tcur > 1e8 ? end : tcur) / end * 1000); cur.setAttribute("x1", x); cur.setAttribute("x2", x); }
+  document.querySelectorAll("#mv-log .mv-ev[data-t]").forEach(li => li.classList.toggle("future", +li.dataset.t > tcur));
+}
+function mvHi(k, on){
+  document.querySelectorAll(`#mv-map [data-ev="${k}"]`).forEach(el => el.classList.toggle("hi", on));
+  document.querySelectorAll(`#mv-log [data-ev="${k}"]`).forEach(el => el.classList.toggle("hi", on));
+}
+function mvStop(){ if (MVPLAY){ clearInterval(MVPLAY); MVPLAY = null; const b = document.getElementById("mv-play"); if (b) b.textContent = "▶"; } }
+function mvSetT(t){ S.mv.t = t; const s = document.getElementById("mv-scrub"); if (s && t !== null) s.value = t; mvDrawMap(); }
+
+function mvDuels(M){
+  const f = S.mv.du || "Kills", key = f === "First Kills" ? "fk" : f === "Damage" ? "dmg" : "k", X = M.du[key];
+  const A = M.pl.map((p, i) => i).filter(i => M.pl[i].t === 0), B = M.pl.map((p, i) => i).filter(i => M.pl[i].t === 1);
+  let mx = 1; A.forEach(a => B.forEach(b => { mx = Math.max(mx, Math.abs(X[a][b] - X[b][a])); }));
+  const cell = (a, b) => { const x = X[a][b], y = X[b][a], net = x - y, s = Math.min(1, Math.abs(net) / mx);
+    const bg = net > 0 ? `color-mix(in srgb, var(--pos) ${Math.round(12 + 38 * s)}%, transparent)` : net < 0 ? `color-mix(in srgb, var(--neg) ${Math.round(12 + 38 * s)}%, transparent)` : "transparent";
+    return `<td class="mv-dc" style="background:${bg}" title="${esc(M.pl[a].n)} vs ${esc(M.pl[b].n)}: ${x} – ${y}${key === "dmg" ? " damage" : ""}"><span class="num"><b>${x}</b><span class="note">–</span>${y}</span></td>`; };
+  const tot = (a, opp) => { const x = opp.reduce((s, b) => s + X[a][b], 0), y = opp.reduce((s, b) => s + X[b][a], 0); return `<td class="r num mv-dt"><b>${x}</b><span class="note">–</span>${y}</td>`; };
+  return `<div class="mv-ctl"><div class="ctl"><span class="eyebrow">Show</span>${seg("mv-du", ["Kills", "First Kills", "Damage"], f)}</div></div>
+    <div class="card" style="margin-top:14px"><h3>Head-to-Head</h3><p class="lead note">Each cell is the row player against the column player: ${key === "dmg" ? "damage he dealt – damage he took" : key === "fk" ? "opening kills he got – opening kills he gave up" : "kills he got – times he was killed"}. Blue = the row player came out ahead, orange = behind; stronger colour = bigger gap.</p>
+    <div class="tscroll"><table class="mv-tbl mv-duel"><thead><tr><th><span class="mv-side ${M.teams[0].start === "CT" ? "ct" : "t"}"></span>${esc(mvTeamName(M.teams[0].name))} ↓ vs ${esc(mvTeamName(M.teams[1].name))} →</th>${B.map(b => `<th class="mv-dh">${mvName(M, b)}</th>`).join("")}<th class="r">Total</th></tr></thead>
+    <tbody>${A.map(a => `<tr><td class="mv-ptd">${mvName(M, a)}</td>${B.map(b => cell(a, b)).join("")}${tot(a, B)}</tr>`).join("")}
+    <tr class="mv-dtot"><td>Total</td>${B.map(b => { const x = A.reduce((s, a) => s + X[a][b], 0), y = A.reduce((s, a) => s + X[b][a], 0); return `<td class="r num"><b>${x}</b><span class="note">–</span>${y}</td>`; }).join("")}<td></td></tr></tbody></table></div></div>`;
+}
+function mvRerender(){ const b = $("#mvbody"); if (!b) return render(); const M = MCACHE[S.mid]; if (!M || M.err) return render();
+  mvStop(); b.innerHTML = mvBody(M); document.querySelectorAll(".mv-tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.mvtab === S.mv.tab)); mvDrawMap(); saveState(); }
+
+// ---------------------------------------------------------------- player page: Matches tab
+function matchesTab(p){
+  const L = ((D.pml || {})[p] || []).filter(x => S.map === "All maps" || D.mt[x[0]][2] === S.map);
+  const all = (D.pml || {})[p] || [];
+  if (!all.length) return `<div class="section"><div class="card"><p class="note">No matches found.</p></div></div>`;
+  const rows = S.pmAll ? L : L.slice(0, 30);
+  const w = L.filter(x => x[7] === "W").length;
+  return `<div class="section"><div class="card"><div class="mv-th"><h3>Matches</h3><span class="note">${L.length} match${L.length === 1 ? "" : "es"}${S.map !== "All maps" ? " on " + esc(mapName(S.map)) : ""} · ${w}–${L.length - w - L.filter(x => x[7] === "T").length}${L.some(x => x[7] === "T") ? "–" + L.filter(x => x[7] === "T").length : ""} · newest first. Click a match for its full scoreboard, rounds and duels.</span></div>
+    <div class="tscroll"><table class="mv-tbl mv-ml"><thead><tr><th>Date</th><th>Map</th><th>Score</th><th class="r" title="Match rating">Rating</th><th class="r" title="Round Swing %">RS%</th><th class="r">K</th><th class="r">A</th><th class="r">D</th><th class="r" title="FACEIT Elo won or lost">Elo ±</th><th class="r" title="Match Score (awards composite; 50 = average match)">Match Score</th></tr></thead>
+    <tbody>${rows.map(x => { const m = D.mt[x[0]];
+      return `<tr class="mv-mrow" data-mid="${esc(m[0])}" tabindex="0" role="link" aria-label="Open the ${esc(mapName(m[2]))} match of ${esc(m[1])}"><td class="num">${mvWhen(m[1])}</td><td>${esc(mapName(m[2]))}</td>
+        <td><span class="mv-res ${x[7]}">${x[7]}</span> <span class="num">${x[8]}–${x[9]}</span></td>
+        <td class="r">${mvChip("rating", x[1], fmt(x[1], "f2"))}</td><td class="r">${x[2] === null ? "–" : mvChip("rs", x[2], mvSigned(x[2], "f1"))}</td>
+        <td class="r num">${x[3]}</td><td class="r num">${x[4]}</td><td class="r num">${x[5]}</td><td class="r">${eloTxt(x[6])}</td><td class="r">${x[10] === null ? "–" : mvChip("score", x[10], fmt(x[10], "f1"))}</td></tr>`; }).join("")}</tbody></table></div>
+    ${L.length > 30 ? `<div style="display:flex;justify-content:center;margin-top:14px"><button type="button" class="morebtn" id="pm-more">${S.pmAll ? "Show the Latest 30" : `Show All ${L.length} Matches`}</button></div>` : ""}
+    <p class="note" style="margin-top:10px">Rating, RS% and Match Score are coloured by where they fall among every player-match in the database (blue = better, orange = worse). Follows the Map filter.</p></div></div>`;
+}
+
+// ---------------------------------------------------------------- events (delegated once)
+document.addEventListener("click", e => {
+  if (!D) return;
+  if (S.view === "match"){ const pp = e.target.closest("[data-p]"); if (pp){ e.preventDefault(); go("player", +pp.dataset.p); return; } }
+  const mr = e.target.closest("[data-mid]");
+  if (mr && !e.target.closest("[data-p]")){ e.preventDefault(); goMatch(mr.dataset.mid); return; }
+  if (S.view === "player"){ const pm = e.target.closest("#pm-more"); if (pm){ const y = scrollY; S.pmAll = !S.pmAll; rerenderTab(); scrollTo(0, y); } return; }
+  if (S.view !== "match") return;
+  const M = MCACHE[S.mid]; if (!M || M.err) return;
+  const t = e.target.closest("[data-mvtab]"); if (t){ S.mv.tab = t.dataset.mvtab; S.mv.t = null; mvRerender(); return; }
+  const c = e.target.closest("[data-mvcat]"); if (c){ S.mv.cat = c.dataset.mvcat; mvRerender(); return; }
+  const so = e.target.closest("[data-mvsort]"); if (so){ const k = so.dataset.mvsort, cur = so.classList.contains("on");
+    if (cur){ const was = S.mv.sort === k ? S.mv.desc !== false : MV_COL[k].dir >= 0; S.mv.sort = k; S.mv.desc = !was; }
+    else { S.mv.sort = k; S.mv.desc = MV_COL[k].dir >= 0; } mvRerender(); return; }
+  const rd = e.target.closest("[data-mvrd]"); if (rd){ S.mv.rd = +rd.dataset.mvrd; S.mv.t = null; S.mv.lvl = null; mvRerender(); return; }
+  const st = e.target.closest("[data-mvstep]"); if (st){ S.mv.rd = Math.max(0, Math.min(M.rd.length - 1, S.mv.rd + +st.dataset.mvstep)); S.mv.t = null; S.mv.lvl = null; mvRerender(); return; }
+  const sg = e.target.closest("#mv-side button[data-v], #mv-du button[data-v], #mv-lvl button[data-v]");
+  if (sg){ const id = sg.closest(".seg").id, v = sg.dataset.v;
+    if (id === "mv-side") S.mv.side = v; else if (id === "mv-du") S.mv.du = v; else { S.mv.lvl = v.toLowerCase(); }
+    if (id === "mv-lvl"){ document.querySelectorAll("#mv-lvl button").forEach(b => b.setAttribute("aria-pressed", b === sg)); mvDrawMap(); saveState(); } else mvRerender();
+    return; }
+  const pl = e.target.closest("#mv-play");
+  if (pl){ if (MVPLAY) return mvStop(); const r = M.rd[S.mv.rd], end = Math.ceil(r.end || 115);
+    let t = S.mv.t === null || S.mv.t === undefined || S.mv.t >= end ? 0 : S.mv.t; pl.textContent = "❚❚";
+    MVPLAY = setInterval(() => { if (!document.getElementById("mv-scrub")) return mvStop(); t = Math.min(end, t + 0.5); if (t >= end){ mvStop(); mvSetT(null); const sc = document.getElementById("mv-scrub"); if (sc) sc.value = end; return; } mvSetT(t); }, 80); return; }
+  const li = e.target.closest("#mv-log .mv-ev[data-t]"); if (li){ mvStop(); mvSetT(+li.dataset.t); return; }
+});
+document.addEventListener("keydown", e => {
+  if (!D) return;
+  if (e.key === "Enter" && e.target.closest && e.target.closest("tr[data-mid]")){ goMatch(e.target.closest("tr[data-mid]").dataset.mid); return; }
+  if (S.view !== "match" || S.mv.tab !== "rounds" || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  const M = MCACHE[S.mid]; if (!M || M.err) return;
+  if (e.key === "ArrowLeft" || e.key === "ArrowRight"){ const n = S.mv.rd + (e.key === "ArrowRight" ? 1 : -1); if (n < 0 || n >= M.rd.length) return; e.preventDefault(); S.mv.rd = n; S.mv.t = null; S.mv.lvl = null; mvRerender(); }
+});
+document.addEventListener("input", e => {
+  if (e.target && e.target.id === "mv-scrub"){ mvStop(); const M = MCACHE[S.mid], r = M && M.rd[S.mv.rd]; const v = +e.target.value; S.mv.t = r && v >= Math.ceil(r.end || 115) ? null : v; mvDrawMap(); }
+});
+document.addEventListener("change", e => {
+  if (e.target && e.target.id === "mv-util"){ S.mv.util = e.target.checked; const l = document.getElementById("mv-log"); if (l) l.classList.toggle("noutil", !e.target.checked); mvDrawMap(); saveState(); }
+});
+document.addEventListener("mouseover", e => { if (S.view !== "match") return; const x = e.target.closest && e.target.closest("[data-ev]"); if (x && (x.closest("#mv-map") || x.closest("#mv-log"))) mvHi(x.dataset.ev, true); });
+document.addEventListener("mouseout", e => { if (S.view !== "match") return; const x = e.target.closest && e.target.closest("[data-ev]"); if (x && (x.closest("#mv-map") || x.closest("#mv-log"))) mvHi(x.dataset.ev, false); });
+new MutationObserver(() => { if (D && S.view === "match") mvDrawMap(); }).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+
 // ------------------------------------------------------------------ render + events
 // ------------------------------------------------------------------ FAQ (ratings + archetypes)
 // Mirrors cs2pipe/ratings.py (COMPONENTS, CONSISTENCY_SD, OVERALL_W, ARCHETYPES). If those change, update this
@@ -2425,6 +3095,14 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-10-05T18:55:00Z", "v4.35", "Match Pages", [
+    "New Match page for every match in the database. It shows the map, date and time, final score and half scores, the Match MVP and Match Shackles (highest and lowest Match Score in the lobby, the same score the weekly awards use) and the Match Leaders on rating, Round Swing %, ADR, KPR, KAST, HS%, opening kills and utility damage.",
+    "Scoreboard: both teams with Rating, Elo won or lost, Round Swing %, K, A, D, ADR, K/D, KPR, HS% and multi-kill round %. It is sorted by rating; click any column to re-sort. Switch between All, T and CT rounds.",
+    "Advanced Stats: Aim, Entrying, Trading, Support, Utility, Clutching, AWPing and Economy tabs, each with All / T / CT. The best player in the lobby on each stat is highlighted.",
+    "Round-by-Round: every round across the top, coloured by the side that won it, with an icon for how (elimination, bomb, defuse, time). Click a round, or use the arrow keys, to see each player's kills, assists, deaths, damage and Round Swing for that round, the T win chance through the round, and a timestamped log of every kill, grenade and bomb event with names in team colours. In the middle, a top-down map shows where every kill happened (killer to victim) and where each grenade went off. Scrub or play the round to watch it unfold; hover a log line to find it on the map.",
+    "Duels: head-to-head matrix of every player against every opponent, by kills, opening kills or damage.",
+    "Player pages: new Matches tab with the latest 30 matches (Show All for the rest). Each row shows the date and time, map, score, rating, Round Swing %, K, A, D, Elo change and Match Score; rating, Round Swing and Match Score are colour-coded against every match in the database. Click a match to open it.",
+    "Home: Performance of the Week and Dishonorable Mention now link to the match they came from."]],
   ["2026-10-05T17:35:00Z", "v4.34", "Round Swing %", [
     "New stat: Round Swing % (RS%), the round win probability a player adds per round. A model of every round (players alive, equipment, bomb planted, time left, map) moves the team's chance of winning at every kill, death, plant, defuse and explosion, and credits the change to the players involved. Kill credit is shared with teammates who damaged the victim, and a traded death costs half. How it works: [[faq:rs|Round Swing FAQ]].",
     "Time left follows the bomb timer once the bomb is planted. A separate bombsite effect was tested and does not yet improve the predictions; it is re-tested and switched on automatically when the data supports it.",
@@ -2702,6 +3380,7 @@ function render(){
   else if (S.view === "faq") html = viewFaq();
   else if (S.view === "updates") html = viewUpdates();
   else if (S.view === "players") html = viewPlayers();
+  else if (S.view === "match" && S.mid) html = viewMatch();
   else { S.view = "home"; html = viewHome(); }
   html += `<p class="foot">Built from ${D.meta.matches} FACEIT matches · ${D.players.length} regulars (3+ matches) · data ${esc(D.meta.built_utc)} · pipeline v${esc(D.meta.version)}. Percentiles are Elo-adjusted and shrunk toward 50 for small samples.</p>`;
   SIMTOK++;                                                // stops a running 1v1 simulation
@@ -2710,6 +3389,7 @@ function render(){
   bind();
   if (S.view === "sim") { bindSim(); simStart(); }
   drawCharts();
+  mvStop(); if (S.view === "match") mvDrawMap();
   saveState();
 }
 function saveState(){ try { history.replaceState({sel: selSnap(), y: window.scrollY}, ""); } catch(e) {} }
@@ -2734,11 +3414,11 @@ function bind(){
   document.querySelectorAll("[data-faqto]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.faqto; go("faq");
     requestAnimationFrame(() => { const t = document.getElementById("faq-" + id); if (t) t.scrollIntoView({block:"start"}); }); }));
   const hm = $("#home-more"); if (hm) hm.addEventListener("click", () => { const y = scrollY; S.homeAll = !S.homeAll; render(); scrollTo(0, y); });
-  document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => go("player", +b.dataset.p)));
+  if (S.view !== "match") document.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => go("player", +b.dataset.p)));
   onSeg("f-win", v => { S.win = v; S.winSet = true; render(); });
   onSeg("f-side", v => { S.side = v; render(); });
   onSeg("f-wf", v => { S.wf = v; render(); });
-  document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { S.tab = b.dataset.tab; const tb = $("#tabbody"); killCharts(); tb.innerHTML = tabBody(S.p); document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x===b)); bindTab(); drawCharts(); saveState(); }));
+  document.querySelectorAll(".tabs:not(.mv-tabs) button").forEach(b => b.addEventListener("click", () => { S.tab = b.dataset.tab; const tb = $("#tabbody"); killCharts(); tb.innerHTML = tabBody(S.p); document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-selected", x===b)); bindTab(); drawCharts(); saveState(); }));
   bindTab();
   const bm = $("#b-metric"); if (bm) bm.addEventListener("change", () => { S.board.metric = bm.value; render(); });
   // v4.22 player filters: apply on change (Enter / leaving the box / spinner), keep focus-friendly

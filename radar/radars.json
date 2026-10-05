@@ -1,0 +1,126 @@
+{
+ "de_mirage": {
+  "bounds": [
+   -2825.2,
+   1587.3,
+   -3058.7,
+   1353.8
+  ],
+  "levels": {
+   "all": {
+    "file": "de_mirage",
+    "coverage": 0.5078458786010742
+   }
+  },
+  "split_z": null
+ },
+ "de_inferno": {
+  "bounds": [
+   -1821.4,
+   2868.1,
+   -963.7,
+   3725.9
+  ],
+  "levels": {
+   "all": {
+    "file": "de_inferno",
+    "coverage": 0.47740745544433594
+   }
+  },
+  "split_z": null
+ },
+ "de_dust2": {
+  "bounds": [
+   -2406.6,
+   2011.6,
+   -1128.2,
+   3290.1
+  ],
+  "levels": {
+   "all": {
+    "file": "de_dust2",
+    "coverage": 0.6041383743286133
+   }
+  },
+  "split_z": null
+ },
+ "de_ancient": {
+  "bounds": [
+   -2575.8,
+   1713.9,
+   -2422.2,
+   1867.5
+  ],
+  "levels": {
+   "all": {
+    "file": "de_ancient",
+    "coverage": 0.5031061172485352
+   }
+  },
+  "split_z": null
+ },
+ "de_anubis": {
+  "bounds": [
+   -2438.4,
+   2323.1,
+   -1877.0,
+   2884.5
+  ],
+  "levels": {
+   "all": {
+    "file": "de_anubis",
+    "coverage": 0.4803047180175781
+   }
+  },
+  "split_z": null
+ },
+ "de_nuke": {
+  "bounds": [
+   -2119.3,
+   2529.6,
+   -3117.8,
+   1531.0
+  ],
+  "levels": {
+   "upper": {
+    "file": "de_nuke_upper",
+    "coverage": 0.3734769821166992
+   },
+   "lower": {
+    "file": "de_nuke_lower",
+    "coverage": 0.09873390197753906
+   }
+  },
+  "split_z": -550.0
+ },
+ "de_vertigo": {
+  "bounds": [
+   -2769.4,
+   209.3,
+   -1685.3,
+   1293.4
+  ],
+  "levels": {
+   "all": {
+    "file": "de_vertigo",
+    "coverage": 0.6360111236572266
+   }
+  },
+  "split_z": null
+ },
+ "de_cache": {
+  "bounds": [
+   -1609.9,
+   3087.6,
+   -1964.5,
+   2733.1
+  ],
+  "levels": {
+   "all": {
+    "file": "de_cache",
+    "coverage": 0.5176048278808594
+   }
+  },
+  "split_z": null
+ }
+}
