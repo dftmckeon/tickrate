@@ -470,6 +470,15 @@ button.awname{cursor:pointer}button.awname:hover{color:var(--accent)}
 .wow.up{color:var(--pos);background:var(--pos-soft)}.wow.dn{color:var(--neg);background:var(--neg-soft)}.wow.flat{color:var(--muted);background:var(--surface-3)}
 .wow .ar{font-size:10px}.wow .fl{font-weight:500}
 .awtable td,.awtable th{white-space:nowrap}
+/* v4.30 */
+.bdg[data-tip]::after{bottom:auto;top:calc(100% + 15px);transform:translateY(-4px)}
+.bdg[data-tip]::before{bottom:auto;top:calc(100% + 3px);border-top-color:transparent;border-bottom-color:var(--ink)}
+.phead+.filters+.badges,.filters+.badges{margin-top:16px}
+.awgrid{grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));align-items:start}
+.awpair{display:grid;gap:16px;align-content:start}
+@supports (grid-template-rows:subgrid){.awgrid{align-items:stretch}.awpair{grid-row:span 2;grid-template-rows:subgrid;gap:16px}}
+.awstats.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.awstats .soon b{color:var(--muted)}
 </style>
 
 <header class="appbar">
@@ -720,13 +729,14 @@ const AWI = {
   cuffs:`<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="7" cy="15" r="4.2" stroke-width="2.5"/><circle cx="17" cy="15" r="4.2" stroke-width="2.5"/><path d="M7 10.8V9a5 5 0 0 1 10 0v1.8" stroke-width="2.2" stroke-dasharray="2.4 1.8"/></svg>`,
   skull:`<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.8a7.6 7.6 0 0 0-7.6 7.6c0 2.6 1.3 4.6 3.3 5.8v2.6c0 .6.5 1 1 1h6.6c.6 0 1-.4 1-1v-2.6c2-1.2 3.3-3.2 3.3-5.8A7.6 7.6 0 0 0 12 2.8z"/><circle cx="9" cy="11" r="2" style="fill:var(--aw-2)"/><circle cx="15" cy="11" r="2" style="fill:var(--aw-2)"/><path d="M11 15.6l1-1.7 1 1.7z" style="fill:var(--aw-2)"/></svg>`};
 const AWD = {
-  player_of_the_period:{cls:"potw", icon:"crown", name:"Player of the Week", desc:"Highest Performance Score over the week (3+ matches)."},
-  most_improved:{cls:"impr", icon:"up", name:"Most Improved Player", desc:"Biggest rise in Performance Score from the week before."},
-  most_washed:{cls:"wash", icon:"down", name:"Most Washed Player", desc:"Biggest drop in Performance Score from the week before."},
-  shackles:{cls:"shack", icon:"cuffs", name:"Weekly Shackles", desc:"Lowest Performance Score over the week (3+ matches)."},
-  performance_of_the_period:{cls:"perf", icon:"star", name:"Performance of the Week", desc:"Best single-match Performance Score of the week.", match:true},
-  dishonorable_mention:{cls:"dish", icon:"skull", name:"Dishonorable Mention", desc:"Worst single-match Performance Score of the week.", match:true}};
-const AW_PANEL_ORDER = ["player_of_the_period","most_improved","most_washed","shackles","performance_of_the_period","dishonorable_mention"];
+  player_of_the_period:{cls:"potw", icon:"crown", name:"Player of the Week", desc:"Highest Weekly Score (3+ matches that week)."},
+  most_improved:{cls:"impr", icon:"up", name:"Most Improved Player", desc:"Biggest rise in Weekly Score from the week before."},
+  most_washed:{cls:"wash", icon:"down", name:"Most Washed Player", desc:"Biggest drop in Weekly Score from the week before."},
+  shackles:{cls:"shack", icon:"cuffs", name:"Weekly Shackles", desc:"Lowest Weekly Score (3+ matches that week)."},
+  performance_of_the_period:{cls:"perf", icon:"star", name:"Performance of the Week", desc:"Best single-match Match Score of the week.", match:true},
+  dishonorable_mention:{cls:"dish", icon:"skull", name:"Dishonorable Mention", desc:"Worst single-match Match Score of the week.", match:true}};
+const AW_PAIRS = [["player_of_the_period","shackles"],["most_improved","most_washed"],["performance_of_the_period","dishonorable_mention"]];   // v4.30: positive on top
+const AW_PANEL_ORDER = AW_PAIRS.flat();
 const AW_BADGE_ORDER = ["player_of_the_period","performance_of_the_period","most_improved","most_washed","shackles","dishonorable_mention"];
 const AW_NOTE = {"previous period is before complete data collection started":"Not awarded: the week before is not fully in the database.",
   "no eligible player improved":"Not awarded: nobody with 3+ matches in both weeks improved.",
@@ -754,23 +764,25 @@ function awPanel(a, x){
   const col = v => v > 0 ? "var(--pos)" : v < 0 ? "var(--neg)" : "var(--muted)";
   const elo = `<div class="awelo">${x.elo != null ? `FACEIT Elo <b class="num">${Math.round(x.elo).toLocaleString()}</b>${d.match ? " going in" : ""}${x.ed != null ? ` · <span class="num" style="color:${col(x.ed)}">${x.ed > 0 ? "+" : x.ed < 0 ? "−" : "±"}${Math.abs(Math.round(x.ed))}</span> ${d.match ? "that match" : "this week"}` : ""}` : "FACEIT Elo –"}</div>`;
   const st = (lab, v, sub) => `<div><div class="eyebrow">${lab}</div><b>${v}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
+  const rs = x.rs !== null && x.rs !== undefined ? st("Round Swing", fmt(x.rs, "pct"))
+    : `<div class="soon" title="Round Swing %: the round-win probability the player added. Coming soon."><div class="eyebrow">Round Swing</div><b>–</b><small>coming soon</small></div>`;
   let big, stats, foot;
   if (a === "most_improved" || a === "most_washed"){
-    big = `<b style="color:${col(x.v)}">${x.v > 0 ? "+" : "−"}${Math.abs(x.v).toFixed(1)}</b><span>Performance Score<br><span class="num">${fmt(x.ps, "f1")} → ${fmt(x.score, "f1")}</span></span>`;
-    stats = st("Rating", fmt(x.rt, "f2"), `was ${fmt(x.prt, "f2")}`) + st("ADR", fmt(x.adr, "f1"), `was ${fmt(x.padr, "f1")}`) + st("K–D", esc(x.kd)) + st("Record", esc(x.rec), "W–L");
+    big = `<b style="color:${col(x.v)}">${x.v > 0 ? "+" : "−"}${Math.abs(x.v).toFixed(1)}</b><span>Weekly Score<br><span class="num">${fmt(x.ps, "f1")} → ${fmt(x.score, "f1")}</span></span>`;
+    stats = st("Rating", fmt(x.rt, "f2"), `was ${fmt(x.prt, "f2")}`) + st("ADR", fmt(x.adr, "f1"), `was ${fmt(x.padr, "f1")}`) + rs + st("Record", esc(x.rec), "W–L");
     foot = `<span><span class="mt">${x.m} matches this week</span> · ${x.pm ?? "–"} the week before</span>`;
   } else if (d.match){
-    big = `<b>${fmt(x.score, "f1")}</b><span>Performance Score<br>${esc(mapName(x.map))} · ${x.rec === "W" ? "Won" : x.rec === "L" ? "Lost" : "Tied"} <span class="num">${esc(x.sl)}</span></span>`;
-    stats = st("Rating", fmt(x.rt, "f2")) + st("K–D", esc(x.kd)) + st("ADR", fmt(x.adr, "f1")) + st("KAST", fmt(x.kast, "pct"));
+    big = `<b>${fmt(x.score, "f1")}</b><span>Match Score<br>${esc(mapName(x.map))} · ${x.rec === "W" ? "Won" : x.rec === "L" ? "Lost" : "Tied"} <span class="num">${esc(x.sl)}</span></span>`;
+    stats = st("Rating", fmt(x.rt, "f2")) + st("ADR", fmt(x.adr, "f1")) + rs;
     foot = `<span><span class="mt">${x.mw} matches this week</span> · played ${esc(dayLabel(x.date))}</span>`;
   } else {
-    big = `<b>${fmt(x.score, "f1")}</b><span>Performance Score<br>average over ${x.m} matches</span>`;
-    stats = st("Rating", fmt(x.rt, "f2")) + st("ADR", fmt(x.adr, "f1")) + st("K–D", esc(x.kd)) + st("Record", esc(x.rec), "W–L");
-    foot = `<span><span class="mt">${x.m} matches this week</span> · KAST ${fmt(x.kast, "pct")}</span>`;
+    big = `<b>${fmt(x.score, "f1")}</b><span>Weekly Score<br>over ${x.m} matches</span>`;
+    stats = st("Rating", fmt(x.rt, "f2")) + st("ADR", fmt(x.adr, "f1")) + rs + st("Record", esc(x.rec), "W–L");
+    foot = `<span class="mt">${x.m} matches this week</span>`;
   }
   const delta = a === "most_improved" || a === "most_washed";
   const ru = (x.ru || []).length ? `<span>Runners-up: ${x.ru.map(([n, v]) => `${esc(n)} <span class="num">${delta ? (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1) : (+v).toFixed(1)}</span>`).join(" · ")}</span>` : "";
-  return `<div class="card awc aw-${d.cls}">${head}<div class="awwho">${nm}${elo}</div><div class="awbig">${big}</div><div class="awstats">${stats}</div><div class="awfoot">${foot}${ru}</div></div>`;
+  return `<div class="card awc aw-${d.cls}">${head}<div class="awwho">${nm}${elo}</div><div class="awbig">${big}</div><div class="awstats${d.match ? " c3" : ""}">${stats}</div><div class="awfoot">${foot}${ru}</div></div>`;
 }
 function awardsSection(){
   const A = D.awards || {}, W = A.weeks || [];
@@ -779,9 +791,9 @@ function awardsSection(){
   const wk = W[S.awk];
   return `<div class="section" id="awards">
     <div class="awhead"><div><div class="eyebrow">Core-5 · Week of ${esc(wk.label)}${S.awk === 0 ? " · Latest" : ""}</div><h2>Weekly Awards</h2>
-      <p class="lead">Ranked by Performance Score: 50 = an average player-match in the database and every 10 points = one standard deviation. Weeks run Monday to Sunday. <button class="link" type="button" data-faqto="awards">How It's Scored</button></p></div>
+      <p class="lead">Weekly awards use the Weekly Score and single-match awards the Match Score. On both, 50 = the database average. On the Weekly Score, 10 points = how much Core-5 weekly averages typically differ (one standard deviation); on the Match Score, 10 points = one standard deviation of single matches. Weeks run Monday to Sunday. <button class="link" type="button" data-faqto="awards">How It's Scored</button></p></div>
       <div class="ctl"><label class="eyebrow" for="aw-week">Week</label><select id="aw-week">${W.map((w, i) => `<option value="${i}" ${i === S.awk ? "selected" : ""}>Week of ${esc(w.label)}${i === 0 ? " (latest)" : ""}</option>`).join("")}</select></div></div>
-    <div class="awgrid">${AW_PANEL_ORDER.map(a => awPanel(a, wk.aw[a])).join("")}</div>
+    <div class="awgrid">${AW_PAIRS.map(pr => `<div class="awpair">${pr.map(a => awPanel(a, wk.aw[a])).join("")}</div>`).join("")}</div>
     <p class="note">${wk.matches} Core-5 matches this week · ${wk.eligible} of 5 players eligible (3+ matches). A week's awards are issued once all of its matches are in the database (collected through ${esc(String(A.collected_through || "").slice(0, 10))}).</p>
   </div>`;
 }
@@ -794,7 +806,6 @@ function viewHome(){
     <h1>Ticklab</h1>
     <p class="lead">Scouting reports, 1-100 ratings and weekly Core-5 awards, built from ${meta.matches} FACEIT matches. <button class="link" type="button" data-go2="players">Find a player</button></p>
   </section>
-  ${awardsSection()}
   <div class="kpis">
     <div><div class="eyebrow">Matches</div><b>${meta.matches}</b></div>
     <div><div class="eyebrow">Players seen</div><b>${meta.players_in_store.toLocaleString()}</b></div>
@@ -802,6 +813,7 @@ function viewHome(){
     <div><div class="eyebrow">Stats per player</div><b>${D.meta.metrics.length}</b></div>
     <div><div class="eyebrow">Data built</div><b style="font-size:15px;padding-top:5px">${esc(meta.built_utc.slice(0,10))}</b></div>
   </div>
+  ${awardsSection()}
   <div class="grid g2 section">
     <div class="card">
       <h3>How to Read a Stat</h3>
@@ -862,7 +874,6 @@ function viewPlayer(){
           ${P.aliases ? `<span class="sep"></span><span>formerly ${esc(P.aliases)}</span>` : ""}
           <span class="sep"></span><a class="pill fc" href="${faceitUrl(P.name)}" target="_blank" rel="noopener noreferrer" title="Open ${esc(P.name)} on FACEIT (new tab)">FACEIT Profile ↗</a>
         </div>
-        ${badgesHtml(p)}
       </div>
     </div>
     <div class="overall">
@@ -882,6 +893,7 @@ function viewPlayer(){
     ${!onMap && w !== S.win ? `<div class="banner">${esc(P.name)} has ${P.matches} matches, so “${esc(S.win)}” shows all of them.</div>` : ""}
     ${onMap ? `<div class="banner">${esc(mapName(S.map))}: ${ms[S.map][0]} matches, ${ms[S.map][1]} won, rating ${fmt(ms[S.map][2],"f2")}. Bars rank the player among regulars on this map (raw, not Elo-adjusted). Ratings, archetype and strongest / weakest stats use all maps.</div>` : ""}
   </div>
+  ${badgesHtml(p)}
   ${wowCap(wi)}
   <div class="tiles"${wi && wi.prev ? ' style="margin-top:8px"' : ""}>${headline}</div>
   <div class="tabs" role="tablist">${tabs.map(([k,l]) => `<button role="tab" type="button" data-tab="${k}" aria-selected="${S.tab===k}">${l}</button>`).join("")}</div>
@@ -915,7 +927,7 @@ function wowLine(k, m, wi){
   const cls = lvl > 0 ? "up" : lvl < 0 ? "dn" : "flat";
   const dv = (d >= 0 ? "+" : "−") + (m.fmt === "pct" ? ad.toFixed(1) + " pts" : fmt(ad, m.fmt));
   const tip = `${m.label}: ${fmt(c, m.fmt)} in the week of ${wkLabel(wi.last[0])} vs ${fmt(q, m.fmt)} in the week of ${wkLabel(wi.prev[0])}`;
-  return `<div class="wow ${cls}" title="${esc(tip)}"><span class="ar" aria-hidden="true">${ad < th[0] ? "●" : d > 0 ? "▲" : "▼"}</span><span class="num">${dv}</span><span class="fl">${WOW_WORDS[String(lvl)]}</span></div>`;
+  return `<div class="wow ${cls}" title="${esc(tip)}"><span class="ar" aria-hidden="true">${ad < th[0] ? "●" : d > 0 ? "▲" : "▼"}</span><span class="num">${dv}</span></div>`;
 }
 
 function eloBlock(p){
@@ -2394,6 +2406,12 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-10-05T12:40:00Z", "v4.30", "Awards Fixes and a Wider Weekly Scale", [
+    "Weekly awards now use a Weekly Score: 50 is still the database average, but 10 points = one standard deviation of Core-5 weekly averages, so the gap between the best and worst week is much clearer (Sep 21 – 27: 57.0 vs 42.4, up from 52.6 vs 47.2). Single-match awards keep the Match Score. The winners of every past week are unchanged.",
+    "Home: award panels are now in pairs, with the positive award on top and its negative counterpart below. The Matches / Players Seen bar moved above the awards.",
+    "Award panels drop K–D and KAST and gain a Round Swing % slot (round-win probability added), coming soon.",
+    "Player pages: award badges moved below the filters bar, and their hover text now opens below the badge so it is never cut off.",
+    "Week-over-week notes on the headline stats now show just the change and its color."]],
   ["2026-10-05T11:45:43Z", "v4.29", "New Home Page and Weekly Awards", [
     "New Home page (click the Ticklab logo) with six weekly Core-5 awards: Player of the Week, Most Improved Player, Most Washed Player, Weekly Shackles, Performance of the Week and Dishonorable Mention. Each panel shows the winner, their FACEIT Elo, the key stats and their matches that week. Use the Week menu to see earlier weeks.",
     "Awards are backfilled for every week since Core-5 data collection began (Aug 24 – Sep 27) and recorded in an award register. Winners get badges on their player page. Hover over a badge to see its name and weeks; repeat winners show 2×, 3× and so on.",
@@ -2570,13 +2588,16 @@ function viewFaq(){
   ${q("awards", "How Do the Weekly Awards Work?", (() => { const A = D.awards || {}, Wt = A.weights || {};
     const lab = {rating:"Match Rating", adr:"ADR (damage per round)", kast:"KAST", round_win:"Team round win %", open_net:"Opening duels: (opening kills − opening deaths) per round", multikill:"Multi-kill rounds (2+ kills) per round", clutch:"Clutch wins per round (1v1 = 1, 1v2 = 2, 1v3+ = 3)"};
     const core = D.players.filter(x => x.core).map(x => esc(x.name)).join(", ");
-    return `<p class="note" style="color:var(--ink-2)">Every week (Monday to Sunday, US Eastern time) the Core-5 (${core}) compete for six awards, shown on the Home page. Each match is scored with one <b>Performance Score</b>.</p>
+    return `<p class="note" style="color:var(--ink-2)">Every week (Monday to Sunday, US Eastern time) the Core-5 (${core}) compete for six awards, shown on the Home page. Each match gets one score from these ingredients.</p>
     <div class="tscroll"><table style="margin-top:6px"><thead><tr><th>Ingredient</th><th class="r">Weight</th></tr></thead><tbody>${Object.entries(Wt).map(([k, w]) => `<tr><td>${lab[k] || esc(k)}</td><td class="r num">${pct(w)}</td></tr>`).join("")}</tbody></table></div>
     <ul class="steps" style="margin-top:10px">
-      <li><b>The scale.</b> Each ingredient is turned into a z-score against every non-pro player-match in the database, the weighted z-scores are added, and the total is rescaled so <b>50 = an average player-match</b> and <b>10 points = one standard deviation</b>. That yardstick is frozen, so past weeks don't change as new matches arrive.</li>
-      <li><b>Player of the Week</b> and <b>Weekly Shackles</b>: highest and lowest Performance Score over the week (each match weighted by its rounds). The player needs ${A.min_matches || 3}+ matches that week.</li>
-      <li><b>Most Improved Player</b> and <b>Most Washed Player</b>: biggest rise and biggest drop in the weekly score from the week before. The player needs ${A.min_matches || 3}+ matches in both weeks.</li>
-      <li><b>Performance of the Week</b> and <b>Dishonorable Mention</b>: best and worst single match (${A.min_rounds || 10}+ rounds).</li>
+      <li><b>Match Score.</b> Each ingredient is turned into a z-score against every non-pro player-match in the database, the weighted z-scores are added, and the total is rescaled so <b>50 = an average player-match</b> and <b>10 points = one standard deviation of single matches</b>.</li>
+      <li><b>Weekly Score.</b> The week's matches are averaged (each weighted by its rounds) and put on a wider scale. 50 is still the database average, but <b>10 points = one standard deviation of Core-5 weekly averages</b>. Averages over many matches vary far less than single matches, so on the match scale a whole week's gap between best and worst would fit in a few points.</li>
+      <li>Both yardsticks are frozen, so past weeks don't change as new matches arrive.</li>
+      <li><b>Player of the Week</b> and <b>Weekly Shackles</b>: highest and lowest Weekly Score. The player needs ${A.min_matches || 3}+ matches that week.</li>
+      <li><b>Most Improved Player</b> and <b>Most Washed Player</b>: biggest rise and biggest drop in Weekly Score from the week before. The player needs ${A.min_matches || 3}+ matches in both weeks.</li>
+      <li><b>Performance of the Week</b> and <b>Dishonorable Mention</b>: best and worst Match Score of the week (${A.min_rounds || 10}+ rounds).</li>
+      <li><b>Round Swing %</b> (coming soon): the share of round-win probability a player adds through kills, deaths, plants and defuses.</li>
       <li><b>When awards are issued.</b> A week's awards are issued once all of its matches are in the database, and they are recorded in an award register. Weeks start from ${esc(wkLabel(A.coverage_start || "2026-08-24"))}, the first full week with every Core-5 match collected. Badges on player pages count the awards; hover over one to see its name and weeks.</li>
       <li><b>Ties</b> go to the player with more matches.</li></ul>`; })())}
   ${q("pct", "How Do the Elo-Adjusted Percentiles Differ?", `<p class="note" style="color:var(--ink-2)">The stat rows, Leaderboards and Compare use a different yardstick. For each stat, a line of expected value against pre-match Elo is fitted on every player's matches. The player's gap to that line is shrunk with the same model as the ratings, and the percentile is the share of players he is estimated to be better than, given his Elo. A 2,800 Elo player needs a better number than a 1,800 Elo player to reach the same percentile. A stat where players don't differ measurably once Elo is allowed for is shown but not ranked.</p>`)}
