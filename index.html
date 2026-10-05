@@ -787,9 +787,9 @@ function awPanel(a, x){
     stats = st("Rating", fmt(x.rt, "f2"), `was ${fmt(x.prt, "f2")}`) + st("ADR", fmt(x.adr, "f1"), `was ${fmt(x.padr, "f1")}`) + rs + st("Record", esc(x.rec), "W–L");
     foot = "";
   } else if (d.match){
-    big = `<b>${fmt(x.score, "f1")}</b><span>Match Score<br>${esc(mapName(x.map))} · ${x.rec === "W" ? "Won" : x.rec === "L" ? "Lost" : "Tied"} <span class="num">${esc(x.sl)}</span></span>`;
+    big = `<b>${fmt(x.score, "f1")}</b><span>Match Score<br>${esc(mapName(x.map))} · ${x.rec === "W" ? "Won" : x.rec === "L" ? "Lost" : "Tied"} <span class="num">${esc(x.sl)}</span> · ${esc(dayLabel(x.date))}</span>`;
     stats = st("Rating", fmt(x.rt, "f2")) + st("ADR", fmt(x.adr, "f1")) + rs;
-    foot = `<span>Played ${esc(dayLabel(x.date))}</span>`;
+    foot = "";
   } else {
     big = `<b>${fmt(x.score, "f1")}</b><span>Weekly Score<br>over ${x.m} matches</span>`;
     stats = st("Rating", fmt(x.rt, "f2")) + st("ADR", fmt(x.adr, "f1")) + rs + st("Record", esc(x.rec), "W–L");
@@ -2421,6 +2421,8 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-10-05T13:45:00Z", "v4.33", "Match Date Next to the Score", [
+    "Performance of the Week and Dishonorable Mention now show the day the match was played right after the map score, so the award boxes stay compact."]],
   ["2026-10-05T13:30:00Z", "v4.32", "Cleaner Award Panels", [
     "Award panels no longer end with a matches-this-week line. Player of the Week and Weekly Shackles still show the match count next to the Weekly Score, and single-match panels show the day the match was played."]],
   ["2026-10-05T13:05:00Z", "v4.31", "Badge and Award Panel Tweaks", [
