@@ -3098,6 +3098,11 @@ function faqArchStats(){
 }
 // ------------------------------------------------------------------ v4.20 updates (patch notes; newest first; add an entry with every push)
 const UPDATES = [
+  ["2026-10-12T16:00:00Z", "v4.36", "Database Update: Oct 5 – 11", [
+    "Database: 55 more matches (Oct 5 – 11), for 511 in total (369 from our lobbies and 142 pro matches). Every player page, Leaderboard, Heatmap, Compare and Match page includes them.",
+    "Home: the weekly awards for Oct 5 – 11 are out. Awards for earlier weeks are locked and unchanged.",
+    "Round Swing %: the win-chance model is refitted on the larger database. The bombsite effect (for example, after a plant the T side wins B on Nuke less often than A) now improves the predictions slightly, so it is switched on. Round Swing % for every match is recalculated with the refitted model.",
+    "Matches with a kick vote are now included. Their demo files carry a malformed disconnect message that stopped them from being read; they are now repaired automatically (6 matches this week)."]],
   ["2026-10-05T19:59:00Z", "v4.35d", "Small Fixes", [
     "Compare: each Recent Meetings row now opens that match's Match page.",
     "Home: the Most Washed Player description is shorter so it fits on one line."]],
